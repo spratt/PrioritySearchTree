@@ -26,27 +26,31 @@ import java.util.*;
 public class PrioritySearchTree {
     PSTNode[] heap;
 
-    // Assumes all points are valid (e.g. not null)
+/******************************************************************************
+* The worst case for space is when there are 2^m nodes, for some m.           *
+* In which case, O(2^(logn) - 1) extra space is allocated.                    *
+******************************************************************************/
     public PrioritySearchTree(ArrayList<Point2D.Double> points) {
 	if(points == null) return;
-	// O(2^(logn) - 1) extra space
 	this.heap = new PSTNode[heapSize(points.size())];
 	buildTree(0,points);
     }
 
 /******************************************************************************
-* Given a root index and a list of points, determines the point with          *
-* lowest y-value (root node), and a median which bisects the remaining        *
-* points, then builds:                                                        *
-* left child:  {p | p.x <= medianX}                                           *
-* right child: {p | p.x >  medianX}                                           *
+* Given a root index and a list of valid points, determines the point         *
+* with lowest y-value (root node), and a median which bisects the             *
+* remaining points, then builds:                                              *
+*                                                                             *
+*   left child:  {p | p.x <= medianX}                                         *
+*   right child: {p | p.x >  medianX}                                         *
+*                                                                             *
 ******************************************************************************/
     private void buildTree(int rootIndex, ArrayList<Point2D.Double> points) {
 	if(points == null || points.size() < 1) return;
 	double sumX = 0.0d;
 	// Find point with lowest Y value
 	Point2D.Double rootPoint = points.get(0);
-	for(Point2D.Double p : points) {
+	for(Point2D.Double p : points) { // assumes all points are valid
 	    if(p.getY() < rootPoint.getY())
 		rootPoint = p;
 	    sumX += p.getX();
@@ -84,7 +88,8 @@ public class PrioritySearchTree {
 * Assumes x2 > x1 and y2 > y1.  Choose x1,y1,x2,y2 appropriately.             *
 *                                                                             *
 ******************************************************************************/
-    ArrayList<Point2D.Double> findAllPointsWithin(double x1, double y1, double x2, double y2) {
+    ArrayList<Point2D.Double> findAllPointsWithin(double x1, double y1,
+						  double x2, double y2) {
 	return findAllPointsWithin(x1,y1,x2,y2,new ArrayList<Point2D.Double>(),0);
     }
 
