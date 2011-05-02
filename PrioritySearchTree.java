@@ -86,13 +86,15 @@ public class PrioritySearchTree {
 	if(node == null) return list;
 	double nodeX = node.getX();
 	double nodeY = node.getY();
+	double nodeR = node.getMedianX();
 	if(nodeY <= y2) {
-	    if(nodeX >= x1 && nodeY >= y1 &&
-	       nodeX <= x2 && nodeY <= y2) {
+	    if(nodeX >= x1 && nodeY >= y1 && nodeX <= x2) { // nodeY MUST <= y2
 		list.add(node.getPoint());
 	    }
-	    findAllPointsWithin(x1,y1,x2,y2,list,indexOfLeftChild(rootIndex));
-	    findAllPointsWithin(x1,y1,x2,y2,list,indexOfRightChild(rootIndex));
+	    if(x1 < nodeR)
+		findAllPointsWithin(x1,y1,x2,y2,list,indexOfLeftChild(rootIndex));
+	    if(x2 >= nodeR)
+		findAllPointsWithin(x1,y1,x2,y2,list,indexOfRightChild(rootIndex));
 	}
 	return list;
     }
@@ -134,7 +136,7 @@ public class PrioritySearchTree {
 	testPoints[7] = new Point2D.Double(0.0d,-2.0d);
 	testPoints[8] = new Point2D.Double(0.0d,-3.0d);
 	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
-	for(Point2D.Double p : pst.findAllPointsWithin(-1.0d,-1.0d,1.0d,1.0d))
+	for(Point2D.Double p : pst.findAllPointsWithin(-2.0d,-2.0d,2.0d,2.0d))
 	    System.out.println(p);
     }
 }
