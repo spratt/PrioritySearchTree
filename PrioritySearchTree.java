@@ -27,17 +27,21 @@ public class PrioritySearchTree {
     PSTNode[] heap;
 
     // Assumes all points are valid (e.g. not null)
-    public PrioritySearchTree(Point2D.Double[] points) {
+    public PrioritySearchTree(ArrayList<Point2D.Double> points) {
 	if(points == null) return;
-	this.heap = new PSTNode[heapSize(points.length)];
+	// O(2^(logn) - 1) extra space
+	this.heap = new PSTNode[heapSize(points.size())];
 	buildTree(0,points);
     }
 
-    private void buildTree(int rootIndex, Point2D.Double[] points) {
-	// Find point with lowest Y value
-	if(points == null || points.length < 1) return;
-	Point2D.Double rootPoint = points[0];
+/******************************************************************************
+* Given an index and an array of points, 
+******************************************************************************/
+    private void buildTree(int rootIndex, ArrayList<Point2D.Double> points) {
+	if(points == null || points.size() < 1) return;
 	double sumX = 0.0d;
+	// Find point with lowest Y value
+	Point2D.Double rootPoint = points.get(0);
 	for(Point2D.Double p : points) {
 	    if(p.getY() < rootPoint.getY())
 		rootPoint = p;
@@ -46,23 +50,21 @@ public class PrioritySearchTree {
 	sumX -= rootPoint.getX();
 	// Find median X value
 	//  - uses average X value of non-root points
-	double medianX = sumX/(points.length-1);
+	double medianX = sumX/(points.size()-1);
 	// Set the root node
 	heap[rootIndex] = new PSTNode(rootPoint,medianX);
 	// Make upper and lower point array
-	List<Point2D.Double> upperPoints = new ArrayList<Point2D.Double>();
-	List<Point2D.Double> lowerPoints = new ArrayList<Point2D.Double>();
+	ArrayList<Point2D.Double> upperPoints = new ArrayList<Point2D.Double>();
+	ArrayList<Point2D.Double> lowerPoints = new ArrayList<Point2D.Double>();
 	for(Point2D.Double p : points) {
 	    if(p == rootPoint) continue;
-	    else if(p.getX() < medianX) lowerPoints.add(p);
+	    // if a point has no sibling, the median will equal the x value
+	    // and it will be a left child of its parent
+	    else if(p.getX() <= medianX) lowerPoints.add(p);
 	    else upperPoints.add(p);
 	} 
-	buildTree(indexOfLeftChild(rootIndex),lowerPoints.toArray(new Point2D.Double[0]));
-	buildTree(indexOfRightChild(rootIndex),upperPoints.toArray(new Point2D.Double[0]));
-    }
-
-    ArrayList<Point2D.Double> findAllPointsWithin(double x1, double y1, double x2, double y2) {
-	return findAllPointsWithin(x1,y1,x2,y2,new ArrayList<Point2D.Double>(),0);
+	buildTree(indexOfLeftChild(rootIndex),lowerPoints);
+	buildTree(indexOfRightChild(rootIndex),upperPoints);
     }
     
 /******************************************************************************
@@ -78,6 +80,10 @@ public class PrioritySearchTree {
 * Assumes x2 > x1 and y2 > y1.  Choose x1,y1,x2,y2 appropriately.             *
 *                                                                             *
 ******************************************************************************/
+    ArrayList<Point2D.Double> findAllPointsWithin(double x1, double y1, double x2, double y2) {
+	return findAllPointsWithin(x1,y1,x2,y2,new ArrayList<Point2D.Double>(),0);
+    }
+
     ArrayList<Point2D.Double> findAllPointsWithin(double x1, double y1,
 						  double x2, double y2,
 						  ArrayList<Point2D.Double> list,
@@ -91,13 +97,14 @@ public class PrioritySearchTree {
 	    if(nodeX >= x1 && nodeY >= y1 && nodeX <= x2) { // nodeY MUST <= y2
 		list.add(node.getPoint());
 	    }
-	    if(x1 < nodeR)
+	    if(x1 <= nodeR)
 		findAllPointsWithin(x1,y1,x2,y2,list,indexOfLeftChild(rootIndex));
-	    if(x2 >= nodeR)
+	    if(x2 > nodeR) 
 		findAllPointsWithin(x1,y1,x2,y2,list,indexOfRightChild(rootIndex));
 	}
 	return list;
     }
+
 /******************************************************************************
 * Utility Functions                                                           *
 ******************************************************************************/
@@ -125,18 +132,18 @@ public class PrioritySearchTree {
 ******************************************************************************/  
     public static void main(String[] args) {
 	new PrioritySearchTree(null);
-	Point2D.Double[] testPoints = new Point2D.Double[9];
-	testPoints[0] = new Point2D.Double(3.0d,1.0d);
-	testPoints[1] = new Point2D.Double(2.0d,5.0d);
-	testPoints[2] = new Point2D.Double(1.0d,3.0d);
-	testPoints[3] = new Point2D.Double(-3.0d,0.0d);
-	testPoints[4] = new Point2D.Double(-2.0d,4.0d);
-	testPoints[5] = new Point2D.Double(-1.0d,2.0d);
-	testPoints[6] = new Point2D.Double(0.0d,-1.0d);
-	testPoints[7] = new Point2D.Double(0.0d,-2.0d);
-	testPoints[8] = new Point2D.Double(0.0d,-3.0d);
+	ArrayList<Point2D.Double> testPoints = new ArrayList<Point2D.Double>();
+	testPoints.add(new Point2D.Double(3.0d,1.0d));
+	testPoints.add(new Point2D.Double(2.0d,5.0d));
+	testPoints.add(new Point2D.Double(1.0d,3.0d));
+	testPoints.add(new Point2D.Double(-3.0d,0.0d));
+	testPoints.add(new Point2D.Double(-2.0d,4.0d));
+	testPoints.add(new Point2D.Double(-1.0d,2.0d));
+	testPoints.add(new Point2D.Double(0.0d,-1.0d));
+	testPoints.add(new Point2D.Double(0.0d,-2.0d));
+	testPoints.add(new Point2D.Double(0.0d,-3.0d));
 	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
-	for(Point2D.Double p : pst.findAllPointsWithin(-2.0d,-2.0d,2.0d,2.0d))
+	for(Point2D.Double p : pst.findAllPointsWithin(-3.0d,-3.0d,3.0d,3.0d))
 	    System.out.println(p);
     }
 }
