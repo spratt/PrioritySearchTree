@@ -35,7 +35,11 @@ public class PrioritySearchTree {
     }
 
 /******************************************************************************
-* Given an index and an array of points, 
+* Given a root index and a list of points, determines the point with          *
+* lowest y-value (root node), and a median which bisects the remaining        *
+* points, then builds:                                                        *
+* left child:  {p | p.x <= medianX}                                           *
+* right child: {p | p.x >  medianX}                                           *
 ******************************************************************************/
     private void buildTree(int rootIndex, ArrayList<Point2D.Double> points) {
 	if(points == null || points.size() < 1) return;
