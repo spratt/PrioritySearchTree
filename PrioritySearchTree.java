@@ -32,52 +32,58 @@ public class PrioritySearchTree {
 ******************************************************************************/
     public PrioritySearchTree(ArrayList<Point2D.Double> points) {
 	if(points == null) return;
+	// Sort the points by y-coordinate in increasing ordering
+	Collections.sort(points,new Comparator<Point2D.Double>() {
+		public int compare(Point2D.Double o1, Point2D.Double o2) {
+		    if(o1.getY() < o2.getY()) return -1;
+		    else if(o1.getY() > o2.getY()) return 1;
+		    else return 0;
+		}
+	    });
 	this.heap = new PSTNode[heapSize(points.size())];
 	buildTree(0,points);
     }
 
 /******************************************************************************
-* Given a root index and a list of valid points, determines the point         *
-* with lowest y-value (root node), and a median which bisects the             *
-* remaining points, then builds:                                              *
+* Given a root index and a list of valid points P ordered by                  *
+* y-coordinate in increasing order, determines a median which bisects         *
+* the remaining points, then builds:                                          *
 *                                                                             *
-*   left child:  {p | p.x <= medianX}                                         *
-*   right child: {p | p.x >  medianX}                                         *
+*   root: point with lowest y-value                                           *
+*   left child:  {p ∈ (P - root) | p.x <= medianX}                            *
+*   right child: {p ∈ (P - root) | p.x >  medianX}                            *
 *                                                                             *
 * Note: points are also assumed to have distinct coordinates, i.e. no         *
 *       two points have the same x coordinate and no two points have          *
 *       the same y coordinate.                                                *
 *                                                                             *
 *       While this may seem unrealistic, we can convert any indistinct        *
-*       coordinates by replacing all real coordinates with coordinates        *
-*       from the composite-number space without any loss of                   *
-*       generality.  See: Computational Geometry Applications and             *
+*       coordinates by replacing all real coordinates with distinct           *
+*       coordinates from the composite-number space without any loss          *
+*       of generality.  See: Computational Geometry: Applications and         *
 *       Algorithms, de Berg et al.  Section 5.5.                              *
 *                                                                             *
 ******************************************************************************/
     private void buildTree(int rootIndex, ArrayList<Point2D.Double> points) {
 	if(points == null || points.size() < 1) return;
-	double sumX = 0.0d;
-	// Find point with lowest Y value
+	// Since points are ordered by y, smallest is first
 	Point2D.Double rootPoint = points.get(0);
-	for(Point2D.Double p : points) { // assumes all points are valid
-	    if(p.getY() < rootPoint.getY())
-		rootPoint = p;
+	// Find median X value
+	//  - uses average X value of non-root points
+	double sumX = 0.0d;
+	for(Point2D.Double p : points) { 
 	    sumX += p.getX();
 	}
 	sumX -= rootPoint.getX();
-	// Find median X value
-	//  - uses average X value of non-root points
 	double medianX = sumX/(points.size()-1);
 	// Set the root node
 	heap[rootIndex] = new PSTNode(rootPoint,medianX);
-	// Make upper and lower point array
+	// Bisect the non-root points into two arrays above and below the median
 	ArrayList<Point2D.Double> upperPoints = new ArrayList<Point2D.Double>();
 	ArrayList<Point2D.Double> lowerPoints = new ArrayList<Point2D.Double>();
 	for(Point2D.Double p : points) {
 	    if(p == rootPoint) continue;
-	    // if a point has no sibling, the median will equal the x value
-	    // and it will be a left child of its parent
+	    // note: if p.x is equal to median, it will be added to left child
 	    else if(p.getX() <= medianX) lowerPoints.add(p);
 	    else upperPoints.add(p);
 	} 
@@ -169,10 +175,13 @@ public class PrioritySearchTree {
 	// Test query
 	System.out.print("All points within bounds: ");
 	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
-	for(Point2D.Double p : pst.findAllPointsWithin(-3.0d,-3.0d,3.0d,3.0d))
-	    System.out.print(pointToString(p) + " ");
-	System.out.println();
+	printList(pst.findAllPointsWithin(-3.0d,-3.0d,3.0d,3.0d));
     }
 
     private static String pointToString(Point2D.Double p) { return "(" + p.getX() + "," + p.getY() + ")"; }
+
+    private static void printList(ArrayList<Point2D.Double> points) {
+	for(Point2D.Double p : points) System.out.print(pointToString(p) + " ");
+	System.out.println();
+    }
 }
