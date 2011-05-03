@@ -176,6 +176,12 @@ public class PrioritySearchTree {
 	    if(heap[index].getX() > max)
 		max = heap[index].getX();
 	}
+	// Since a leaf without a sibling is always left
+	// we have to check the last left child just in case
+	if(indexOfLeftChild(index) < heap.length &&
+	   heap[indexOfLeftChild(index)] != null &&
+	   heap[indexOfLeftChild(index)].getX() > max)
+	    max = heap[indexOfLeftChild(index)].getX();
 	return max;
     }    
     public double minY() throws EmptyTreeException {
@@ -208,32 +214,46 @@ public class PrioritySearchTree {
 /******************************************************************************
 * Utility Functions                                                           *
 ******************************************************************************/
-    // Determine the height of a balanced tree with n elements
+    // height of a balanced tree with n elements
     private static int treeHeight(int n) {
-	return doubleToInt(Math.ceil(Math.log(n+1)/Math.log(2))-1);
+	return doubleToInt(Math.ceil(Math.log(n+1)/Math.log(2)));
     }
-    // Determine the max number of heap nodes in a tree of given height
+    // max number of heap nodes in a tree of given height
     private static int heapSize(int height) {
-	return doubleToInt(Math.pow(2, height + 1)-1);
+	return doubleToInt(Math.pow(2, height)-1);
     }
-
+    // width of a tree at a given depth
+    private static int width(int depth) {
+	return doubleToInt(Math.pow(2,depth-1));
+    }
+    // amount of unused space allocated for a given number of nodes
+    private static int waste(int n) {
+	int height = treeHeight(n);
+	return (width(height) - (n - heapSize(height-1)));
+    }
     private static int indexOfLeftChild(int rootIndex) {
 	return (2*rootIndex)+1;
     }
-
     private static int indexOfRightChild(int rootIndex) {
 	return (2*rootIndex)+2;
     }
-    
     private static int doubleToInt(double d) {
 	return (new Double(d)).intValue();
     }
-
     private static void printList(ArrayList<PSTPoint> points) {
 	for(PSTPoint p : points) System.out.print(p + " ");
 	System.out.println();
     }
-
+    private static void report(int n) {
+	System.out.println("Building a tree with " + n + " nodes.");
+	int height = treeHeight(n);
+	System.out.println("Tree depth: " + height);
+	int heapSize = heapSize(height);
+	System.out.println("Heap size: " + heapSize);
+	System.out.println("Width at max depth: " + width(height));
+	System.out.println("Unused nodes: " + (heapSize - n));
+	System.out.println("Theoretical unused nodes: " + waste(n));
+    }
 /******************************************************************************
 * Testing                                                                     *
 ******************************************************************************/  
@@ -254,32 +274,37 @@ public class PrioritySearchTree {
 	testPoints.add(new PSTPoint(7.0d,22.0d));
 	testPoints.add(new PSTPoint(8.0d,42.0d));
 	testPoints.add(new PSTPoint(0.0d,-30.0d));
+	report(testPoints.size());
 	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
 
 	// Test query
+	System.out.println("MinY: " + pst.minY());
+	System.out.println("MaxY: " + pst.maxY());
+	System.out.println("MinX: " + pst.minX());
+	System.out.println("MaxX: " + pst.maxX());
 	System.out.print("All points within 4 bounds: ");
 	printList(pst.findAllPointsWithin(-3.0d,-3.0d,3.0d,3.0d));
 	System.out.print("All points within 3 bounds: ");
 	printList(pst.findAllPointsWithin(-3.0d,3.0d,3.0d));
-	System.out.println("MinY: " + pst.minY());
-	System.out.println("MaxY: " + pst.maxY());
-	System.out.println("MinX: " + pst.minX());
-	System.out.println("MaxX: " + pst.maxX());
+	System.out.println(); // a little vertical space never hurt
 
 	// Test with more data
 	testPoints = new ArrayList<PSTPoint>();
-	for(double i = 1.0d; i < 10000; i++) {
+	for(double i = 1.0d; i <= 50000; i++) {
 	    testPoints.add(new PSTPoint(i,i));
 	    testPoints.add(new PSTPoint(-i,-i));
 	}
+	report(testPoints.size());
 	pst = new PrioritySearchTree(testPoints);
-	
-	System.out.println("All points (larger data set) within 3 bounds: ");
-	printList(pst.findAllPointsWithin(-10.0d,-10.0d,10.0d,10.0d));
+
 	System.out.println("MinY: " + pst.minY());
 	System.out.println("MaxY: " + pst.maxY());
 	System.out.println("MinX: " + pst.minX());
 	System.out.println("MaxX: " + pst.maxX());
+	System.out.println("All points within 4 bounds: ");
+	printList(pst.findAllPointsWithin(-10.0d,-10.0d,10.0d,10.0d));
+	System.out.println("All points within 3 bounds: ");
+	printList(pst.findAllPointsWithin(-10.0d,10.0d,10.0d));
     }
 /******************************************************************************
 * Miscellaneous                                                               *
