@@ -36,7 +36,6 @@ public class PrioritySearchTree {
 	this.heap = new PSTNode[heapSize(treeHeight(points.size()))];
 	buildTree(0,points);
     }
-
 /******************************************************************************
 * Given a root index and a list of valid points P ordered by                  *
 * y-coordinate in increasing order, determines a median which bisects         *
@@ -83,7 +82,6 @@ public class PrioritySearchTree {
 	if(lowerPoints.size() > 0) buildTree(indexOfLeftChild(rootIndex),lowerPoints);
 	if(upperPoints.size() > 0) buildTree(indexOfRightChild(rootIndex),upperPoints);
     }
-    
 /******************************************************************************
 *                                                                             *
 * Find all points within the box given by (x1,y1) and (x2,y2)                 *
@@ -97,17 +95,15 @@ public class PrioritySearchTree {
 * Assumes x2 > x1 and y2 > y1.  Choose x1,y1,x2,y2 appropriately.             *
 *                                                                             *
 ******************************************************************************/
-    ArrayList<PSTPoint> findAllPointsWithin(double x1, 
+    public ArrayList<PSTPoint> findAllPointsWithin(double x1, 
 					    double x2, double y2) {
 	return findAllPointsWithin(x1,x2,y2,new ArrayList<PSTPoint>(),0);
     }
-    
-    ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
+    public ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
 					    double x2, double y2) {
 	return findAllPointsWithin(x1,y1,x2,y2,new ArrayList<PSTPoint>(),0);
     }
-
-    ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
+    public ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
 					    double x2, double y2,
 					    ArrayList<PSTPoint> list,
 					    int rootIndex) {
@@ -129,11 +125,10 @@ public class PrioritySearchTree {
 	}
 	return list;
     }
-
     // Note that as y2 and x2 approach positive infinity and
     // x1 approaches negative infinity, this search visits more nodes.
     // In the worst case, all nodes are visited.
-    ArrayList<PSTPoint> findAllPointsWithin(double x1,
+    public ArrayList<PSTPoint> findAllPointsWithin(double x1,
 					    double x2, double y2,
 					    ArrayList<PSTPoint> list,
 					    int rootIndex) {
@@ -155,7 +150,37 @@ public class PrioritySearchTree {
 	}
 	return list;
     }
-
+/******************************************************************************
+* Other query functions                                                       *
+******************************************************************************/
+    public double minY() throws EmptyTreeException {
+	if(heap[0] == null) throw new EmptyTreeException();
+	return heap[0].getY();
+    }
+    public double minX() throws EmptyTreeException {
+	int index = 0;
+	if(heap[index] == null) throw new EmptyTreeException();
+	double min = heap[index].getX();
+	while(indexOfLeftChild(index) < heap.length &&
+	      heap[indexOfLeftChild(index)] != null) {
+	    index = indexOfLeftChild(index);
+	    if(heap[index].getX() < min)
+		min = heap[index].getX();
+	}
+	return min;
+    }
+    public double maxX() throws EmptyTreeException {
+	int index = 0;
+	if(heap[index] == null) throw new EmptyTreeException();
+	double max = heap[index].getX();
+	while(indexOfRightChild(index) < heap.length &&
+	      heap[indexOfRightChild(index)] != null) {
+	    index = indexOfRightChild(index);
+	    if(heap[index].getX() > max)
+		max = heap[index].getX();
+	}
+	return max;
+    }    
 /******************************************************************************
 * Utility Functions                                                           *
 ******************************************************************************/
@@ -188,7 +213,7 @@ public class PrioritySearchTree {
 /******************************************************************************
 * Testing                                                                     *
 ******************************************************************************/  
-    public static void main(String[] args) {
+    public static void main(String[] args) throws EmptyTreeException {
 	// Test construction
 	new PrioritySearchTree(null);
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
@@ -211,6 +236,9 @@ public class PrioritySearchTree {
 	printList(pst.findAllPointsWithin(-3.0d,-3.0d,3.0d,3.0d));
 	System.out.print("All points within 3 bounds: ");
 	printList(pst.findAllPointsWithin(-3.0d,3.0d,3.0d));
+	System.out.println("MinY: " + pst.minY());
+	System.out.println("MinX: " + pst.minX());
+	System.out.println("MaxX: " + pst.maxX());
 
 	// Test with more data
 	testPoints = new ArrayList<PSTPoint>();
@@ -224,5 +252,16 @@ public class PrioritySearchTree {
 	printList(pst.findAllPointsWithin(-3.0d,-3.0d,3.0d,3.0d));
 	System.out.print("All points (larger data set) within 3 bounds: ");
 	printList(pst.findAllPointsWithin(-3.0d,3.0d,3.0d));
+	System.out.println("MinY: " + pst.minY());
+	System.out.println("MinX: " + pst.minX());
+	System.out.println("MaxX: " + pst.maxX());
+    }
+/******************************************************************************
+* Miscellaneous                                                               *
+******************************************************************************/
+    public class EmptyTreeException extends Exception {
+	public EmptyTreeException() {
+	    super("Tree is empty");
+	}
     }
 }
