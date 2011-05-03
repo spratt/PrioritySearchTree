@@ -105,14 +105,17 @@ public class PrioritySearchTree {
 *                                                                             *
 ******************************************************************************/
     ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
-						  double x2, double y2) {
+					    double x2, double y2) {
 	return findAllPointsWithin(x1,y1,x2,y2,new ArrayList<PSTPoint>(),0);
     }
 
+    // Note that as y2 and x2 approach positive infinity and
+    // x1 approaches negative infinity, this search visits more nodes.
+    // In the worst case, all nodes are visited.
     ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
-						  double x2, double y2,
-						  ArrayList<PSTPoint> list,
-						  int rootIndex) {
+					    double x2, double y2,
+					    ArrayList<PSTPoint> list,
+					    int rootIndex) {
 	PSTNode node = heap[rootIndex];
 	if(node == null) return list;
 	double nodeX = node.getX();
