@@ -107,6 +107,7 @@ public class PrioritySearchTree {
 						   double x2, double y2,
 						   ArrayList<PSTPoint> list,
 						   int rootIndex) {
+	if(heap == null) return list;
 	PSTNode node = heap[rootIndex];
 	if(node == null) return list;
 	double nodeY = node.getY();
@@ -129,9 +130,9 @@ public class PrioritySearchTree {
     // x1 approaches negative infinity, this search visits more nodes.
     // In the worst case, all nodes are visited.
     public ArrayList<PSTPoint> findAllPointsWithin(double x1,
-					    double x2, double y2,
-					    ArrayList<PSTPoint> list,
-					    int rootIndex) {
+						   double x2, double y2,
+						   ArrayList<PSTPoint> list,
+						   int rootIndex) {
 	PSTNode node = heap[rootIndex];
 	if(node == null) return list;
 	double nodeX = node.getX();
@@ -238,7 +239,8 @@ public class PrioritySearchTree {
 ******************************************************************************/  
     public static void main(String[] args) throws EmptyTreeException {
 	// Test construction
-	new PrioritySearchTree(null);
+	(new PrioritySearchTree(null))
+	    .findAllPointsWithin(-10.0d,-10.0d,10.0d,10.0d); // returns empty list
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
 	testPoints.add(new PSTPoint(1.0d,1.0d));
 	testPoints.add(new PSTPoint(2.0d,5.0d));
@@ -283,8 +285,6 @@ public class PrioritySearchTree {
 * Miscellaneous                                                               *
 ******************************************************************************/
     public class EmptyTreeException extends Exception {
-	public EmptyTreeException() {
-	    super("Tree is empty");
-	}
+	public EmptyTreeException() { super("Tree is empty"); }
     }
 }
