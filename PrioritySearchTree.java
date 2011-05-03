@@ -123,11 +123,11 @@ public class PrioritySearchTree {
 	    if(nodeX >= x1 && nodeY >= y1 && nodeX <= x2) { 
 		list.add(node.getPoint());
 	    }
-	    // x1 <= points in left tree <= nodeR
-	    if(x1 <= nodeR)
+	    // nodeR >= points in left tree >= x1
+	    if(nodeR >= x1)
 		findAllPointsWithin(x1,y1,x2,y2,list,indexOfLeftChild(rootIndex));
-	    // x2 >= points in right tree > nodeR
-	    if(x2 > nodeR) 
+	    // nodeR < points in right tree <= x2
+	    if(nodeR < x2) 
 		findAllPointsWithin(x1,y1,x2,y2,list,indexOfRightChild(rootIndex));
 	}
 	return list;
