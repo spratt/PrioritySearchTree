@@ -96,17 +96,17 @@ public class PrioritySearchTree {
 *                                                                             *
 ******************************************************************************/
     public ArrayList<PSTPoint> findAllPointsWithin(double x1, 
-					    double x2, double y2) {
+						   double x2, double y2) {
 	return findAllPointsWithin(x1,x2,y2,new ArrayList<PSTPoint>(),0);
     }
     public ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
-					    double x2, double y2) {
+						   double x2, double y2) {
 	return findAllPointsWithin(x1,y1,x2,y2,new ArrayList<PSTPoint>(),0);
     }
     public ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
-					    double x2, double y2,
-					    ArrayList<PSTPoint> list,
-					    int rootIndex) {
+						   double x2, double y2,
+						   ArrayList<PSTPoint> list,
+						   int rootIndex) {
 	PSTNode node = heap[rootIndex];
 	if(node == null) return list;
 	double nodeY = node.getY();
@@ -153,10 +153,6 @@ public class PrioritySearchTree {
 /******************************************************************************
 * Other query functions                                                       *
 ******************************************************************************/
-    public double minY() throws EmptyTreeException {
-	if(heap[0] == null) throw new EmptyTreeException();
-	return heap[0].getY();
-    }
     public double minX() throws EmptyTreeException {
 	int index = 0;
 	if(heap[index] == null) throw new EmptyTreeException();
@@ -181,6 +177,33 @@ public class PrioritySearchTree {
 	}
 	return max;
     }    
+    public double minY() throws EmptyTreeException {
+	if(heap[0] == null) throw new EmptyTreeException();
+	return heap[0].getY();
+    }
+    public double maxY() throws EmptyTreeException {
+	if(heap[0] == null) throw new EmptyTreeException();
+	return maxY(0);
+    }
+    private double maxY(int index) {
+	double max = heap[index].getY();
+	if(indexOfRightChild(index) < heap.length) {
+	    if(heap[indexOfLeftChild(index)] == null &&
+	       heap[indexOfRightChild(index)] != null) {
+		max = maxY(indexOfRightChild(index));
+	    } else if(heap[indexOfLeftChild(index)] != null &&
+		      heap[indexOfRightChild(index)] == null) {
+		max = maxY(indexOfLeftChild(index));
+	    } else if(heap[indexOfLeftChild(index)] != null &&
+		      heap[indexOfRightChild(index)] != null) {
+		double maxLeft = maxY(indexOfLeftChild(index));
+		double maxRight = maxY(indexOfRightChild(index));
+		if(maxLeft > maxRight) max = maxLeft;
+		else max = maxRight;
+	    }
+	}
+	return max;
+    }
 /******************************************************************************
 * Utility Functions                                                           *
 ******************************************************************************/
@@ -237,6 +260,7 @@ public class PrioritySearchTree {
 	System.out.print("All points within 3 bounds: ");
 	printList(pst.findAllPointsWithin(-3.0d,3.0d,3.0d));
 	System.out.println("MinY: " + pst.minY());
+	System.out.println("MaxY: " + pst.maxY());
 	System.out.println("MinX: " + pst.minX());
 	System.out.println("MaxX: " + pst.maxX());
 
@@ -248,11 +272,10 @@ public class PrioritySearchTree {
 	}
 	pst = new PrioritySearchTree(testPoints);
 	
-	System.out.print("All points (larger data set) within 4 bounds: ");
-	printList(pst.findAllPointsWithin(-3.0d,-3.0d,3.0d,3.0d));
-	System.out.print("All points (larger data set) within 3 bounds: ");
-	printList(pst.findAllPointsWithin(-3.0d,3.0d,3.0d));
+	System.out.println("All points (larger data set) within 3 bounds: ");
+	printList(pst.findAllPointsWithin(-10.0d,-10.0d,10.0d,10.0d));
 	System.out.println("MinY: " + pst.minY());
+	System.out.println("MaxY: " + pst.maxY());
 	System.out.println("MinX: " + pst.minX());
 	System.out.println("MaxX: " + pst.maxX());
     }
