@@ -44,6 +44,16 @@ public class PrioritySearchTree {
 *   left child:  {p | p.x <= medianX}                                         *
 *   right child: {p | p.x >  medianX}                                         *
 *                                                                             *
+* Note: points are also assumed to have distinct coordinates, i.e. no         *
+*       two points have the same x coordinate and no two points have          *
+*       the same y coordinate.                                                *
+*                                                                             *
+*       While this may seem unrealistic, we can convert any indistinct        *
+*       coordinates by replacing all real coordinates with coordinates        *
+*       from the composite-number space without any loss of                   *
+*       generality.  See: Computational Geometry Applications and             *
+*       Algorithms, de Berg et al.  Section 5.5.                              *
+*                                                                             *
 ******************************************************************************/
     private void buildTree(int rootIndex, ArrayList<Point2D.Double> points) {
 	if(points == null || points.size() < 1) return;
@@ -140,19 +150,29 @@ public class PrioritySearchTree {
 * Testing                                                                     *
 ******************************************************************************/  
     public static void main(String[] args) {
+	// Test construction
 	new PrioritySearchTree(null);
 	ArrayList<Point2D.Double> testPoints = new ArrayList<Point2D.Double>();
-	testPoints.add(new Point2D.Double(3.0d,1.0d));
+	testPoints.add(new Point2D.Double(1.0d,1.0d));
 	testPoints.add(new Point2D.Double(2.0d,5.0d));
-	testPoints.add(new Point2D.Double(1.0d,3.0d));
+	testPoints.add(new Point2D.Double(3.0d,3.0d));
 	testPoints.add(new Point2D.Double(-3.0d,0.0d));
 	testPoints.add(new Point2D.Double(-2.0d,4.0d));
 	testPoints.add(new Point2D.Double(-1.0d,2.0d));
-	testPoints.add(new Point2D.Double(0.0d,-1.0d));
-	testPoints.add(new Point2D.Double(0.0d,-2.0d));
-	testPoints.add(new Point2D.Double(0.0d,-3.0d));
+	testPoints.add(new Point2D.Double(4.0d,-1.0d));
+	testPoints.add(new Point2D.Double(5.0d,-2.0d));
+	testPoints.add(new Point2D.Double(6.0d,-3.0d));
+	testPoints.add(new Point2D.Double(7.0d,22.0d));
+	testPoints.add(new Point2D.Double(8.0d,42.0d));
+	testPoints.add(new Point2D.Double(0.0d,-30.0d));
+
+	// Test query
+	System.out.print("All points within bounds: ");
 	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
 	for(Point2D.Double p : pst.findAllPointsWithin(-3.0d,-3.0d,3.0d,3.0d))
-	    System.out.println(p);
+	    System.out.print(pointToString(p) + " ");
+	System.out.println();
     }
+
+    private static String pointToString(Point2D.Double p) { return "(" + p.getX() + "," + p.getY() + ")"; }
 }
