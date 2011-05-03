@@ -32,14 +32,7 @@ public class PrioritySearchTree {
 ******************************************************************************/
     public PrioritySearchTree(ArrayList<PSTPoint> points) {
 	if(points == null) return;
-	// Sort the points by y-coordinate in increasing ordering
-	Collections.sort(points,new Comparator<PSTPoint>() {
-		public int compare(PSTPoint o1, PSTPoint o2) {
-		    if(o1.getY() < o2.getY()) return -1;
-		    else if(o1.getY() > o2.getY()) return 1;
-		    else return 0;
-		}
-	    });
+	Collections.sort(points); // Sort by y-coordinate in increasing order
 	this.heap = new PSTNode[heapSize(points.size())];
 	buildTree(0,points);
     }
@@ -66,7 +59,7 @@ public class PrioritySearchTree {
 ******************************************************************************/
     private void buildTree(int rootIndex, ArrayList<PSTPoint> points) {
 	if(points == null || points.size() < 1) return;
-	// Since points are ordered by y, smallest is first
+	// Since points are ordered by y increasing, smallest is first
 	PSTPoint rootPoint = points.get(0);
 	// Find median X value
 	//  - uses average X value of non-root points
