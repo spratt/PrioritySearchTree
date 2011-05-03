@@ -1,5 +1,5 @@
 /******************************************************************************
-*                       Copyright (c) 2009 - 2010 by                          *
+*                       Copyright (c) 2011 - 2012 by                          *
 *                               Simon Pratt                                   *
 *                         (All rights reserved)                               *
 *******************************************************************************
@@ -33,7 +33,7 @@ public class PrioritySearchTree {
     public PrioritySearchTree(ArrayList<PSTPoint> points) {
 	if(points == null) return;
 	Collections.sort(points); // Sort by y-coordinate in increasing order
-	this.heap = new PSTNode[heapSize(points.size())];
+	this.heap = new PSTNode[heapSize(treeHeight(points.size()))];
 	buildTree(0,points);
     }
 
@@ -124,15 +124,8 @@ public class PrioritySearchTree {
 	    if(nodeR < x2) 
 		findAllPointsWithin(x1,y1,x2,y2,list,indexOfRightChild(rootIndex));
 	} else {
-	    if(nodeX >= x1 && nodeX <= x2) { 
-		list.add(node.getPoint());
-	    }
-	    // nodeR >= points in left tree >= x1
-	    if(nodeR >= x1)
-		findAllPointsWithin(x1,x2,y2,list,indexOfLeftChild(rootIndex));
-	    // nodeR < points in right tree <= x2
-	    if(nodeR < x2) 
-		findAllPointsWithin(x1,x2,y2,list,indexOfRightChild(rootIndex));
+	    // Now that nodeY >= y1, we can do a 3 bounded search
+	    findAllPointsWithin(x1,x2,y2,list,rootIndex);
 	}
 	return list;
     }
@@ -166,10 +159,12 @@ public class PrioritySearchTree {
 /******************************************************************************
 * Utility Functions                                                           *
 ******************************************************************************/
-    private static int heapSize(int n) {
-	// Determine the height of the tree
-	double height = Math.ceil(Math.log(n+1)/Math.log(2));
-	// Determine the max number of heap nodes in a tree of that height
+    // Determine the height of the tree
+    private static int treeHeight(int n) {
+	return doubleToInt(Math.ceil(Math.log(n+1)/Math.log(2)));
+    }
+    // Determine the max number of heap nodes in a tree of given height
+    private static int heapSize(int height) {
 	return doubleToInt(Math.pow(2, height)-1);
     }
 
