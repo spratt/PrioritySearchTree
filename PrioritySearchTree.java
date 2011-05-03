@@ -79,9 +79,9 @@ public class PrioritySearchTree {
 	    // note: if p.x is equal to median, it will be added to left child
 	    else if(p.getX() <= medianX) lowerPoints.add(p);
 	    else upperPoints.add(p);
-	} 
-	buildTree(indexOfLeftChild(rootIndex),lowerPoints);
-	buildTree(indexOfRightChild(rootIndex),upperPoints);
+	}
+	if(lowerPoints.size() > 0) buildTree(indexOfLeftChild(rootIndex),lowerPoints);
+	if(upperPoints.size() > 0) buildTree(indexOfRightChild(rootIndex),upperPoints);
     }
     
 /******************************************************************************
@@ -97,15 +97,50 @@ public class PrioritySearchTree {
 * Assumes x2 > x1 and y2 > y1.  Choose x1,y1,x2,y2 appropriately.             *
 *                                                                             *
 ******************************************************************************/
+    ArrayList<PSTPoint> findAllPointsWithin(double x1, 
+					    double x2, double y2) {
+	return findAllPointsWithin(x1,x2,y2,new ArrayList<PSTPoint>(),0);
+    }
+    
     ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
 					    double x2, double y2) {
 	return findAllPointsWithin(x1,y1,x2,y2,new ArrayList<PSTPoint>(),0);
     }
 
+    ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
+					    double x2, double y2,
+					    ArrayList<PSTPoint> list,
+					    int rootIndex) {
+	PSTNode node = heap[rootIndex];
+	if(node == null) return list;
+	double nodeY = node.getY();
+	double nodeX = node.getX();
+	double nodeR = node.getMedianX();
+	if(nodeY < y1) {
+	    // nodeR >= points in left tree >= x1
+	    if(nodeR >= x1)
+		findAllPointsWithin(x1,y1,x2,y2,list,indexOfLeftChild(rootIndex));
+	    // nodeR < points in right tree <= x2
+	    if(nodeR < x2) 
+		findAllPointsWithin(x1,y1,x2,y2,list,indexOfRightChild(rootIndex));
+	} else {
+	    if(nodeX >= x1 && nodeX <= x2) { 
+		list.add(node.getPoint());
+	    }
+	    // nodeR >= points in left tree >= x1
+	    if(nodeR >= x1)
+		findAllPointsWithin(x1,x2,y2,list,indexOfLeftChild(rootIndex));
+	    // nodeR < points in right tree <= x2
+	    if(nodeR < x2) 
+		findAllPointsWithin(x1,x2,y2,list,indexOfRightChild(rootIndex));
+	}
+	return list;
+    }
+
     // Note that as y2 and x2 approach positive infinity and
     // x1 approaches negative infinity, this search visits more nodes.
     // In the worst case, all nodes are visited.
-    ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
+    ArrayList<PSTPoint> findAllPointsWithin(double x1,
 					    double x2, double y2,
 					    ArrayList<PSTPoint> list,
 					    int rootIndex) {
@@ -115,16 +150,15 @@ public class PrioritySearchTree {
 	double nodeY = node.getY();
 	double nodeR = node.getMedianX();
 	if(nodeY <= y2) {
-	    // Since we already know nodeY <= y2, we don't need to check again
-	    if(nodeX >= x1 && nodeY >= y1 && nodeX <= x2) { 
+	    if(nodeX >= x1 && nodeX <= x2) { 
 		list.add(node.getPoint());
 	    }
 	    // nodeR >= points in left tree >= x1
 	    if(nodeR >= x1)
-		findAllPointsWithin(x1,y1,x2,y2,list,indexOfLeftChild(rootIndex));
+		findAllPointsWithin(x1,x2,y2,list,indexOfLeftChild(rootIndex));
 	    // nodeR < points in right tree <= x2
 	    if(nodeR < x2) 
-		findAllPointsWithin(x1,y1,x2,y2,list,indexOfRightChild(rootIndex));
+		findAllPointsWithin(x1,x2,y2,list,indexOfRightChild(rootIndex));
 	}
 	return list;
     }
@@ -175,10 +209,25 @@ public class PrioritySearchTree {
 	testPoints.add(new PSTPoint(7.0d,22.0d));
 	testPoints.add(new PSTPoint(8.0d,42.0d));
 	testPoints.add(new PSTPoint(0.0d,-30.0d));
+	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
 
 	// Test query
-	System.out.print("All points within bounds: ");
-	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
+	System.out.print("All points within 4 bounds: ");
 	printList(pst.findAllPointsWithin(-3.0d,-3.0d,3.0d,3.0d));
+	System.out.print("All points within 3 bounds: ");
+	printList(pst.findAllPointsWithin(-3.0d,3.0d,3.0d));
+
+	// Test with more data
+	testPoints = new ArrayList<PSTPoint>();
+	for(double i = 1.0d; i < 10000; i++) {
+	    testPoints.add(new PSTPoint(i,i));
+	    testPoints.add(new PSTPoint(-i,-i));
+	}
+	pst = new PrioritySearchTree(testPoints);
+	
+	System.out.print("All points (larger data set) within 4 bounds: ");
+	printList(pst.findAllPointsWithin(-3.0d,-3.0d,3.0d,3.0d));
+	System.out.print("All points (larger data set) within 3 bounds: ");
+	printList(pst.findAllPointsWithin(-3.0d,3.0d,3.0d));
     }
 }
