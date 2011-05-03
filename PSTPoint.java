@@ -4,7 +4,7 @@
 *                         (All rights reserved)                               *
 *******************************************************************************
 *                                                                             *
-* FILE:    PSTNode.java                                                       *
+* FILE:    PSTPoint.java                                                      *
 *                                                                             *
 * MODULE:  Priority Search Tree                                               *
 *                                                                             *
@@ -16,25 +16,14 @@
 
 import java.awt.geom.*;
 
-public class PSTNode {
-    private PSTPoint p;
-    private double medianX;
+public class PSTPoint {
+    private Point2D.Double p;
 
-    public PSTNode(double x, double y, double medianX) {
-	this(new PSTPoint(x,y),medianX);
-    }
-
-    public PSTNode(PSTPoint p, double medianX) {
-	this.p = p;
-	this.medianX = medianX;
+    public PSTPoint(double x, double y) {
+	this.p = new Point2D.Double(x,y);
     }
 
     public double getX() { return p.getX(); }
     public double getY() { return p.getY(); }
-    public PSTPoint getPoint() { return p; }
-    public double getMedianX() { return medianX; }
-    
-    public static void main(String[] args) {
-	PSTNode pstn = new PSTNode(2.0d,3.0d,4.0d);
-    }
+    public String toString() { return "(" + p.getX() + "," + p.getY() + ")"; }
 }
