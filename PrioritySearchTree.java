@@ -184,13 +184,13 @@ public class PrioritySearchTree {
 /******************************************************************************
 * Utility Functions                                                           *
 ******************************************************************************/
-    // Determine the height of the tree
+    // Determine the height of a balanced tree with n elements
     private static int treeHeight(int n) {
-	return doubleToInt(Math.ceil(Math.log(n+1)/Math.log(2)));
+	return doubleToInt(Math.ceil(Math.log(n+1)/Math.log(2))-1);
     }
     // Determine the max number of heap nodes in a tree of given height
     private static int heapSize(int height) {
-	return doubleToInt(Math.pow(2, height)-1);
+	return doubleToInt(Math.pow(2, height + 1)-1);
     }
 
     private static int indexOfLeftChild(int rootIndex) {
