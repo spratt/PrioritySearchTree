@@ -234,6 +234,32 @@ public class PrioritySearchTree {
 	}
 	return max;
     }
+    public double maxYinRange(double minX, double maxX, double maxY)
+	throws NoPointsInRangeException {
+	double max = maxYinRange(minX,maxX,maxY,0);
+	if(max > Double.NEGATIVE_INFINITY) return max;
+	throw new NoPointsInRangeException();
+    }
+    private double maxYinRange(double minX, double maxX, double maxY, int index) {
+	PSTNode node = heap[index];
+	if(heap[index] == null || node.getY() > maxY)
+	    return Double.NEGATIVE_INFINITY;
+	double max = Double.NEGATIVE_INFINITY;
+	double nodeX = node.getX();
+	if(minX <= nodeX && nodeX <= maxX)
+	    max = node.getY();
+	double nodeR = node.getMedianX();
+	if(nodeR >= minX && isValidNode(indexOfLeftChild(index))) {
+	    double maxLeft = maxYinRange(minX,maxX,maxY,indexOfLeftChild(index));
+	    if(maxLeft > max) max = maxLeft;
+	}
+	if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
+	    double maxRight = maxYinRange(minX,maxX,maxY,indexOfRightChild(index));
+	    if(maxRight > max) max = maxRight;
+	}
+	return max;
+    }
+	
 /******************************************************************************
 * Whole-tree query functions                                                  *
 ******************************************************************************/
@@ -338,9 +364,11 @@ public class PrioritySearchTree {
     public static void main(String[] args)
 	throws EmptyTreeException, NoPointsInRangeException {
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
-	for(double i = 1.0d; i <= 50000; i++) {
-	    testPoints.add(new PSTPoint(i,i));
-	    testPoints.add(new PSTPoint(-i,-i));
+	double MAX_Y = 100000d;
+	double MIN_Y = -MAX_Y;
+	for(double i = 0; i < MAX_Y ; i++) {
+	    testPoints.add(new PSTPoint(MAX_Y-i,i));
+	    testPoints.add(new PSTPoint(-i,MIN_Y+i));
 	}
 	System.out.print("Building tree...");
 	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
@@ -351,6 +379,7 @@ public class PrioritySearchTree {
 	System.out.println("minYinRange: " + pst.minYinRange(-100,100));
 	System.out.println("minXinRange: " + pst.minXinRange(-100,100,10));
 	System.out.println("maxXinRange: " + pst.maxXinRange(-100,100,10));
+	System.out.println("maxYinRange: " + pst.maxYinRange(-100,100,10));
     }
 /******************************************************************************
 * Exceptions                                                                  *
