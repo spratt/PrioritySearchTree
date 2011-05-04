@@ -79,102 +79,160 @@ public class PrioritySearchTree {
 	    else if(p.getX() <= medianX) lowerPoints.add(p);
 	    else upperPoints.add(p);
 	}
-	if(lowerPoints.size() > 0) buildTree(indexOfLeftChild(rootIndex),lowerPoints);
-	if(upperPoints.size() > 0) buildTree(indexOfRightChild(rootIndex),upperPoints);
+	if(lowerPoints.size() > 0)
+	    buildTree(indexOfLeftChild(rootIndex),lowerPoints);
+	if(upperPoints.size() > 0)
+	    buildTree(indexOfRightChild(rootIndex),upperPoints);
     }
 /******************************************************************************
 *                                                                             *
-* Find all points within the box given by (x1,y1) and (x2,y2)                 *
+* Find all points within the region bounded by (minX,minY) and (maxX,maxY)    *
 *                                                                             *
-*          +--------+ (x2,y2)                                                 *
-*          |        |                                                         *
-*          |        |                                                         *
-*          |        |                                                         *
-*  (x1,y1) +--------+                                                         *
+*              +--------+ (maxX,maxY)                                         *
+*              |        |                                                     *
+*              |        |                                                     *
+*              |        |                                                     *
+*  (minX,minY) +--------+                                                     *
 *                                                                             *
-* Assumes x2 > x1 and y2 > y1.  Choose x1,y1,x2,y2 appropriately.             *
+* Assumes maxX > minX and maxY > minY.                                        *
+* Choose minX,minY,maxX,maxY appropriately.                                   *
 *                                                                             *
 ******************************************************************************/
-    public ArrayList<PSTPoint> findAllPointsWithin(double x1, 
-						   double x2, double y2) {
-	return findAllPointsWithin(x1,x2,y2,new ArrayList<PSTPoint>(),0);
+    public ArrayList<PSTPoint> findAllPointsWithin(double minX, 
+						   double maxX, double maxY) {
+	return findAllPointsWithin(minX,maxX,maxY,new ArrayList<PSTPoint>(),0);
     }
-    public ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
-						   double x2, double y2) {
-	return findAllPointsWithin(x1,y1,x2,y2,new ArrayList<PSTPoint>(),0);
+    public ArrayList<PSTPoint> findAllPointsWithin(double minX, double minY,
+						   double maxX, double maxY) {
+	return findAllPointsWithin(minX,minY,maxX,maxY,
+				   new ArrayList<PSTPoint>(),0);
     }
-    private ArrayList<PSTPoint> findAllPointsWithin(double x1, double y1,
-						    double x2, double y2,
+    private ArrayList<PSTPoint> findAllPointsWithin(double minX, double minY,
+						    double maxX, double maxY,
 						    ArrayList<PSTPoint> list,
 						    int rootIndex) {
 	if(heap == null) return list;
 	PSTNode node = heap[rootIndex];
 	if(node == null) return list;
-	if(node.getY() < y1) {
+	if(node.getY() < minY) {
 	    double nodeR = node.getMedianX();
-	    // nodeR >= points in left tree >= x1
-	    if(nodeR >= x1)
-		findAllPointsWithin(x1,y1,x2,y2,list,indexOfLeftChild(rootIndex));
-	    // nodeR < points in right tree <= x2
-	    if(nodeR < x2) 
-		findAllPointsWithin(x1,y1,x2,y2,list,indexOfRightChild(rootIndex));
+	    // nodeR >= points in left tree >= minX
+	    if(nodeR >= minX)
+		findAllPointsWithin(minX,minY,maxX,maxY,list,
+				    indexOfLeftChild(rootIndex));
+	    // nodeR < points in right tree <= maxX
+	    if(nodeR < maxX) 
+		findAllPointsWithin(minX,minY,maxX,maxY,list,
+				    indexOfRightChild(rootIndex));
 	} else {
-	    // Now that nodeY >= y1, we can do a 3 bounded search
-	    findAllPointsWithin(x1,x2,y2,list,rootIndex);
+	    // Now that nodeY >= minY, we can do a 3 bounded search
+	    findAllPointsWithin(minX,maxX,maxY,list,rootIndex);
 	}
 	return list;
     }
-    // Note that as y2 and x2 approach positive infinity and
-    // x1 approaches negative infinity, this search visits more nodes.
+    // Note that as maxY and maxX approach positive infinity and
+    // minX approaches negative infinity, this search visits more nodes.
     // In the worst case, all nodes are visited.
-    private ArrayList<PSTPoint> findAllPointsWithin(double x1,
-						    double x2, double y2,
+    private ArrayList<PSTPoint> findAllPointsWithin(double minX,
+						    double maxX, double maxY,
 						    ArrayList<PSTPoint> list,
 						    int rootIndex) {
 	PSTNode node = heap[rootIndex];
 	if(node == null) return list;
-	if(node.getY() <= y2) {
+	if(node.getY() <= maxY) {
 	    double nodeX = node.getX();
-	    if(nodeX >= x1 && nodeX <= x2) { 
+	    if(nodeX >= minX && nodeX <= maxX) { 
 		list.add(node.getPoint());
 	    }
 	    double nodeR = node.getMedianX();
-	    // nodeR >= points in left tree >= x1
-	    if(nodeR >= x1)
-		findAllPointsWithin(x1,x2,y2,list,indexOfLeftChild(rootIndex));
-	    // nodeR < points in right tree <= x2
-	    if(nodeR < x2) 
-		findAllPointsWithin(x1,x2,y2,list,indexOfRightChild(rootIndex));
+	    // nodeR >= points in left tree >= minX
+	    if(nodeR >= minX)
+		findAllPointsWithin(minX,maxX,maxY,list,
+				    indexOfLeftChild(rootIndex));
+	    // nodeR < points in right tree <= maxX
+	    if(nodeR < maxX) 
+		findAllPointsWithin(minX,maxX,maxY,list,
+				    indexOfRightChild(rootIndex));
 	}
 	return list;
     }
 /******************************************************************************
 * Other query functions                                                       *
 ******************************************************************************/
-    public double minYinRange(double x1, double x2)
+    public double minYinRange(double minX, double maxX)
 	throws NoPointsInRangeException {
-	double min = minYinRange(x1,x2,0);
+	double min = minYinRange(minX,maxX,0);
 	if(min < Double.POSITIVE_INFINITY) return min;
 	throw new NoPointsInRangeException();
     }
-    private double minYinRange(double x1, double x2, int index) {
+    private double minYinRange(double minX, double maxX, int index) {
 	if(heap[index] == null) return Double.POSITIVE_INFINITY;
 	PSTNode node = heap[index];
 	double nodeX = node.getX();
-	if(nodeX >= x1 && nodeX <= x2) return node.getY();
+	if(nodeX >= minX && nodeX <= maxX) return node.getY();
 	double nodeR = node.getMedianX();
-	// nodeR >= points in left tree >= x1
-	if(nodeR >= x1 && isValidNode(indexOfLeftChild(index)) &&
-	   nodeR < x2 && isValidNode(indexOfRightChild(index))) {
-	    double minLeft = minYinRange(x1,x2,indexOfLeftChild(index));
-	    double minRight = minYinRange(x1,x2,indexOfRightChild(index));
+	// nodeR >= points in left tree >= minX
+	if(nodeR >= minX && isValidNode(indexOfLeftChild(index)) &&
+	   nodeR < maxX && isValidNode(indexOfRightChild(index))) {
+	    double minLeft = minYinRange(minX,maxX,indexOfLeftChild(index));
+	    double minRight = minYinRange(minX,maxX,indexOfRightChild(index));
 	    return (minLeft < minRight ? minLeft : minRight);
-	} else if(nodeR >= x1 && isValidNode(indexOfLeftChild(index))) {
-	    return minYinRange(x1,x2,indexOfLeftChild(index));
-	} else if(nodeR < x2 && isValidNode(indexOfRightChild(index))) {
-	    return minYinRange(x1,x2,indexOfRightChild(index));
+	} else if(nodeR >= minX && isValidNode(indexOfLeftChild(index))) {
+	    return minYinRange(minX,maxX,indexOfLeftChild(index));
+	} else if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
+	    return minYinRange(minX,maxX,indexOfRightChild(index));
 	}
 	return Double.POSITIVE_INFINITY;
+    }
+    public double minXinRange(double minX, double maxX, double maxY)
+	throws NoPointsInRangeException {
+	double min = minXinRange(minX,maxX,maxY,0);
+	if(min < Double.POSITIVE_INFINITY) return min;
+	throw new NoPointsInRangeException();
+    }
+    private double minXinRange(double minX, double maxX, double maxY, int index) {
+	PSTNode node = heap[index];
+	if(heap[index] == null || node.getY() > maxY)
+	    return Double.POSITIVE_INFINITY;
+	double min = Double.POSITIVE_INFINITY;
+	double nodeX = node.getX();
+	if(minX <= nodeX && nodeX <= maxX)
+	    min = nodeX;
+	double nodeR = node.getMedianX();
+	if(nodeR >= minX && isValidNode(indexOfLeftChild(index))) {
+	    double minLeft = minXinRange(minX,maxX,maxY,indexOfLeftChild(index));
+	    if(minLeft < min) min = minLeft;
+	}
+	if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
+	    double minRight = minXinRange(minX,maxX,maxY,indexOfRightChild(index));
+	    if(minRight < min) min = minRight;
+	}
+	return min;
+    }
+    public double maxXinRange(double minX, double maxX, double maxY)
+	throws NoPointsInRangeException {
+	double max = maxXinRange(minX,maxX,maxY,0);
+	if(max > Double.NEGATIVE_INFINITY) return max;
+	throw new NoPointsInRangeException();
+    }
+    private double maxXinRange(double minX, double maxX, double maxY, int index) {
+	PSTNode node = heap[index];
+	if(heap[index] == null || node.getY() > maxY)
+	    return Double.NEGATIVE_INFINITY;
+	double max = Double.NEGATIVE_INFINITY;
+	double nodeX = node.getX();
+	if(minX <= nodeX && nodeX <= maxX)
+	    max = nodeX;
+	double nodeR = node.getMedianX();
+	if(nodeR >= minX && isValidNode(indexOfLeftChild(index))) {
+	    double maxLeft = maxXinRange(minX,maxX,maxY,indexOfLeftChild(index));
+	    if(maxLeft > max) max = maxLeft;
+	}
+	if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
+	    double maxRight = maxXinRange(minX,maxX,maxY,indexOfRightChild(index));
+	    if(maxRight > max) max = maxRight;
+	}
+	return max;
     }
 /******************************************************************************
 * Whole-tree query functions                                                  *
@@ -290,12 +348,9 @@ public class PrioritySearchTree {
 	report(testPoints.size());
 
 	
-	System.out.print("Greater than highest X: ");
-	System.out.println(pst.minYinRange(100001,100002));
-	System.out.print("Less than lowest X: ");
-	System.out.println(pst.minYinRange(-100002,-100001));
-	System.out.print("No points in range: ");
-	System.out.println(pst.minYinRange(-0.9,0.9));
+	System.out.println("minYinRange: " + pst.minYinRange(-100,100));
+	System.out.println("minXinRange: " + pst.minXinRange(-100,100,10));
+	System.out.println("maxXinRange: " + pst.maxXinRange(-100,100,10));
     }
 /******************************************************************************
 * Exceptions                                                                  *
