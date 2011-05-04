@@ -133,13 +133,12 @@ public class PrioritySearchTree {
 						    int rootIndex) {
 	PSTNode node = heap[rootIndex];
 	if(node == null) return list;
-	double nodeX = node.getX();
-	double nodeY = node.getY();
-	double nodeR = node.getMedianX();
-	if(nodeY <= y2) {
+	if(node.getY() <= y2) {
+	    double nodeX = node.getX();
 	    if(nodeX >= x1 && nodeX <= x2) { 
 		list.add(node.getPoint());
 	    }
+	    double nodeR = node.getMedianX();
 	    // nodeR >= points in left tree >= x1
 	    if(nodeR >= x1)
 		findAllPointsWithin(x1,x2,y2,list,indexOfLeftChild(rootIndex));
@@ -152,12 +151,39 @@ public class PrioritySearchTree {
 /******************************************************************************
 * Other query functions                                                       *
 ******************************************************************************/
+    public double minYinRange(double x1, double x2)
+	throws NoPointsInRangeException {
+	double min = minYinRange(x1,x2,0);
+	if(min < Double.POSITIVE_INFINITY) return min;
+	throw new NoPointsInRangeException();
+    }
+    private double minYinRange(double x1, double x2, int index) {
+	if(heap[index] == null) return Double.POSITIVE_INFINITY;
+	PSTNode node = heap[index];
+	double nodeX = node.getX();
+	if(nodeX >= x1 && nodeX <= x2) return node.getY();
+	double nodeR = node.getMedianX();
+	// nodeR >= points in left tree >= x1
+	if(nodeR >= x1 && isValidNode(indexOfLeftChild(index)) &&
+	   nodeR < x2 && isValidNode(indexOfRightChild(index))) {
+	    double minLeft = minYinRange(x1,x2,indexOfLeftChild(index));
+	    double minRight = minYinRange(x1,x2,indexOfRightChild(index));
+	    return (minLeft < minRight ? minLeft : minRight);
+	} else if(nodeR >= x1 && isValidNode(indexOfLeftChild(index))) {
+	    return minYinRange(x1,x2,indexOfLeftChild(index));
+	} else if(nodeR < x2 && isValidNode(indexOfRightChild(index))) {
+	    return minYinRange(x1,x2,indexOfRightChild(index));
+	}
+	return Double.POSITIVE_INFINITY;
+    }
+/******************************************************************************
+* Whole-tree query functions                                                  *
+******************************************************************************/
     public double minX() throws EmptyTreeException {
 	int index = 0;
 	if(heap[index] == null) throw new EmptyTreeException();
 	double min = heap[index].getX();
-	while(indexOfLeftChild(index) < heap.length &&
-	      heap[indexOfLeftChild(index)] != null) {
+	while(isValidNode(indexOfLeftChild(index))) {
 	    index = indexOfLeftChild(index);
 	    if(heap[index].getX() < min)
 		min = heap[index].getX();
@@ -168,16 +194,14 @@ public class PrioritySearchTree {
 	int index = 0;
 	if(heap[index] == null) throw new EmptyTreeException();
 	double max = heap[index].getX();
-	while(indexOfRightChild(index) < heap.length &&
-	      heap[indexOfRightChild(index)] != null) {
+	while(isValidNode(indexOfRightChild(index))) {
 	    index = indexOfRightChild(index);
 	    if(heap[index].getX() > max)
 		max = heap[index].getX();
 	}
 	// Since a leaf without a sibling is always left
 	// we have to check the last left child just in case
-	if(indexOfLeftChild(index) < heap.length &&
-	   heap[indexOfLeftChild(index)] != null &&
+	if(isValidNode(indexOfLeftChild(index)) &&
 	   heap[indexOfLeftChild(index)].getX() > max)
 	    max = heap[indexOfLeftChild(index)].getX();
 	return max;
@@ -192,26 +216,25 @@ public class PrioritySearchTree {
     }
     private double maxY(int index) {
 	double max = heap[index].getY();
-	if(indexOfRightChild(index) < heap.length) {
-	    if(heap[indexOfLeftChild(index)] == null &&
-	       heap[indexOfRightChild(index)] != null) {
-		max = maxY(indexOfRightChild(index));
-	    } else if(heap[indexOfLeftChild(index)] != null &&
-		      heap[indexOfRightChild(index)] == null) {
-		max = maxY(indexOfLeftChild(index));
-	    } else if(heap[indexOfLeftChild(index)] != null &&
-		      heap[indexOfRightChild(index)] != null) {
+	if(isValidNode(indexOfRightChild(index)) &&
+	   isValidNode(indexOfLeftChild(index))) {
 		double maxLeft = maxY(indexOfLeftChild(index));
 		double maxRight = maxY(indexOfRightChild(index));
 		if(maxLeft > maxRight) max = maxLeft;
 		else max = maxRight;
-	    }
+	} else if(isValidNode(indexOfRightChild(index))) {
+		max = maxY(indexOfRightChild(index));
+	} else if(isValidNode(indexOfLeftChild(index))) {
+		max = maxY(indexOfLeftChild(index));
 	}
 	return max;
     }
 /******************************************************************************
 * Utility Functions                                                           *
 ******************************************************************************/
+    private boolean isValidNode(int index) {
+	return index < heap.length && heap[index] != null;
+    }
     // height of a balanced tree with n elements
     private static int treeHeight(int n) {
 	return doubleToInt(Math.ceil(Math.log(n+1)/Math.log(2)));
@@ -254,7 +277,8 @@ public class PrioritySearchTree {
 /******************************************************************************
 * Testing                                                                     *
 ******************************************************************************/  
-    public static void main(String[] args) throws EmptyTreeException {
+    public static void main(String[] args)
+	throws EmptyTreeException, NoPointsInRangeException {
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
 	for(double i = 1.0d; i <= 50000; i++) {
 	    testPoints.add(new PSTPoint(i,i));
@@ -265,19 +289,21 @@ public class PrioritySearchTree {
 	System.out.println("done.");
 	report(testPoints.size());
 
-	System.out.println("MinY: " + pst.minY());
-	System.out.println("MaxY: " + pst.maxY());
-	System.out.println("MinX: " + pst.minX());
-	System.out.println("MaxX: " + pst.maxX());
-	System.out.println("All points within 4 bounds: ");
-	printList(pst.findAllPointsWithin(-10.0d,-10.0d,10.0d,10.0d));
-	System.out.println("All points within 3 bounds: ");
-	printList(pst.findAllPointsWithin(-10.0d,10.0d,10.0d));
+	
+	System.out.print("Greater than highest X: ");
+	System.out.println(pst.minYinRange(100001,100002));
+	System.out.print("Less than lowest X: ");
+	System.out.println(pst.minYinRange(-100002,-100001));
+	System.out.print("No points in range: ");
+	System.out.println(pst.minYinRange(-0.9,0.9));
     }
 /******************************************************************************
-* Miscellaneous                                                               *
+* Exceptions                                                                  *
 ******************************************************************************/
     public class EmptyTreeException extends Exception {
 	public EmptyTreeException() { super("Tree is empty"); }
+    }
+    public class NoPointsInRangeException extends Exception {
+	public NoPointsInRangeException() { super("No points in range"); }
     }
 }
