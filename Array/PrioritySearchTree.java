@@ -67,7 +67,7 @@ public class PrioritySearchTree {
 	    sumX += p.getX();
 	double medianX = sumX/points.size();
 	// Set the root node
-	heap[rootIndex] = new PSTNode(rootPoint,medianX);
+	heap[rootIndex] = new PSTNode(rootPoint);
 	// Bisect the non-root points into two arrays above and below the median
 	ArrayList<PSTPoint> upperPoints = new ArrayList<PSTPoint>();
 	ArrayList<PSTPoint> lowerPoints = new ArrayList<PSTPoint>();
@@ -96,8 +96,10 @@ public class PrioritySearchTree {
 *                                                                             *
 ******************************************************************************/
     public ArrayList<PSTPoint> findAllPointsWithin(double minX, 
-						   double maxX, double maxY) {
-	return findAllPointsWithin(minX,maxX,maxY,new ArrayList<PSTPoint>(),0);
+						   double maxX, double maxY)
+	throws EmptyTreeException {
+	return findAllPointsWithin(minX,maxX,maxY,
+				   new ArrayList<PSTPoint>(),0);
     }
     // Note that as maxY and maxX approach positive infinity and
     // minX approaches negative infinity, this search visits more nodes.
@@ -105,37 +107,7 @@ public class PrioritySearchTree {
     private ArrayList<PSTPoint> findAllPointsWithin(double minX,
 						    double maxX, double maxY,
 						    ArrayList<PSTPoint> list,
-						    int index) {
-	PSTNode node = heap[index];
-	if(node == null) return list;
-	if(node.getY() <= maxY) {
-	    double nodeX = node.getX();
-	    if(nodeX >= minX && nodeX <= maxX) { 
-		list.add(node.getPoint());
-	    }
-	    double nodeR = node.getMedianX();
-	    // nodeR >= points in left tree >= minX
-	    if(nodeR >= minX)
-		findAllPointsWithin(minX,maxX,maxY,list,indexOfLeftChild(index));
-	    // nodeR < points in right tree <= maxX
-	    if(nodeR < maxX) 
-		findAllPointsWithin(minX,maxX,maxY,list,indexOfRightChild(index));
-	}
-	return list;
-    }
-    public ArrayList<PSTPoint> findAllPointsWithinNoMedian(double minX, 
-							   double maxX, double maxY)
-	throws EmptyTreeException {
-	return findAllPointsWithinNoMedian(minX,maxX,maxY,
-					   new ArrayList<PSTPoint>(),0);
-    }
-    // Note that as maxY and maxX approach positive infinity and
-    // minX approaches negative infinity, this search visits more nodes.
-    // In the worst case, all nodes are visited.
-    private ArrayList<PSTPoint> findAllPointsWithinNoMedian(double minX,
-							    double maxX, double maxY,
-							    ArrayList<PSTPoint> list,
-							    int index)
+						    int index)
 	throws EmptyTreeException {
 	PSTNode node = heap[index];
 	if(node == null) return list;
@@ -148,12 +120,12 @@ public class PrioritySearchTree {
 		double nodeR = maxX(index);
 		// nodeR >= points in left tree >= minX
 		if(nodeR >= minX)
-		    findAllPointsWithinNoMedian(minX,maxX,maxY,list,
-						indexOfLeftChild(index));
+		    findAllPointsWithin(minX,maxX,maxY,list,
+					indexOfLeftChild(index));
 		// nodeR < points in right tree <= maxX
 		if(nodeR < maxX) 
-		    findAllPointsWithinNoMedian(minX,maxX,maxY,list,
-						indexOfRightChild(index));
+		    findAllPointsWithin(minX,maxX,maxY,list,
+					indexOfRightChild(index));
 	    }
 	}
 	return list;
@@ -172,17 +144,19 @@ public class PrioritySearchTree {
 	if(node == null || node.getY() > maxY) return Double.POSITIVE_INFINITY;
 	double nodeX = node.getX();
 	if(nodeX >= minX && nodeX <= maxX) return node.getY();
-	double nodeR = node.getMedianX();
-	// nodeR >= points in left tree >= minX
-	if(nodeR >= minX && isValidNode(indexOfLeftChild(index)) &&
-	   nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-	    double minLeft = minYinRange(minX,maxX,maxY,indexOfLeftChild(index));
-	    double minRight = minYinRange(minX,maxX,maxY,indexOfRightChild(index));
-	    return (minLeft < minRight ? minLeft : minRight);
-	} else if(nodeR >= minX && isValidNode(indexOfLeftChild(index))) {
-	    return minYinRange(minX,maxX,maxY,indexOfLeftChild(index));
-	} else if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-	    return minYinRange(minX,maxX,maxY,indexOfRightChild(index));
+	if(isValidNode(indexOfLeftChild(index))) {
+	    double nodeR = maxX(indexOfLeftChild(index));
+	    // nodeR >= points in left tree >= minX
+	    if(nodeR >= minX && 
+	       nodeR < maxX && isValidNode(indexOfRightChild(index))) {
+		double minLeft = minYinRange(minX,maxX,maxY,indexOfLeftChild(index));
+		double minRight = minYinRange(minX,maxX,maxY,indexOfRightChild(index));
+		return (minLeft < minRight ? minLeft : minRight);
+	    } else if(nodeR >= minX) {
+		return minYinRange(minX,maxX,maxY,indexOfLeftChild(index));
+	    } else if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
+		return minYinRange(minX,maxX,maxY,indexOfRightChild(index));
+	    }
 	}
 	return Double.POSITIVE_INFINITY;
     }
@@ -200,14 +174,16 @@ public class PrioritySearchTree {
 	double nodeX = node.getX();
 	if(minX <= nodeX && nodeX <= maxX)
 	    min = nodeX;
-	double nodeR = node.getMedianX();
-	if(nodeR >= minX && isValidNode(indexOfLeftChild(index))) {
-	    double minLeft = minXinRange(minX,maxX,maxY,indexOfLeftChild(index));
-	    if(minLeft < min) min = minLeft;
-	}
-	if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-	    double minRight = minXinRange(minX,maxX,maxY,indexOfRightChild(index));
-	    if(minRight < min) min = minRight;
+	if(isValidNode(indexOfLeftChild(index))) {
+	    double nodeR = maxX(indexOfLeftChild(index));
+	    if(nodeR >= minX) {
+		double minLeft = minXinRange(minX,maxX,maxY,indexOfLeftChild(index));
+		if(minLeft < min) min = minLeft;
+	    }
+	    if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
+		double minRight = minXinRange(minX,maxX,maxY,indexOfRightChild(index));
+		if(minRight < min) min = minRight;
+	    }
 	}
 	return min;
     }
@@ -225,14 +201,16 @@ public class PrioritySearchTree {
 	double nodeX = node.getX();
 	if(minX <= nodeX && nodeX <= maxX)
 	    max = nodeX;
-	double nodeR = node.getMedianX();
-	if(nodeR >= minX && isValidNode(indexOfLeftChild(index))) {
-	    double maxLeft = maxXinRange(minX,maxX,maxY,indexOfLeftChild(index));
-	    if(maxLeft > max) max = maxLeft;
-	}
-	if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-	    double maxRight = maxXinRange(minX,maxX,maxY,indexOfRightChild(index));
-	    if(maxRight > max) max = maxRight;
+	if(isValidNode(indexOfLeftChild(index))) {
+	    double nodeR = maxX(indexOfLeftChild(index));
+	    if(nodeR >= minX) {
+		double maxLeft = maxXinRange(minX,maxX,maxY,indexOfLeftChild(index));
+		if(maxLeft > max) max = maxLeft;
+	    }
+	    if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
+		double maxRight = maxXinRange(minX,maxX,maxY,indexOfRightChild(index));
+		if(maxRight > max) max = maxRight;
+	    }
 	}
 	return max;
     }
@@ -250,14 +228,16 @@ public class PrioritySearchTree {
 	double nodeX = node.getX();
 	if(minX <= nodeX && nodeX <= maxX)
 	    max = node.getY();
-	double nodeR = node.getMedianX();
-	if(nodeR >= minX && isValidNode(indexOfLeftChild(index))) {
-	    double maxLeft = maxYinRange(minX,maxX,maxY,indexOfLeftChild(index));
-	    if(maxLeft > max) max = maxLeft;
-	}
-	if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-	    double maxRight = maxYinRange(minX,maxX,maxY,indexOfRightChild(index));
-	    if(maxRight > max) max = maxRight;
+	if(isValidNode(indexOfLeftChild(index))) {
+	    double nodeR = maxX(indexOfLeftChild(index));
+	    if(nodeR >= minX) {
+		double maxLeft = maxYinRange(minX,maxX,maxY,indexOfLeftChild(index));
+		if(maxLeft > max) max = maxLeft;
+	    }
+	    if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
+		double maxRight = maxYinRange(minX,maxX,maxY,indexOfRightChild(index));
+		if(maxRight > max) max = maxRight;
+	    }
 	}
 	return max;
     }
@@ -276,11 +256,10 @@ public class PrioritySearchTree {
 	}
 	return min;
     }
-    public double maxX() throws EmptyTreeException {
+    public double maxX() {
 	return maxX(0);
     }
-    private double maxX(int index) throws EmptyTreeException {
-	if(heap[index] == null) throw new EmptyTreeException();
+    private double maxX(int index) {
 	double max = heap[index].getX();
 	while(isValidNode(indexOfRightChild(index))) {
 	    index = indexOfRightChild(index);
@@ -383,22 +362,6 @@ public class PrioritySearchTree {
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 
-	// With median
-	System.out.print("Recursive with median:    ");
-	sw = new StopWatch();
-	testPoints = pst.findAllPointsWithin(-10,10,10);
-	time = sw.stop();
-	printList(testPoints);
-	System.out.println("Took: " + time);
-
-	// Without
-	System.out.print("Recursive without median: ");
-	sw = new StopWatch();
-	testPoints = pst.findAllPointsWithinNoMedian(-10,10,10);
-	time = sw.stop();
-	printList(testPoints);
-	System.out.println("Took: " + time);
-
 	// Test time
 	testTime(pst,MAX_Y,MIN_Y);
     }
@@ -411,13 +374,6 @@ public class PrioritySearchTree {
 	StopWatch sw = new StopWatch();
 	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
 	long time = sw.stop();
-	System.out.println("Took: " + time);
-
-	// Find all points in range
-	System.out.println("Finding all points (not using stored median)...");
-	sw = new StopWatch();
-	testPoints = pst.findAllPointsWithinNoMedian(MIN_Y,MAX_Y,MAX_Y);
-	time = sw.stop();
 	System.out.println("Took: " + time);
 
 	// Find max/min x/y in range

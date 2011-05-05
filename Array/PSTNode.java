@@ -18,23 +18,16 @@ import java.awt.geom.*;
 
 public class PSTNode {
     private PSTPoint p;
-    private double medianX;
 
-    public PSTNode(double x, double y, double medianX) {
-	this(new PSTPoint(x,y),medianX);
+    public PSTNode(double x, double y) {
+	this(new PSTPoint(x,y));
     }
 
-    public PSTNode(PSTPoint p, double medianX) {
+    public PSTNode(PSTPoint p) {
 	this.p = p;
-	this.medianX = medianX;
     }
 
     public double getX() { return p.getX(); }
     public double getY() { return p.getY(); }
     public PSTPoint getPoint() { return p; }
-    public double getMedianX() { return medianX; }
-    
-    public static void main(String[] args) {
-	PSTNode pstn = new PSTNode(2.0d,3.0d,4.0d);
-    }
 }

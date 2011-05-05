@@ -70,7 +70,7 @@ public class PrioritySearchTree {
 	    else upperPoints.add(p);
 	}
 	// Make tree
-	PSTNode root = new PSTNode(rootPoint,medianX);
+	PSTNode root = new PSTNode(rootPoint);
 	if(lowerPoints.size() > 0)
 	    root.setLeftChild(buildTree(lowerPoints));
 	if(upperPoints.size() > 0)
@@ -92,8 +92,10 @@ public class PrioritySearchTree {
 *                                                                             *
 ******************************************************************************/
     public ArrayList<PSTPoint> findAllPointsWithin(double minX, 
-						   double maxX, double maxY) {
-	return findAllPointsWithin(minX,maxX,maxY,new ArrayList<PSTPoint>(),root);
+						   double maxX, double maxY)
+	throws EmptyTreeException {
+	return findAllPointsWithin(minX,maxX,maxY,
+				   new ArrayList<PSTPoint>(),root);
     }
     // Note that as maxY and maxX approach positive infinity and
     // minX approaches negative infinity, this search visits more nodes.
@@ -101,36 +103,7 @@ public class PrioritySearchTree {
     private ArrayList<PSTPoint> findAllPointsWithin(double minX,
 						    double maxX, double maxY,
 						    ArrayList<PSTPoint> list,
-						    PSTNode node) {
-	if(node == null) return list;
-	if(node.getY() <= maxY) {
-	    double nodeX = node.getX();
-	    if(nodeX >= minX && nodeX <= maxX) { 
-		list.add(node.getPoint());
-	    }
-	    double nodeR = node.getMedianX();
-	    // nodeR >= points in left tree >= minX
-	    if(nodeR >= minX)
-		findAllPointsWithin(minX,maxX,maxY,list,node.getLeftChild());
-	    // nodeR < points in right tree <= maxX
-	    if(nodeR < maxX) 
-		findAllPointsWithin(minX,maxX,maxY,list,node.getRightChild());
-	}
-	return list;
-    }
-    public ArrayList<PSTPoint> findAllPointsWithinNoMedian(double minX, 
-							   double maxX, double maxY)
-	throws EmptyTreeException {
-	return findAllPointsWithinNoMedian(minX,maxX,maxY,
-					   new ArrayList<PSTPoint>(),root);
-    }
-    // Note that as maxY and maxX approach positive infinity and
-    // minX approaches negative infinity, this search visits more nodes.
-    // In the worst case, all nodes are visited.
-    private ArrayList<PSTPoint> findAllPointsWithinNoMedian(double minX,
-							    double maxX, double maxY,
-							    ArrayList<PSTPoint> list,
-							    PSTNode node)
+						    PSTNode node)
 	throws EmptyTreeException {
 	if(node == null) return list;
 	if(node.getY() <= maxY) {
@@ -143,12 +116,12 @@ public class PrioritySearchTree {
 		double nodeR = maxX(leftChild);
 		// nodeR >= points in left tree >= minX
 		if(nodeR >= minX)
-		    findAllPointsWithinNoMedian(minX,maxX,maxY,list,
-						leftChild);
+		    findAllPointsWithin(minX,maxX,maxY,list,
+					leftChild);
 		// nodeR < points in right tree <= maxX
 		if(nodeR < maxX) 
-		    findAllPointsWithinNoMedian(minX,maxX,maxY,list,
-						node.getRightChild());
+		    findAllPointsWithin(minX,maxX,maxY,list,
+					node.getRightChild());
 	    }
 	}
 	return list;
@@ -166,16 +139,19 @@ public class PrioritySearchTree {
 	if(node == null || node.getY() > maxY) return Double.POSITIVE_INFINITY;
 	double nodeX = node.getX();
 	if(nodeX >= minX && nodeX <= maxX) return node.getY();
-	double nodeR = node.getMedianX();
-	// nodeR >= points in left tree >= minX
-	if(nodeR >= minX && nodeR < maxX) {
-	    double minLeft = minYinRange(minX,maxX,maxY,node.getLeftChild());
-	    double minRight = minYinRange(minX,maxX,maxY,node.getRightChild());
-	    return (minLeft < minRight ? minLeft : minRight);
-	} else if(nodeR >= minX) {
-	    return minYinRange(minX,maxX,maxY,node.getLeftChild());
-	} else if(nodeR < maxX) {
-	    return minYinRange(minX,maxX,maxY,node.getRightChild());
+	PSTNode leftChild = node.getLeftChild();
+	if(leftChild != null) {
+	    double nodeR = maxX(leftChild);
+	    // nodeR >= points in left tree >= minX
+	    if(nodeR >= minX && nodeR < maxX) {
+		double minLeft = minYinRange(minX,maxX,maxY,leftChild);
+		double minRight = minYinRange(minX,maxX,maxY,node.getRightChild());
+		return (minLeft < minRight ? minLeft : minRight);
+	    } else if(nodeR >= minX) {
+		return minYinRange(minX,maxX,maxY,node.getLeftChild());
+	    } else if(nodeR < maxX) {
+		return minYinRange(minX,maxX,maxY,node.getRightChild());
+	    }
 	}
 	return Double.POSITIVE_INFINITY;
     }
@@ -192,14 +168,17 @@ public class PrioritySearchTree {
 	double nodeX = node.getX();
 	if(minX <= nodeX && nodeX <= maxX)
 	    min = nodeX;
-	double nodeR = node.getMedianX();
-	if(nodeR >= minX) {
-	    double minLeft = minXinRange(minX,maxX,maxY,node.getLeftChild());
-	    if(minLeft < min) min = minLeft;
-	}
-	if(nodeR < maxX) {
-	    double minRight = minXinRange(minX,maxX,maxY,node.getRightChild());
-	    if(minRight < min) min = minRight;
+	PSTNode leftChild = node.getLeftChild();
+	if(leftChild != null) {
+	    double nodeR = maxX(leftChild);
+	    if(nodeR >= minX) {
+		double minLeft = minXinRange(minX,maxX,maxY,leftChild);
+		if(minLeft < min) min = minLeft;
+	    }
+	    if(nodeR < maxX) {
+		double minRight = minXinRange(minX,maxX,maxY,node.getRightChild());
+		if(minRight < min) min = minRight;
+	    }
 	}
 	return min;
     }
@@ -216,14 +195,17 @@ public class PrioritySearchTree {
 	double nodeX = node.getX();
 	if(minX <= nodeX && nodeX <= maxX)
 	    max = nodeX;
-	double nodeR = node.getMedianX();
-	if(nodeR >= minX) {
-	    double maxLeft = maxXinRange(minX,maxX,maxY,node.getLeftChild());
-	    if(maxLeft > max) max = maxLeft;
-	}
-	if(nodeR < maxX) {
-	    double maxRight = maxXinRange(minX,maxX,maxY,node.getRightChild());
-	    if(maxRight > max) max = maxRight;
+	PSTNode leftChild = node.getLeftChild();
+	if(leftChild != null) {
+	    double nodeR = maxX(leftChild);
+	    if(nodeR >= minX) {
+		double maxLeft = maxXinRange(minX,maxX,maxY,leftChild);
+		if(maxLeft > max) max = maxLeft;
+	    }
+	    if(nodeR < maxX) {
+		double maxRight = maxXinRange(minX,maxX,maxY,node.getRightChild());
+		if(maxRight > max) max = maxRight;
+	    }
 	}
 	return max;
     }
@@ -240,14 +222,17 @@ public class PrioritySearchTree {
 	double nodeX = node.getX();
 	if(minX <= nodeX && nodeX <= maxX)
 	    max = node.getY();
-	double nodeR = node.getMedianX();
-	if(nodeR >= minX) {
-	    double maxLeft = maxYinRange(minX,maxX,maxY,node.getLeftChild());
-	    if(maxLeft > max) max = maxLeft;
-	}
-	if(nodeR < maxX) {
-	    double maxRight = maxYinRange(minX,maxX,maxY,node.getRightChild());
-	    if(maxRight > max) max = maxRight;
+	PSTNode leftChild = node.getLeftChild();
+	if(leftChild != null) {
+	    double nodeR = maxX(leftChild);
+	    if(nodeR >= minX) {
+		double maxLeft = maxYinRange(minX,maxX,maxY,leftChild);
+		if(maxLeft > max) max = maxLeft;
+	    }
+	    if(nodeR < maxX) {
+		double maxRight = maxYinRange(minX,maxX,maxY,node.getRightChild());
+		if(maxRight > max) max = maxRight;
+	    }
 	}
 	return max;
     }
@@ -255,11 +240,10 @@ public class PrioritySearchTree {
 /******************************************************************************
 * Whole-tree query functions                                                  *
 ******************************************************************************/
-    public double maxX() throws EmptyTreeException {
+    public double maxX() {
 	return maxX(root);
     }
-    private double maxX(PSTNode node) throws EmptyTreeException {
-	if(node == null) throw new EmptyTreeException();
+    private double maxX(PSTNode node) {
 	double max = node.getX();
 	PSTNode child = node.getRightChild();
 	while(child != null) {
@@ -307,25 +291,9 @@ public class PrioritySearchTree {
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 
-	// With median
-	System.out.print("Recursive with median:    ");
-	sw = new StopWatch();
-	testPoints = pst.findAllPointsWithin(-10,10,10);
-	time = sw.stop();
-	printList(testPoints);
-	System.out.println("Took: " + time);
-
-	// Without
-	System.out.print("Recursive without median: ");
-	sw = new StopWatch();
-	testPoints = pst.findAllPointsWithinNoMedian(-10,10,10);
-	time = sw.stop();
-	printList(testPoints);
-	System.out.println("Took: " + time);
- 
 	// Test time
 	testTime(pst,MAX_Y,MIN_Y);
-   }
+    }
     private static void testTime(PrioritySearchTree pst,
 				 double MAX_Y,
 				 double MIN_Y) 
@@ -335,13 +303,6 @@ public class PrioritySearchTree {
 	StopWatch sw = new StopWatch();
 	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
 	long time = sw.stop();
-	System.out.println("Took: " + time);
-
-	// Find all points in range
-	System.out.println("Finding all points (not using stored median)...");
-	sw = new StopWatch();
-	testPoints = pst.findAllPointsWithinNoMedian(MIN_Y,MAX_Y,MAX_Y);
-	time = sw.stop();
 	System.out.println("Took: " + time);
 
 	// Find max/min x/y in range

@@ -16,22 +16,19 @@
 
 public class PSTNode {
     private PSTPoint p;
-    private double medianX;
     private PSTNode leftChild, rightChild;
 
-    public PSTNode(double x, double y, double medianX) {
-	this(new PSTPoint(x,y),medianX);
+    public PSTNode(double x, double y) {
+	this(new PSTPoint(x,y));
     }
 
-    public PSTNode(PSTPoint p, double medianX) {
+    public PSTNode(PSTPoint p) {
 	this.p = p;
-	this.medianX = medianX;
     }
 
     public double getX() { return p.getX(); }
     public double getY() { return p.getY(); }
     public PSTPoint getPoint() { return p; }
-    public double getMedianX() { return medianX; }
     public PSTNode getLeftChild() { return leftChild; }
     public PSTNode getRightChild() { return rightChild; }
     public void setLeftChild(PSTNode p) {
@@ -39,9 +36,5 @@ public class PSTNode {
     }
     public void setRightChild(PSTNode p) {
 	this.rightChild = p;
-    }
-    
-    public static void main(String[] args) {
-	PSTNode pstn = new PSTNode(2.0d,3.0d,4.0d);
     }
 }
