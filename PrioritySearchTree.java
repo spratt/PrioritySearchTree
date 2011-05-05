@@ -1,5 +1,5 @@
 /******************************************************************************
-*                       Copyright (c) 2009 - 2010 by                          *
+*                       Copyright (c) 2011 - 2012 by                          *
 *                               Simon Pratt                                   *
 *                         (All rights reserved)                               *
 *******************************************************************************
@@ -25,42 +25,129 @@ import java.util.*;
 
 public class PrioritySearchTree {
     private PSTNode root;
+    
+    public PrioritySearchTree(ArrayList<PSTPoint> points) {
+	if(points == null) return;
+	Collections.sort(points); // Sort by y-coordinate in increasing order
+	this.root = buildTree(points);
+    }
+/******************************************************************************
+* Given a list of valid points P ordered by y-coordinate in increasing        *
+* order, determines a median which bisects the remaining points, then         *
+* builds:                                                                     *
+*                                                                             *
+*   root: point with lowest y-value                                           *
+*   left child:  {p ∈ (P - root) | p.x <= medianX}                            *
+*   right child: {p ∈ (P - root) | p.x >  medianX}                            *
+*                                                                             *
+* Note: points are also assumed to have distinct coordinates, i.e. no         *
+*       two points have the same x coordinate and no two points have          *
+*       the same y coordinate.                                                *
+*                                                                             *
+*       While this may seem unrealistic, we can convert any indistinct        *
+*       coordinates by replacing all real coordinates with distinct           *
+*       coordinates from the composite-number space without any loss          *
+*       of generality.  See: Computational Geometry: Applications and         *
+*       Algorithms, de Berg et al.  Section 5.5.                              *
+*                                                                             *
+******************************************************************************/
 
     // Assumes all points are valid (e.g. not null)
-    public PrioritySearchTree(Point2D.Double[] points) {
-	// Find point with highest Y value
-	if(points == null || points.length < 1) return;
-	Point2D.Double rootPoint = points[0];
-	for(Point2D.Double p : points) {
-	    if(p.getY() > rootPoint.getY())
-		rootPoint = p;
-	}
+    private PSTNode buildTree(ArrayList<PSTPoint> points) {
+	if(points == null || points.size() < 1) return null;
+	// Find point with lowest Y value
+	PSTPoint rootPoint = points.remove(0);
 	// Find median X value
-	double medianX = 0.0d;
+	double sum = 0.0d;
+	for(PSTPoint p : points) sum += p.getX();
+	double medianX = sum/points.size();
 	// Make upper and lower point array
-	List<Point2D.Double> upperPoints = new ArrayList<Point2D.Double>();
-	List<Point2D.Double> lowerPoints = new ArrayList<Point2D.Double>();
-	for(Point2D.Double p : points) {
-	    if(p == rootPoint) continue;
-	    else if(p.getX() < medianX) lowerPoints.add(p);
+	ArrayList<PSTPoint> upperPoints = new ArrayList<PSTPoint>();
+	ArrayList<PSTPoint> lowerPoints = new ArrayList<PSTPoint>();
+	for(PSTPoint p : points) {
+	    if(p.getX() <= medianX) lowerPoints.add(p);
 	    else upperPoints.add(p);
 	}
 	// Make tree
-	this.root = new PSTNode(rootPoint,medianX);
-	this.root.setLeftChild((new PrioritySearchTree(lowerPoints.toArray(new Point2D.Double[0]))).getRoot());
-	this.root.setRightChild((new PrioritySearchTree(upperPoints.toArray(new Point2D.Double[0]))).getRoot());
+	PSTNode root = new PSTNode(rootPoint,medianX);
+	root.setLeftChild(buildTree(lowerPoints));
+	root.setRightChild(buildTree(upperPoints));
+	return root;
     }
-
-    public PSTNode getRoot() { return root; }
+/******************************************************************************
+*                                                                             *
+* Find all points within the region bounded by (minX,minY) and (maxX,maxY)    *
+*                                                                             *
+*              +--------+ (maxX,maxY)                                         *
+*              |        |                                                     *
+*              |        |                                                     *
+*              |        |                                                     *
+*  (minX,minY) +--------+                                                     *
+*                                                                             *
+* Assumes maxX > minX and maxY > minY.                                        *
+* Choose minX,minY,maxX,maxY appropriately.                                   *
+*                                                                             *
+******************************************************************************/
+    public ArrayList<PSTPoint> findAllPointsWithin(double minX, 
+						   double maxX, double maxY) {
+	return findAllPointsWithin(minX,maxX,maxY,new ArrayList<PSTPoint>(),root);
+    }
+    // Note that as maxY and maxX approach positive infinity and
+    // minX approaches negative infinity, this search visits more nodes.
+    // In the worst case, all nodes are visited.
+    private ArrayList<PSTPoint> findAllPointsWithin(double minX,
+						    double maxX, double maxY,
+						    ArrayList<PSTPoint> list,
+						    PSTNode node) {
+	if(node == null) return list;
+	if(node.getY() <= maxY) {
+	    double nodeX = node.getX();
+	    if(nodeX >= minX && nodeX <= maxX) { 
+		list.add(node.getPoint());
+	    }
+	    double nodeR = node.getMedianX();
+	    // nodeR >= points in left tree >= minX
+	    if(nodeR >= minX)
+		findAllPointsWithin(minX,maxX,maxY,list,node.getLeftChild());
+	    // nodeR < points in right tree <= maxX
+	    if(nodeR < maxX) 
+		findAllPointsWithin(minX,maxX,maxY,list,node.getRightChild());
+	}
+	return list;
+    }
+/******************************************************************************
+* Utility Functions                                                           *
+******************************************************************************/
+    private static void printList(ArrayList<PSTPoint> points) {
+	for(PSTPoint p : points) System.out.print(p + " ");
+	System.out.println();
+    }
+/******************************************************************************
+* Testing                                                                     *
+******************************************************************************/ 
 
     public static void main(String[] args) {
-	new PrioritySearchTree(null);
-	Point2D.Double[] testPoints = new Point2D.Double[5];
-	testPoints[0] = new Point2D.Double(2.0d,5.0d);
-	testPoints[1] = new Point2D.Double(-2.0d,4.0d);
-	testPoints[2] = new Point2D.Double(1.0d,3.0d);
-	testPoints[3] = new Point2D.Double(-1.0d,2.0d);
-	testPoints[4] = new Point2D.Double(0.0d,1.0d);
-	new PrioritySearchTree(testPoints);
+	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
+	double MAX_Y = 100000d;
+	double MIN_Y = -MAX_Y;
+	for(double i = 0; i < MAX_Y ; i++) {
+	    testPoints.add(new PSTPoint(MAX_Y-i,i));
+	    testPoints.add(new PSTPoint(-i,MIN_Y+i));
+	}
+	System.out.print("Building tree...");
+	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
+	System.out.println("done.");
+
+	System.out.print("All points in range: ");
+	printList(pst.findAllPointsWithin(-10,10,10));
+    }
+/******************************************************************************
+* Exceptions                                                                  *
+******************************************************************************/
+    public class EmptyTreeException extends Exception {
+	public EmptyTreeException() { super("Tree is empty"); }
+    }
+    public class NoPointsInRangeException extends Exception {
+	public NoPointsInRangeException() { super("No points in range"); }
     }
 }
