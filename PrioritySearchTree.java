@@ -59,7 +59,8 @@ public class PrioritySearchTree {
 	PSTPoint rootPoint = points.remove(0);
 	// Find median X value
 	double sum = 0.0d;
-	for(PSTPoint p : points) sum += p.getX();
+	for(PSTPoint p : points)
+	    sum += p.getX();
 	double medianX = sum/points.size();
 	// Make upper and lower point array
 	ArrayList<PSTPoint> upperPoints = new ArrayList<PSTPoint>();
@@ -70,8 +71,10 @@ public class PrioritySearchTree {
 	}
 	// Make tree
 	PSTNode root = new PSTNode(rootPoint,medianX);
-	root.setLeftChild(buildTree(lowerPoints));
-	root.setRightChild(buildTree(upperPoints));
+	if(lowerPoints.size() > 0)
+	    root.setLeftChild(buildTree(lowerPoints));
+	if(upperPoints.size() > 0)
+	    root.setRightChild(buildTree(upperPoints));
 	return root;
     }
 /******************************************************************************
@@ -220,30 +223,45 @@ public class PrioritySearchTree {
 	for(PSTPoint p : points) System.out.print(p + " ");
 	System.out.println();
     }
+    private static int doubleToInt(double d) {
+	return (new Double(d)).intValue();
+    }
 /******************************************************************************
 * Testing                                                                     *
 ******************************************************************************/ 
 
     public static void main(String[] args) throws NoPointsInRangeException {
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
-	double MAX_Y = 10000000d;
+	double MAX_Y = 2500000d;
 	double MIN_Y = -MAX_Y;
 	for(double i = 0; i < MAX_Y ; i++) {
 	    testPoints.add(new PSTPoint(MAX_Y-i,i));
 	    testPoints.add(new PSTPoint(-i,MIN_Y+i));
 	}
-	System.out.print("Building tree...");
-	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
-	System.out.println("done.");
 
-	System.out.print("Finding all points in range...");
+	// Build tree
+	System.out.println("Building tree with " +
+			   (2*doubleToInt(MAX_Y)) + " nodes...");
+	StopWatch sw = new StopWatch();
+	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
+	long time = sw.stop();
+	System.out.println("Took: " + time);
+
+	// Find all points in range
+	System.out.println("Finding all points in range...");
+	sw = new StopWatch();
 	testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
-	System.out.println("done.");
-	//printList(testPoints);
-	System.out.println("minYinRange: " + pst.minYinRange(MIN_Y,MAX_Y,MAX_Y));
-	System.out.println("minXinRange: " + pst.minXinRange(MIN_Y,MAX_Y,MAX_Y));
-	System.out.println("maxXinRange: " + pst.maxXinRange(MIN_Y,MAX_Y,MAX_Y));
-	System.out.println("maxYinRange: " + pst.maxYinRange(MIN_Y,MAX_Y,MAX_Y));
+	time = sw.stop();
+	System.out.println("Took: " + time);
+
+	// Find max/min x/y in range
+	System.out.println("Finding max/min x/y in range...");
+	double result = pst.minYinRange(MIN_Y,MAX_Y,MAX_Y);
+	result = pst.minXinRange(MIN_Y,MAX_Y,MAX_Y);
+	result = pst.maxXinRange(MIN_Y,MAX_Y,MAX_Y);
+	result = pst.maxYinRange(MIN_Y,MAX_Y,MAX_Y);
+	time = sw.stop();
+	System.out.println("Took: " + time);
     }
 /******************************************************************************
 * Exceptions                                                                  *
