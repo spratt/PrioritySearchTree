@@ -118,6 +118,41 @@ public class PrioritySearchTree {
 	}
 	return list;
     }
+    public ArrayList<PSTPoint> findAllPointsWithinNoMedian(double minX, 
+							   double maxX, double maxY)
+	throws EmptyTreeException {
+	return findAllPointsWithinNoMedian(minX,maxX,maxY,
+					   new ArrayList<PSTPoint>(),root);
+    }
+    // Note that as maxY and maxX approach positive infinity and
+    // minX approaches negative infinity, this search visits more nodes.
+    // In the worst case, all nodes are visited.
+    private ArrayList<PSTPoint> findAllPointsWithinNoMedian(double minX,
+							    double maxX, double maxY,
+							    ArrayList<PSTPoint> list,
+							    PSTNode node)
+	throws EmptyTreeException {
+	if(node == null) return list;
+	if(node.getY() <= maxY) {
+	    double nodeX = node.getX();
+	    if(nodeX >= minX && nodeX <= maxX) { 
+		list.add(node.getPoint());
+	    }
+	    PSTNode leftChild = node.getLeftChild();
+	    if(leftChild != null) {
+		double nodeR = maxX(leftChild);
+		// nodeR >= points in left tree >= minX
+		if(nodeR >= minX)
+		    findAllPointsWithinNoMedian(minX,maxX,maxY,list,
+						leftChild);
+		// nodeR < points in right tree <= maxX
+		if(nodeR < maxX) 
+		    findAllPointsWithinNoMedian(minX,maxX,maxY,list,
+						node.getRightChild());
+	    }
+	}
+	return list;
+    }
 /******************************************************************************
 * Other query functions                                                       *
 ******************************************************************************/
@@ -216,6 +251,30 @@ public class PrioritySearchTree {
 	}
 	return max;
     }
+	
+/******************************************************************************
+* Whole-tree query functions                                                  *
+******************************************************************************/
+    public double maxX() throws EmptyTreeException {
+	return maxX(root);
+    }
+    private double maxX(PSTNode node) throws EmptyTreeException {
+	if(node == null) throw new EmptyTreeException();
+	double max = node.getX();
+	PSTNode child = node.getRightChild();
+	while(child != null) {
+	    node = child;
+	    child = node.getRightChild();
+	    if(node.getX() > max)
+		max = node.getX();
+	}
+	// Since a leaf without a sibling is always left
+	// we have to check the last left child just in case
+	child = node.getLeftChild();
+	if(child != null && child.getX() > max)
+	    max = child.getX();
+	return max;
+    }
 /******************************************************************************
 * Utility Functions                                                           *
 ******************************************************************************/
@@ -230,7 +289,8 @@ public class PrioritySearchTree {
 * Testing                                                                     *
 ******************************************************************************/ 
 
-    public static void main(String[] args) throws NoPointsInRangeException {
+    public static void main(String[] args)
+	throws EmptyTreeException, NoPointsInRangeException {
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
 	double MAX_Y = 2500000d;
 	double MIN_Y = -MAX_Y;
@@ -251,6 +311,13 @@ public class PrioritySearchTree {
 	System.out.println("Finding all points in range...");
 	sw = new StopWatch();
 	testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
+	time = sw.stop();
+	System.out.println("Took: " + time);
+
+	// Find all points in range
+	System.out.println("Finding all points (not using stored median)...");
+	sw = new StopWatch();
+	testPoints = pst.findAllPointsWithinNoMedian(MIN_Y,MAX_Y,MAX_Y);
 	time = sw.stop();
 	System.out.println("Took: " + time);
 

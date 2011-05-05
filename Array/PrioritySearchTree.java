@@ -123,6 +123,41 @@ public class PrioritySearchTree {
 	}
 	return list;
     }
+    public ArrayList<PSTPoint> findAllPointsWithinNoMedian(double minX, 
+							   double maxX, double maxY)
+	throws EmptyTreeException {
+	return findAllPointsWithinNoMedian(minX,maxX,maxY,
+					   new ArrayList<PSTPoint>(),0);
+    }
+    // Note that as maxY and maxX approach positive infinity and
+    // minX approaches negative infinity, this search visits more nodes.
+    // In the worst case, all nodes are visited.
+    private ArrayList<PSTPoint> findAllPointsWithinNoMedian(double minX,
+							    double maxX, double maxY,
+							    ArrayList<PSTPoint> list,
+							    int index)
+	throws EmptyTreeException {
+	PSTNode node = heap[index];
+	if(node == null) return list;
+	if(node.getY() <= maxY) {
+	    double nodeX = node.getX();
+	    if(nodeX >= minX && nodeX <= maxX) { 
+		list.add(node.getPoint());
+	    }
+	    if(isValidNode(indexOfLeftChild(index))) {
+		double nodeR = maxX(index);
+		// nodeR >= points in left tree >= minX
+		if(nodeR >= minX)
+		    findAllPointsWithinNoMedian(minX,maxX,maxY,list,
+						indexOfLeftChild(index));
+		// nodeR < points in right tree <= maxX
+		if(nodeR < maxX) 
+		    findAllPointsWithinNoMedian(minX,maxX,maxY,list,
+						indexOfRightChild(index));
+	    }
+	}
+	return list;
+    }
 /******************************************************************************
 * Other query functions                                                       *
 ******************************************************************************/
@@ -242,7 +277,9 @@ public class PrioritySearchTree {
 	return min;
     }
     public double maxX() throws EmptyTreeException {
-	int index = 0;
+	return maxX(0);
+    }
+    private double maxX(int index) throws EmptyTreeException {
 	if(heap[index] == null) throw new EmptyTreeException();
 	double max = heap[index].getX();
 	while(isValidNode(indexOfRightChild(index))) {
@@ -256,7 +293,7 @@ public class PrioritySearchTree {
 	   heap[indexOfLeftChild(index)].getX() > max)
 	    max = heap[indexOfLeftChild(index)].getX();
 	return max;
-    }    
+    }
     public double minY() throws EmptyTreeException {
 	if(heap[0] == null) throw new EmptyTreeException();
 	return heap[0].getY();
@@ -350,6 +387,13 @@ public class PrioritySearchTree {
 	System.out.println("Finding all points in range...");
 	sw = new StopWatch();
 	testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
+	time = sw.stop();
+	System.out.println("Took: " + time);
+
+	// Find all points in range
+	System.out.println("Finding all points (not using stored median)...");
+	sw = new StopWatch();
+	testPoints = pst.findAllPointsWithinNoMedian(MIN_Y,MAX_Y,MAX_Y);
 	time = sw.stop();
 	System.out.println("Took: " + time);
 
