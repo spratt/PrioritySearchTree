@@ -25,16 +25,23 @@ import java.util.*;
 
 public class PrioritySearchTree {
     PSTNode[] heap;
+    enum Constructor { RECURSIVE, ITERATIVE };
 
 /******************************************************************************
 * The worst case for space is when there are 2^m nodes, for some m.           *
 * In which case, O(2^(logn) - 1) extra space is allocated.                    *
 ******************************************************************************/
     public PrioritySearchTree(ArrayList<PSTPoint> points) {
+	this(points,Constructor.RECURSIVE);
+    }
+    public PrioritySearchTree(ArrayList<PSTPoint> points,Constructor c) {
 	if(points == null) return;
 	Collections.sort(points); // Sort by y-coordinate in increasing order
 	this.heap = new PSTNode[heapSize(treeHeight(points.size()))];
-	buildTree(0,points);
+	if(c == Constructor.RECURSIVE)
+	    buildTree(0,points);
+	else
+	    buildTreeIterative(points);
     }
 /******************************************************************************
 * Given a root index and a list of valid points P ordered by                  *
@@ -80,6 +87,40 @@ public class PrioritySearchTree {
 	    buildTree(indexOfLeftChild(rootIndex),lowerPoints);
 	if(upperPoints.size() > 0)
 	    buildTree(indexOfRightChild(rootIndex),upperPoints);
+    }
+    private void buildTreeIterative(ArrayList<PSTPoint> points) {
+	ArrayList<Integer> indices = new ArrayList<Integer>();
+	indices.add(0);
+	ArrayList<ArrayList<PSTPoint> > children =
+	    new ArrayList<ArrayList<PSTPoint> >();
+	children.add(points);
+	Integer index = new Integer(0);
+	do {
+	    points = children.remove(0);
+	    PSTPoint rootPoint = points.remove(0);
+	    heap[index] = new PSTNode(rootPoint,splitPoints(points,children));
+	    indices.add(new Integer(indexOfLeftChild(index)));
+	    indices.add(new Integer(indexOfRightChild(index)));
+	    index = indices.remove(0);
+	} while(!indices.isEmpty() && index < heap.length);
+    }
+    private double splitPoints(ArrayList<PSTPoint> points,
+			     ArrayList<ArrayList<PSTPoint> > children) {
+	ArrayList<PSTPoint> lowerPoints = new ArrayList<PSTPoint>();
+	ArrayList<PSTPoint> upperPoints = new ArrayList<PSTPoint>();
+	double sumX = 0.0d;
+	for(PSTPoint p : points)
+	    sumX += p.getX();
+	double medianX = sumX/points.size();
+	for(PSTPoint p : points) {
+	    // note: if p.x is equal to median, it will be added to left child
+	    if(p.getX() <= medianX) lowerPoints.add(p);
+	    else upperPoints.add(p);
+	}
+	// finally
+	children.add(lowerPoints);
+	children.add(upperPoints);
+	return medianX;
     }
 /******************************************************************************
 *                                                                             *
@@ -375,19 +416,44 @@ public class PrioritySearchTree {
 	    testPoints.add(new PSTPoint(-i,MIN_Y+i));
 	}
 
-	// Build tree
+	// Build tree recursive
 	System.out.println("Building tree with " +
-			   (2*doubleToInt(MAX_Y)) + " nodes...");
+			   (2*doubleToInt(MAX_Y)) + " nodes recursively...");
 	StopWatch sw = new StopWatch();
 	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 
+	// Build tree iterative
+	System.out.println("Building tree with " +
+			   (2*doubleToInt(MAX_Y)) + " nodes iteratively...");
+	sw = new StopWatch();
+	PrioritySearchTree psti = new PrioritySearchTree(testPoints,
+							 Constructor.ITERATIVE);
+	time = sw.stop();
+	System.out.println("Took: " + time);
+
+	// Recursive
+	System.out.print("Recursive with median:    ");
+	printList(pst.findAllPointsWithin(-10,10,10));
+	System.out.print("Recursive without median: ");
+	printList(pst.findAllPointsWithinNoMedian(-10,10,10));
+
+	// Iterative
+	System.out.print("Iterative with median:    ");
+	printList(psti.findAllPointsWithin(-10,10,10));
+	System.out.print("Iterative without median: ");
+	printList(psti.findAllPointsWithinNoMedian(-10,10,10));
+    }
+    private static void testTime(PrioritySearchTree pst,
+				 double MAX_Y,
+				 double MIN_Y) 
+	throws EmptyTreeException, NoPointsInRangeException {
 	// Find all points in range
 	System.out.println("Finding all points in range...");
-	sw = new StopWatch();
-	testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
-	time = sw.stop();
+	StopWatch sw = new StopWatch();
+	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
+	long time = sw.stop();
 	System.out.println("Took: " + time);
 
 	// Find all points in range
@@ -399,6 +465,7 @@ public class PrioritySearchTree {
 
 	// Find max/min x/y in range
 	System.out.println("Finding max/min x/y in range...");
+	sw = new StopWatch();
 	double result = pst.minYinRange(MIN_Y,MAX_Y,MAX_Y);
 	result = pst.minXinRange(MIN_Y,MAX_Y,MAX_Y);
 	result = pst.maxXinRange(MIN_Y,MAX_Y,MAX_Y);

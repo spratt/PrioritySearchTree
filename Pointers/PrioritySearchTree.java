@@ -323,12 +323,19 @@ public class PrioritySearchTree {
 
 	// Find max/min x/y in range
 	System.out.println("Finding max/min x/y in range...");
+	sw = new StopWatch();
 	double result = pst.minYinRange(MIN_Y,MAX_Y,MAX_Y);
 	result = pst.minXinRange(MIN_Y,MAX_Y,MAX_Y);
 	result = pst.maxXinRange(MIN_Y,MAX_Y,MAX_Y);
 	result = pst.maxYinRange(MIN_Y,MAX_Y,MAX_Y);
 	time = sw.stop();
 	System.out.println("Took: " + time);
+
+	// Just a little correctness check
+	System.out.print("Using median:     ");
+	printList(pst.findAllPointsWithin(-10,10,10));
+	System.out.print("Not using median: ");
+	printList(pst.findAllPointsWithinNoMedian(-10,10,10));
     }
 /******************************************************************************
 * Exceptions                                                                  *
