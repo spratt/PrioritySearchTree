@@ -102,34 +102,6 @@ public class PrioritySearchTree {
 						   double maxX, double maxY) {
 	return findAllPointsWithin(minX,maxX,maxY,new ArrayList<PSTPoint>(),0);
     }
-    public ArrayList<PSTPoint> findAllPointsWithin(double minX, double minY,
-						   double maxX, double maxY) {
-	return findAllPointsWithin(minX,minY,maxX,maxY,
-				   new ArrayList<PSTPoint>(),0);
-    }
-    private ArrayList<PSTPoint> findAllPointsWithin(double minX, double minY,
-						    double maxX, double maxY,
-						    ArrayList<PSTPoint> list,
-						    int rootIndex) {
-	if(heap == null) return list;
-	PSTNode node = heap[rootIndex];
-	if(node == null) return list;
-	if(node.getY() < minY) {
-	    double nodeR = node.getMedianX();
-	    // nodeR >= points in left tree >= minX
-	    if(nodeR >= minX)
-		findAllPointsWithin(minX,minY,maxX,maxY,list,
-				    indexOfLeftChild(rootIndex));
-	    // nodeR < points in right tree <= maxX
-	    if(nodeR < maxX) 
-		findAllPointsWithin(minX,minY,maxX,maxY,list,
-				    indexOfRightChild(rootIndex));
-	} else {
-	    // Now that nodeY >= minY, we can do a 3 bounded search
-	    findAllPointsWithin(minX,maxX,maxY,list,rootIndex);
-	}
-	return list;
-    }
     // Note that as maxY and maxX approach positive infinity and
     // minX approaches negative infinity, this search visits more nodes.
     // In the worst case, all nodes are visited.
