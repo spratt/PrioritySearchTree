@@ -131,28 +131,28 @@ public class PrioritySearchTree {
 /******************************************************************************
 * Other query functions                                                       *
 ******************************************************************************/
-    public double minYinRange(double minX, double maxX)
+    public double minYinRange(double minX, double maxX, double maxY)
 	throws NoPointsInRangeException {
-	double min = minYinRange(minX,maxX,0);
+	double min = minYinRange(minX,maxX,maxY,0);
 	if(min < Double.POSITIVE_INFINITY) return min;
 	throw new NoPointsInRangeException();
     }
-    private double minYinRange(double minX, double maxX, int index) {
-	if(heap[index] == null) return Double.POSITIVE_INFINITY;
+    private double minYinRange(double minX, double maxX,double maxY, int index) {
 	PSTNode node = heap[index];
+	if(node == null || node.getY() > maxY) return Double.POSITIVE_INFINITY;
 	double nodeX = node.getX();
 	if(nodeX >= minX && nodeX <= maxX) return node.getY();
 	double nodeR = node.getMedianX();
 	// nodeR >= points in left tree >= minX
 	if(nodeR >= minX && isValidNode(indexOfLeftChild(index)) &&
 	   nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-	    double minLeft = minYinRange(minX,maxX,indexOfLeftChild(index));
-	    double minRight = minYinRange(minX,maxX,indexOfRightChild(index));
+	    double minLeft = minYinRange(minX,maxX,maxY,indexOfLeftChild(index));
+	    double minRight = minYinRange(minX,maxX,maxY,indexOfRightChild(index));
 	    return (minLeft < minRight ? minLeft : minRight);
 	} else if(nodeR >= minX && isValidNode(indexOfLeftChild(index))) {
-	    return minYinRange(minX,maxX,indexOfLeftChild(index));
+	    return minYinRange(minX,maxX,maxY,indexOfLeftChild(index));
 	} else if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-	    return minYinRange(minX,maxX,indexOfRightChild(index));
+	    return minYinRange(minX,maxX,maxY,indexOfRightChild(index));
 	}
 	return Double.POSITIVE_INFINITY;
     }
@@ -164,7 +164,7 @@ public class PrioritySearchTree {
     }
     private double minXinRange(double minX, double maxX, double maxY, int index) {
 	PSTNode node = heap[index];
-	if(heap[index] == null || node.getY() > maxY)
+	if(node == null || node.getY() > maxY)
 	    return Double.POSITIVE_INFINITY;
 	double min = Double.POSITIVE_INFINITY;
 	double nodeX = node.getX();
@@ -189,7 +189,7 @@ public class PrioritySearchTree {
     }
     private double maxXinRange(double minX, double maxX, double maxY, int index) {
 	PSTNode node = heap[index];
-	if(heap[index] == null || node.getY() > maxY)
+	if(node == null || node.getY() > maxY)
 	    return Double.NEGATIVE_INFINITY;
 	double max = Double.NEGATIVE_INFINITY;
 	double nodeX = node.getX();
@@ -214,7 +214,7 @@ public class PrioritySearchTree {
     }
     private double maxYinRange(double minX, double maxX, double maxY, int index) {
 	PSTNode node = heap[index];
-	if(heap[index] == null || node.getY() > maxY)
+	if(node == null || node.getY() > maxY)
 	    return Double.NEGATIVE_INFINITY;
 	double max = Double.NEGATIVE_INFINITY;
 	double nodeX = node.getX();
@@ -336,7 +336,7 @@ public class PrioritySearchTree {
     public static void main(String[] args)
 	throws EmptyTreeException, NoPointsInRangeException {
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
-	double MAX_Y = 100000d;
+	double MAX_Y = 10000000d;
 	double MIN_Y = -MAX_Y;
 	for(double i = 0; i < MAX_Y ; i++) {
 	    testPoints.add(new PSTPoint(MAX_Y-i,i));
@@ -347,11 +347,14 @@ public class PrioritySearchTree {
 	System.out.println("done.");
 	report(testPoints.size());
 
-	
-	System.out.println("minYinRange: " + pst.minYinRange(-100,100));
-	System.out.println("minXinRange: " + pst.minXinRange(-100,100,10));
-	System.out.println("maxXinRange: " + pst.maxXinRange(-100,100,10));
-	System.out.println("maxYinRange: " + pst.maxYinRange(-100,100,10));
+	System.out.print("Finding all points in range...");
+	testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
+	System.out.println("done.");
+	//printList(testPoints);
+	System.out.println("minYinRange: " + pst.minYinRange(MIN_Y,MAX_Y,MAX_Y));
+	System.out.println("minXinRange: " + pst.minXinRange(MIN_Y,MAX_Y,MAX_Y));
+	System.out.println("maxXinRange: " + pst.maxXinRange(MIN_Y,MAX_Y,MAX_Y));
+	System.out.println("maxYinRange: " + pst.maxYinRange(MIN_Y,MAX_Y,MAX_Y));
     }
 /******************************************************************************
 * Exceptions                                                                  *
