@@ -299,19 +299,42 @@ public class PrioritySearchTree {
 	    testPoints.add(new PSTPoint(-i,MIN_Y+i));
 	}
 
-	// Build tree
+	// Build tree recursive
 	System.out.println("Building tree with " +
-			   (2*doubleToInt(MAX_Y)) + " nodes...");
+			   (2*doubleToInt(MAX_Y)) + " nodes recursively...");
 	StopWatch sw = new StopWatch();
 	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 
+	// With median
+	System.out.print("Recursive with median:    ");
+	sw = new StopWatch();
+	testPoints = pst.findAllPointsWithin(-10,10,10);
+	time = sw.stop();
+	printList(testPoints);
+	System.out.println("Took: " + time);
+
+	// Without
+	System.out.print("Recursive without median: ");
+	sw = new StopWatch();
+	testPoints = pst.findAllPointsWithinNoMedian(-10,10,10);
+	time = sw.stop();
+	printList(testPoints);
+	System.out.println("Took: " + time);
+ 
+	// Test time
+	testTime(pst,MAX_Y,MIN_Y);
+   }
+    private static void testTime(PrioritySearchTree pst,
+				 double MAX_Y,
+				 double MIN_Y) 
+	throws EmptyTreeException, NoPointsInRangeException {
 	// Find all points in range
 	System.out.println("Finding all points in range...");
-	sw = new StopWatch();
-	testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
-	time = sw.stop();
+	StopWatch sw = new StopWatch();
+	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
+	long time = sw.stop();
 	System.out.println("Took: " + time);
 
 	// Find all points in range
@@ -330,13 +353,8 @@ public class PrioritySearchTree {
 	result = pst.maxYinRange(MIN_Y,MAX_Y,MAX_Y);
 	time = sw.stop();
 	System.out.println("Took: " + time);
-
-	// Just a little correctness check
-	System.out.print("Using median:     ");
-	printList(pst.findAllPointsWithin(-10,10,10));
-	System.out.print("Not using median: ");
-	printList(pst.findAllPointsWithinNoMedian(-10,10,10));
     }
+
 /******************************************************************************
 * Exceptions                                                                  *
 ******************************************************************************/
