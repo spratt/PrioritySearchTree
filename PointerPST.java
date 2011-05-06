@@ -4,7 +4,7 @@
 *                         (All rights reserved)                               *
 *******************************************************************************
 *                                                                             *
-* FILE:    PrioritySearchTree.java                                            *
+* FILE:    PointerPST.java                                                    *
 *                                                                             *
 * MODULE:  Priority Search Tree                                               *
 *                                                                             *
@@ -23,10 +23,10 @@
 import java.awt.geom.*;
 import java.util.*;
 
-public class PrioritySearchTree {
-    private PSTNode root;
+public class PointerPST implements PrioritySearchTree {
+    private PointerPSTNode root;
     
-    public PrioritySearchTree(ArrayList<PSTPoint> points) {
+    public PointerPST(ArrayList<PSTPoint> points) {
 	if(points == null) return;
 	Collections.sort(points); // Sort by y-coordinate in increasing order
 	this.root = buildTree(points);
@@ -53,7 +53,7 @@ public class PrioritySearchTree {
 ******************************************************************************/
 
     // Assumes all points are valid (e.g. not null)
-    private PSTNode buildTree(ArrayList<PSTPoint> points) {
+    private PointerPSTNode buildTree(ArrayList<PSTPoint> points) {
 	if(points == null || points.size() < 1) return null;
 	// Find point with lowest Y value
 	PSTPoint rootPoint = points.remove(0);
@@ -70,7 +70,7 @@ public class PrioritySearchTree {
 	    else upperPoints.add(p);
 	}
 	// Make tree
-	PSTNode root = new PSTNode(rootPoint);
+	PointerPSTNode root = new PointerPSTNode(rootPoint);
 	if(lowerPoints.size() > 0)
 	    root.setLeftChild(buildTree(lowerPoints));
 	if(upperPoints.size() > 0)
@@ -103,7 +103,7 @@ public class PrioritySearchTree {
     private ArrayList<PSTPoint> findAllPointsWithin(double minX,
 						    double maxX, double maxY,
 						    ArrayList<PSTPoint> list,
-						    PSTNode node)
+						    PointerPSTNode node)
 	throws EmptyTreeException {
 	if(node == null) return list;
 	if(node.getY() <= maxY) {
@@ -111,7 +111,7 @@ public class PrioritySearchTree {
 	    if(nodeX >= minX && nodeX <= maxX) { 
 		list.add(node.getPoint());
 	    }
-	    PSTNode leftChild = node.getLeftChild();
+	    PointerPSTNode leftChild = node.getLeftChild();
 	    if(leftChild != null) {
 		double nodeR = maxX(leftChild);
 		// nodeR >= points in left tree >= minX
@@ -135,11 +135,11 @@ public class PrioritySearchTree {
 	if(min < Double.POSITIVE_INFINITY) return min;
 	throw new NoPointsInRangeException();
     }
-    private double minYinRange(double minX, double maxX, double maxY, PSTNode node) {
+    private double minYinRange(double minX, double maxX, double maxY, PointerPSTNode node) {
 	if(node == null || node.getY() > maxY) return Double.POSITIVE_INFINITY;
 	double nodeX = node.getX();
 	if(nodeX >= minX && nodeX <= maxX) return node.getY();
-	PSTNode leftChild = node.getLeftChild();
+	PointerPSTNode leftChild = node.getLeftChild();
 	if(leftChild != null) {
 	    double nodeR = maxX(leftChild);
 	    // nodeR >= points in left tree >= minX
@@ -161,14 +161,14 @@ public class PrioritySearchTree {
 	if(min < Double.POSITIVE_INFINITY) return min;
 	throw new NoPointsInRangeException();
     }
-    private double minXinRange(double minX, double maxX, double maxY, PSTNode node) {
+    private double minXinRange(double minX, double maxX, double maxY, PointerPSTNode node) {
 	if(node == null || node.getY() > maxY)
 	    return Double.POSITIVE_INFINITY;
 	double min = Double.POSITIVE_INFINITY;
 	double nodeX = node.getX();
 	if(minX <= nodeX && nodeX <= maxX)
 	    min = nodeX;
-	PSTNode leftChild = node.getLeftChild();
+	PointerPSTNode leftChild = node.getLeftChild();
 	if(leftChild != null) {
 	    double nodeR = maxX(leftChild);
 	    if(nodeR >= minX) {
@@ -188,14 +188,14 @@ public class PrioritySearchTree {
 	if(max > Double.NEGATIVE_INFINITY) return max;
 	throw new NoPointsInRangeException();
     }
-    private double maxXinRange(double minX, double maxX, double maxY, PSTNode node) {
+    private double maxXinRange(double minX, double maxX, double maxY, PointerPSTNode node) {
 	if(node == null || node.getY() > maxY)
 	    return Double.NEGATIVE_INFINITY;
 	double max = Double.NEGATIVE_INFINITY;
 	double nodeX = node.getX();
 	if(minX <= nodeX && nodeX <= maxX)
 	    max = nodeX;
-	PSTNode leftChild = node.getLeftChild();
+	PointerPSTNode leftChild = node.getLeftChild();
 	if(leftChild != null) {
 	    double nodeR = maxX(leftChild);
 	    if(nodeR >= minX) {
@@ -215,14 +215,14 @@ public class PrioritySearchTree {
 	if(max > Double.NEGATIVE_INFINITY) return max;
 	throw new NoPointsInRangeException();
     }
-    private double maxYinRange(double minX, double maxX, double maxY, PSTNode node) {
+    private double maxYinRange(double minX, double maxX, double maxY, PointerPSTNode node) {
 	if(node == null || node.getY() > maxY)
 	    return Double.NEGATIVE_INFINITY;
 	double max = Double.NEGATIVE_INFINITY;
 	double nodeX = node.getX();
 	if(minX <= nodeX && nodeX <= maxX)
 	    max = node.getY();
-	PSTNode leftChild = node.getLeftChild();
+	PointerPSTNode leftChild = node.getLeftChild();
 	if(leftChild != null) {
 	    double nodeR = maxX(leftChild);
 	    if(nodeR >= minX) {
@@ -243,9 +243,9 @@ public class PrioritySearchTree {
     public double maxX() {
 	return maxX(root);
     }
-    private double maxX(PSTNode node) {
+    private double maxX(PointerPSTNode node) {
 	double max = node.getX();
-	PSTNode child = node.getRightChild();
+	PointerPSTNode child = node.getRightChild();
 	while(child != null) {
 	    node = child;
 	    child = node.getRightChild();
@@ -272,50 +272,46 @@ public class PrioritySearchTree {
 /******************************************************************************
 * Testing                                                                     *
 ******************************************************************************/ 
-
     public static void main(String[] args)
 	throws EmptyTreeException, NoPointsInRangeException {
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
 	double MAX_Y = 2500000d;
-	double MIN_Y = -MAX_Y;
 	for(double i = 0; i < MAX_Y ; i++) {
 	    testPoints.add(new PSTPoint(MAX_Y-i,i));
-	    testPoints.add(new PSTPoint(-i,MIN_Y+i));
+	    testPoints.add(new PSTPoint(-i,-MAX_Y+i));
 	}
 
 	// Build tree recursive
 	System.out.println("Building tree with " +
 			   (2*doubleToInt(MAX_Y)) + " nodes recursively...");
 	StopWatch sw = new StopWatch();
-	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
+	PointerPST pst = new PointerPST(testPoints);
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 
 	// Test time
-	testTime(pst,MAX_Y,MIN_Y);
+	testTime(pst,MAX_Y);
     }
-    private static void testTime(PrioritySearchTree pst,
-				 double MAX_Y,
-				 double MIN_Y) 
+    private static void testTime(PointerPST pst, double MAX_Y)
 	throws EmptyTreeException, NoPointsInRangeException {
 	// Find all points in range
 	System.out.println("Finding all points in range...");
 	StopWatch sw = new StopWatch();
-	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
+	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(-MAX_Y,MAX_Y,MAX_Y);
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 
 	// Find max/min x/y in range
 	System.out.println("Finding max/min x/y in range...");
+	double result;
 	sw = new StopWatch();
-	double result = pst.minYinRange(MIN_Y,MAX_Y,MAX_Y);
-	result = pst.minXinRange(MIN_Y,MAX_Y,MAX_Y);
-	result = pst.maxXinRange(MIN_Y,MAX_Y,MAX_Y);
-	result = pst.maxYinRange(MIN_Y,MAX_Y,MAX_Y);
+	result = pst.minYinRange(-MAX_Y,MAX_Y,MAX_Y);
+	result = pst.minXinRange(-MAX_Y,MAX_Y,MAX_Y);
+	result = pst.maxXinRange(-MAX_Y,MAX_Y,MAX_Y);
+	result = pst.maxYinRange(-MAX_Y,MAX_Y,MAX_Y);
 	time = sw.stop();
 	System.out.println("Took: " + time);
     }
-
 /******************************************************************************
 * Exceptions                                                                  *
 ******************************************************************************/

@@ -4,7 +4,7 @@
 *                         (All rights reserved)                               *
 *******************************************************************************
 *                                                                             *
-* FILE:    PrioritySearchTree.java                                            *
+* FILE:    ArrayPST.java                                                      *
 *                                                                             *
 * MODULE:  Priority Search Tree                                               *
 *                                                                             *
@@ -23,17 +23,17 @@
 import java.awt.geom.*;
 import java.util.*;
 
-public class PrioritySearchTree {
-    PSTNode[] heap;
+public class ArrayPST implements PrioritySearchTree {
+    ArrayPSTNode[] heap;
 
 /******************************************************************************
 * The worst case for space is when there are 2^m nodes, for some m.           *
 * In which case, O(2^(logn) - 1) extra space is allocated.                    *
 ******************************************************************************/
-    public PrioritySearchTree(ArrayList<PSTPoint> points) {
+    public ArrayPST(ArrayList<PSTPoint> points) {
 	if(points == null) return;
 	Collections.sort(points); // Sort by y-coordinate in increasing order
-	this.heap = new PSTNode[heapSize(treeHeight(points.size()))];
+	this.heap = new ArrayPSTNode[heapSize(treeHeight(points.size()))];
 	buildTree(0,points);
     }
 /******************************************************************************
@@ -67,7 +67,7 @@ public class PrioritySearchTree {
 	    sumX += p.getX();
 	double medianX = sumX/points.size();
 	// Set the root node
-	heap[rootIndex] = new PSTNode(rootPoint);
+	heap[rootIndex] = new ArrayPSTNode(rootPoint);
 	// Bisect the non-root points into two arrays above and below the median
 	ArrayList<PSTPoint> upperPoints = new ArrayList<PSTPoint>();
 	ArrayList<PSTPoint> lowerPoints = new ArrayList<PSTPoint>();
@@ -109,7 +109,7 @@ public class PrioritySearchTree {
 						    ArrayList<PSTPoint> list,
 						    int index)
 	throws EmptyTreeException {
-	PSTNode node = heap[index];
+	ArrayPSTNode node = heap[index];
 	if(node == null) return list;
 	if(node.getY() <= maxY) {
 	    double nodeX = node.getX();
@@ -140,7 +140,7 @@ public class PrioritySearchTree {
 	throw new NoPointsInRangeException();
     }
     private double minYinRange(double minX, double maxX,double maxY, int index) {
-	PSTNode node = heap[index];
+	ArrayPSTNode node = heap[index];
 	if(node == null || node.getY() > maxY) return Double.POSITIVE_INFINITY;
 	double nodeX = node.getX();
 	if(nodeX >= minX && nodeX <= maxX) return node.getY();
@@ -167,7 +167,7 @@ public class PrioritySearchTree {
 	throw new NoPointsInRangeException();
     }
     private double minXinRange(double minX, double maxX, double maxY, int index) {
-	PSTNode node = heap[index];
+	ArrayPSTNode node = heap[index];
 	if(node == null || node.getY() > maxY)
 	    return Double.POSITIVE_INFINITY;
 	double min = Double.POSITIVE_INFINITY;
@@ -194,7 +194,7 @@ public class PrioritySearchTree {
 	throw new NoPointsInRangeException();
     }
     private double maxXinRange(double minX, double maxX, double maxY, int index) {
-	PSTNode node = heap[index];
+	ArrayPSTNode node = heap[index];
 	if(node == null || node.getY() > maxY)
 	    return Double.NEGATIVE_INFINITY;
 	double max = Double.NEGATIVE_INFINITY;
@@ -221,7 +221,7 @@ public class PrioritySearchTree {
 	throw new NoPointsInRangeException();
     }
     private double maxYinRange(double minX, double maxX, double maxY, int index) {
-	PSTNode node = heap[index];
+	ArrayPSTNode node = heap[index];
 	if(node == null || node.getY() > maxY)
 	    return Double.NEGATIVE_INFINITY;
 	double max = Double.NEGATIVE_INFINITY;
@@ -348,51 +348,40 @@ public class PrioritySearchTree {
 	throws EmptyTreeException, NoPointsInRangeException {
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
 	double MAX_Y = 2500000d;
-	double MIN_Y = -MAX_Y;
 	for(double i = 0; i < MAX_Y ; i++) {
 	    testPoints.add(new PSTPoint(MAX_Y-i,i));
-	    testPoints.add(new PSTPoint(-i,MIN_Y+i));
+	    testPoints.add(new PSTPoint(-i,-MAX_Y+i));
 	}
 
 	// Build tree recursive
 	System.out.println("Building tree with " +
 			   (2*doubleToInt(MAX_Y)) + " nodes recursively...");
 	StopWatch sw = new StopWatch();
-	PrioritySearchTree pst = new PrioritySearchTree(testPoints);
+	ArrayPST pst = new ArrayPST(testPoints);
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 
 	// Test time
-	testTime(pst,MAX_Y,MIN_Y);
+	testTime(pst,MAX_Y);
     }
-    private static void testTime(PrioritySearchTree pst,
-				 double MAX_Y,
-				 double MIN_Y) 
+    private static void testTime(ArrayPST pst, double MAX_Y) 
 	throws EmptyTreeException, NoPointsInRangeException {
 	// Find all points in range
 	System.out.println("Finding all points in range...");
 	StopWatch sw = new StopWatch();
-	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(MIN_Y,MAX_Y,MAX_Y);
+	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(-MAX_Y,MAX_Y,MAX_Y);
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 
 	// Find max/min x/y in range
 	System.out.println("Finding max/min x/y in range...");
+	double result;
 	sw = new StopWatch();
-	double result = pst.minYinRange(MIN_Y,MAX_Y,MAX_Y);
-	result = pst.minXinRange(MIN_Y,MAX_Y,MAX_Y);
-	result = pst.maxXinRange(MIN_Y,MAX_Y,MAX_Y);
-	result = pst.maxYinRange(MIN_Y,MAX_Y,MAX_Y);
+	result = pst.minYinRange(-MAX_Y,MAX_Y,MAX_Y);
+	result = pst.minXinRange(-MAX_Y,MAX_Y,MAX_Y);
+	result = pst.maxXinRange(-MAX_Y,MAX_Y,MAX_Y);
+	result = pst.maxYinRange(-MAX_Y,MAX_Y,MAX_Y);
 	time = sw.stop();
 	System.out.println("Took: " + time);
-    }
-/******************************************************************************
-* Exceptions                                                                  *
-******************************************************************************/
-    public class EmptyTreeException extends Exception {
-	public EmptyTreeException() { super("Tree is empty"); }
-    }
-    public class NoPointsInRangeException extends Exception {
-	public NoPointsInRangeException() { super("No points in range"); }
     }
 }

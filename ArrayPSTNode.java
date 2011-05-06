@@ -4,7 +4,7 @@
 *                         (All rights reserved)                               *
 *******************************************************************************
 *                                                                             *
-* FILE:    PSTNode.java                                                       *
+* FILE:    ArrayPSTNode.java                                                  *
 *                                                                             *
 * MODULE:  Priority Search Tree                                               *
 *                                                                             *
@@ -14,27 +14,20 @@
 *                                                                             *
 ******************************************************************************/
 
-public class PSTNode {
-    private PSTPoint p;
-    private PSTNode leftChild, rightChild;
+import java.awt.geom.*;
 
-    public PSTNode(double x, double y) {
+public class ArrayPSTNode {
+    private PSTPoint p;
+
+    public ArrayPSTNode(double x, double y) {
 	this(new PSTPoint(x,y));
     }
 
-    public PSTNode(PSTPoint p) {
+    public ArrayPSTNode(PSTPoint p) {
 	this.p = p;
     }
 
     public double getX() { return p.getX(); }
     public double getY() { return p.getY(); }
     public PSTPoint getPoint() { return p; }
-    public PSTNode getLeftChild() { return leftChild; }
-    public PSTNode getRightChild() { return rightChild; }
-    public void setLeftChild(PSTNode p) {
-	this.leftChild = p;
-    }
-    public void setRightChild(PSTNode p) {
-	this.rightChild = p;
-    }
 }
