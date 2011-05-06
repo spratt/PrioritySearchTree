@@ -1,6 +1,5 @@
-import java.util.*;
 public interface PrioritySearchTree {
-    public ArrayList<PSTPoint> findAllPointsWithin(double minX,
+    public java.util.ArrayList<PSTPoint> findAllPointsWithin(double minX,
 						   double maxX,
 						   double maxY)
 	throws EmptyTreeException;

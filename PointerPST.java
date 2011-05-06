@@ -188,7 +188,8 @@ public class PointerPST implements PrioritySearchTree {
 	if(max > Double.NEGATIVE_INFINITY) return max;
 	throw new NoPointsInRangeException();
     }
-    private double maxXinRange(double minX, double maxX, double maxY, PointerPSTNode node) {
+    private double maxXinRange(double minX, double maxX, double maxY,
+			       PointerPSTNode node) {
 	if(node == null || node.getY() > maxY)
 	    return Double.NEGATIVE_INFINITY;
 	double max = Double.NEGATIVE_INFINITY;
@@ -215,7 +216,8 @@ public class PointerPST implements PrioritySearchTree {
 	if(max > Double.NEGATIVE_INFINITY) return max;
 	throw new NoPointsInRangeException();
     }
-    private double maxYinRange(double minX, double maxX, double maxY, PointerPSTNode node) {
+    private double maxYinRange(double minX, double maxX, double maxY,
+			       PointerPSTNode node) {
 	if(node == null || node.getY() > maxY)
 	    return Double.NEGATIVE_INFINITY;
 	double max = Double.NEGATIVE_INFINITY;
@@ -268,57 +270,5 @@ public class PointerPST implements PrioritySearchTree {
     }
     private static int doubleToInt(double d) {
 	return (new Double(d)).intValue();
-    }
-/******************************************************************************
-* Testing                                                                     *
-******************************************************************************/ 
-    public static void main(String[] args)
-	throws EmptyTreeException, NoPointsInRangeException {
-	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
-	double MAX_Y = 2500000d;
-	for(double i = 0; i < MAX_Y ; i++) {
-	    testPoints.add(new PSTPoint(MAX_Y-i,i));
-	    testPoints.add(new PSTPoint(-i,-MAX_Y+i));
-	}
-
-	// Build tree recursive
-	System.out.println("Building tree with " +
-			   (2*doubleToInt(MAX_Y)) + " nodes recursively...");
-	StopWatch sw = new StopWatch();
-	PointerPST pst = new PointerPST(testPoints);
-	long time = sw.stop();
-	System.out.println("Took: " + time);
-
-	// Test time
-	testTime(pst,MAX_Y);
-    }
-    private static void testTime(PointerPST pst, double MAX_Y)
-	throws EmptyTreeException, NoPointsInRangeException {
-	// Find all points in range
-	System.out.println("Finding all points in range...");
-	StopWatch sw = new StopWatch();
-	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(-MAX_Y,MAX_Y,MAX_Y);
-	long time = sw.stop();
-	System.out.println("Took: " + time);
-
-	// Find max/min x/y in range
-	System.out.println("Finding max/min x/y in range...");
-	double result;
-	sw = new StopWatch();
-	result = pst.minYinRange(-MAX_Y,MAX_Y,MAX_Y);
-	result = pst.minXinRange(-MAX_Y,MAX_Y,MAX_Y);
-	result = pst.maxXinRange(-MAX_Y,MAX_Y,MAX_Y);
-	result = pst.maxYinRange(-MAX_Y,MAX_Y,MAX_Y);
-	time = sw.stop();
-	System.out.println("Took: " + time);
-    }
-/******************************************************************************
-* Exceptions                                                                  *
-******************************************************************************/
-    public class EmptyTreeException extends Exception {
-	public EmptyTreeException() { super("Tree is empty"); }
-    }
-    public class NoPointsInRangeException extends Exception {
-	public NoPointsInRangeException() { super("No points in range"); }
     }
 }

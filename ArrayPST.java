@@ -310,15 +310,6 @@ public class ArrayPST implements PrioritySearchTree {
     private static int heapSize(int height) {
 	return doubleToInt(Math.pow(2, height)-1);
     }
-    // width of a tree at a given depth
-    private static int width(int depth) {
-	return doubleToInt(Math.pow(2,depth-1));
-    }
-    // amount of unused space allocated for a given number of nodes
-    private static int waste(int n) {
-	int height = treeHeight(n);
-	return (width(height) - (n - heapSize(height-1)));
-    }
     private static int indexOfLeftChild(int rootIndex) {
 	return (2*rootIndex)+1;
     }
@@ -327,61 +318,5 @@ public class ArrayPST implements PrioritySearchTree {
     }
     private static int doubleToInt(double d) {
 	return (new Double(d)).intValue();
-    }
-    private static void printList(ArrayList<PSTPoint> points) {
-	for(PSTPoint p : points) System.out.print(p + " ");
-	System.out.println();
-    }
-    private static void report(int n) {
-	System.out.println("Nodes: " + n);
-	int height = treeHeight(n);
-	System.out.println("Tree depth: " + height);
-	int heapSize = heapSize(height);
-	System.out.println("Heap size: " + heapSize);
-	System.out.println("Width at max depth: " + width(height));
-	System.out.println("Unused nodes: " + (heapSize - n));
-    }
-/******************************************************************************
-* Testing                                                                     *
-******************************************************************************/  
-    public static void main(String[] args)
-	throws EmptyTreeException, NoPointsInRangeException {
-	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
-	double MAX_Y = 2500000d;
-	for(double i = 0; i < MAX_Y ; i++) {
-	    testPoints.add(new PSTPoint(MAX_Y-i,i));
-	    testPoints.add(new PSTPoint(-i,-MAX_Y+i));
-	}
-
-	// Build tree recursive
-	System.out.println("Building tree with " +
-			   (2*doubleToInt(MAX_Y)) + " nodes recursively...");
-	StopWatch sw = new StopWatch();
-	ArrayPST pst = new ArrayPST(testPoints);
-	long time = sw.stop();
-	System.out.println("Took: " + time);
-
-	// Test time
-	testTime(pst,MAX_Y);
-    }
-    private static void testTime(ArrayPST pst, double MAX_Y) 
-	throws EmptyTreeException, NoPointsInRangeException {
-	// Find all points in range
-	System.out.println("Finding all points in range...");
-	StopWatch sw = new StopWatch();
-	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(-MAX_Y,MAX_Y,MAX_Y);
-	long time = sw.stop();
-	System.out.println("Took: " + time);
-
-	// Find max/min x/y in range
-	System.out.println("Finding max/min x/y in range...");
-	double result;
-	sw = new StopWatch();
-	result = pst.minYinRange(-MAX_Y,MAX_Y,MAX_Y);
-	result = pst.minXinRange(-MAX_Y,MAX_Y,MAX_Y);
-	result = pst.maxXinRange(-MAX_Y,MAX_Y,MAX_Y);
-	result = pst.maxYinRange(-MAX_Y,MAX_Y,MAX_Y);
-	time = sw.stop();
-	System.out.println("Took: " + time);
     }
 }
