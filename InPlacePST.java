@@ -136,12 +136,88 @@ public class InPlacePST implements PrioritySearchTree {
     public PSTPoint leftMostNE(double xmin, double ymin) {
 	PSTPoint best = new PSTPoint(Double.POSITIVE_INFINITY,
 				     Double.POSITIVE_INFINITY);
-	int p = 1; // start at root
-	int q = 1;
-	while(!isLeaf(p)) {
-	    
+	int indexP = 1; // start at root
+	int indexQ = 1;
+	while(!isLeaf(indexP)) {
+	    // UpdateLeftMost(p)
+	    PSTPoint p = getPoint(indexP);
+	    if(xmin <= p.getX() && p.getY() >= ymin)
+		best = p;
+	    // UpdateLeftMost(q)
+	    PSTPoint q = getPoint(indexQ);
+	    if(xmin <= q.getX() && q.getY() >= ymin)
+		best = q;
+	    if(indexP == indexQ) {
+		if(numberOfChildren(indexP) == 1) {
+		    indexQ = indexOfLeftChild(indexP);
+		    indexP = indexOfLeftChild(indexP);
+		} else {
+		    indexQ = indexOfRightChild(indexP);
+		    indexP = indexOfLeftChild(indexP);
+		}
+	    } else {
+		if(isLeaf(indexQ))
+		    indexQ = indexP;
+		else if(numberOfChildren(indexQ) == 1) {
+		    PSTPoint ql = getPoint(indexOfLeftChild(indexQ));
+		    PSTPoint pr = getPoint(indexOfRightChild(indexP));
+		    if(ql.getY() < ymin) {
+			indexQ = indexOfRightChild(indexP);
+			indexP = indexOfLeftChild(indexP);
+		    } else if(pr.getY() < ymin) {
+			indexP = indexOfLeftChild(indexP);
+			indexQ = indexOfLeftChild(indexQ);
+		    } else if(ql.getX() < xmin) {
+			indexP = indexOfLeftChild(indexQ);
+			indexQ = indexOfLeftChild(indexQ);
+		    } else if(pr.getX() < xmin) {
+			indexP = indexOfRightChild(indexP);
+			indexQ = indexOfLeftChild(indexQ);
+		    } else {
+			indexQ = indexOfRightChild(indexP);
+			indexP = indexOfLeftChild(indexP);
+		    }
+		} else { // q has 2 children
+		    PSTPoint ql = getPoint(indexOfLeftChild(indexQ));
+		    PSTPoint pr = getPoint(indexOfRightChild(indexP));
+		    PSTPoint pl = getPoint(indexOfLeftChild(indexP));
+		    if(pr.getX() >= xmin && pr.getY() >= ymin) {
+			indexQ = indexOfRightChild(indexP);
+			indexP = indexOfLeftChild(indexP);
+		    } else if(pr.getX() < xmin) {
+			if(ql.getX() < xmin) {
+			    indexP = indexOfLeftChild(indexQ);
+			    indexQ = indexOfRightChild(indexQ);
+			} else if(ql.getY() < ymin) {
+			    indexP = indexOfRightChild(indexP);
+			    indexQ = indexOfRightChild(indexQ);
+			} else {
+			    indexP = indexOfRightChild(indexP);
+			    indexQ = indexOfLeftChild(indexQ);
+			}
+		    } else { // pr.getX() >= xmin AND pr.getY() < ymin
+			if(pl.getY() < ymin) {
+			    indexP = indexOfLeftChild(indexQ);
+			    indexQ = indexOfRightChild(indexQ);
+			} else {
+			    indexP = indexOfLeftChild(indexP);
+			    if(ql.getY() >= ymin)
+				indexQ = indexOfLeftChild(indexQ);
+			    else
+				indexQ = indexOfRightChild(indexQ);
+			}
+		    }
+		}
+	    }
 	}
-	//if(xmin <=
+	// UpdateLeftMost(p)
+	PSTPoint p = getPoint(indexP);
+	if(xmin <= p.getX() && p.getY() >= ymin)
+	    best = p;
+	// UpdateLeftMost(q)
+	PSTPoint q = getPoint(indexQ);
+	if(xmin <= q.getX() && q.getY() >= ymin)
+	    best = q;
 	return best;
     }
     
@@ -158,7 +234,12 @@ public class InPlacePST implements PrioritySearchTree {
 	tree[baseZeroIndex(index)] = p;
     }
     private boolean isLeaf(int index) { // base 1
-	return baseZeroIndex(indexOfLeftChild(index)) > tree.length;
+	return indexOfLeftChild(index) > tree.length;
+    }
+    private int numberOfChildren(int index) { // base 1
+	if(isLeaf(index)) return 0;
+	if(indexOfRightChild(index) > tree.length) return 1;
+	return 2;
     }
     private int indexOfLeftChild(int index) { // base 1
 	return (2*index);
@@ -221,6 +302,8 @@ public class InPlacePST implements PrioritySearchTree {
 	if(n < 10) {
 	    System.out.print("PST: "); ippst.printArray();
 	}
+	// Test queries
+	System.out.println(ippst.leftMostNE(0,2));
     }
 
 /******************************************************************************
