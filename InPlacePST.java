@@ -89,7 +89,11 @@ public class InPlacePST implements PrioritySearchTree {
     }
 
     private void inPlaceSort(int beginIndex, int endIndex) {
-	bubbleSort(beginIndex,endIndex);
+	// System.out.print("Before sort("+beginIndex+","+endIndex+"): ");
+	// printArray(tree);
+	insertionSort(beginIndex,endIndex);
+	// System.out.print("After sort("+beginIndex+","+endIndex+"):  ");
+	// printArray(tree);
     }
 
     // worst case and average: O(n^2)
@@ -106,15 +110,33 @@ public class InPlacePST implements PrioritySearchTree {
 	    }
 	} while(swapped);
     }
+    private void insertionSort(int beginIndex, int endIndex) {
+	for(int i = beginIndex +1; i < endIndex; i++) {
+	    PSTPoint p = tree[i];
+	    int j = i -1;
+	    boolean done = false;
+	    while(!done) {
+		if(tree[j].xGreaterThan(p)) {
+		    tree[j+1] = tree[j];
+		    j--;
+		    if(j < beginIndex)
+			done = true;
+		} else {
+		    done = true;
+		}
+	    }
+	    tree[j+1] = p;
+	}
+    }
+/******************************************************************************
+* Utility                                                                     *
+******************************************************************************/
     private void swap(int i, int j) {
 	PSTPoint temp;
 	temp = tree[i];
 	tree[i] = tree[j];
 	tree[j] = temp;
     }
-/******************************************************************************
-* Utility                                                                     *
-******************************************************************************/
     public void printArray() {
 	printArray(tree);
     }
@@ -150,16 +172,20 @@ public class InPlacePST implements PrioritySearchTree {
 ******************************************************************************/
     public static void main(String[] args) {
 	System.out.println("Creating points...");
-	int MAX_Y = 2;
-	PSTPoint[] testPoints = new PSTPoint[2*MAX_Y];
+	int n = Integer.parseInt(args[0]);
+	PSTPoint[] testPoints = new PSTPoint[2*n];
 	int count = 0;
-	for(int i = -MAX_Y; i < MAX_Y ; i++) {
-	    testPoints[count++] = new PSTPoint(i,i+MAX_Y);
+	for(int i = -n; i < n ; i++) {
+	    testPoints[count++] = new PSTPoint(i,i+n);
 	}
-	System.out.println("Building PST with " + (2*MAX_Y) + " nodes...");
-	System.out.print("Points: "); printArray(testPoints);
+	System.out.println("Building PST with " + (2*n) + " nodes...");
+	if(n < 10) {
+	    System.out.print("Points: "); printArray(testPoints);
+	}
 	InPlacePST ippst = new InPlacePST(testPoints);
-	System.out.print("PST: "); ippst.printArray();
+	if(n < 10) {
+	    System.out.print("PST: "); ippst.printArray();
+	}
     }
 
 /******************************************************************************
