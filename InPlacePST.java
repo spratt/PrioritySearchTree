@@ -19,6 +19,9 @@ public class InPlacePST implements PrioritySearchTree {
     public InPlacePST(PSTPoint[] points) {
 	tree = points;
 	inPlaceSort(0,tree.length);
+	int n = tree.length;
+	int h = (int)Math.floor(log2(n));
+	int nodesAtLastLevel = n - (int)(Math.pow(2,h) -1);
     }
 
     private void inPlaceSort(int beginIndex, int endIndex) {
@@ -47,8 +50,13 @@ public class InPlacePST implements PrioritySearchTree {
 /******************************************************************************
 * Utility                                                                     *
 ******************************************************************************/
-    private static int doubleToInt(double d) {
-	return (new Double(d)).intValue();
+    private void printArray() {
+	for(int i = 0; i < tree.length; i++) System.out.print(tree[i] + " ");
+	System.out.println();
+    }
+    // Gives the base-2 logarithm of a double
+    private double log2(double x) {
+	return Math.log(x) / Math.log(2);
     }
 
 /******************************************************************************
@@ -74,11 +82,11 @@ public class InPlacePST implements PrioritySearchTree {
 ******************************************************************************/
     public static void main(String[] args) {
 	System.out.println("Creating points...");
-	int MAX_Y = 500;
+	int MAX_Y = 3;
 	PSTPoint[] testPoints = new PSTPoint[2*MAX_Y];
-	for(int i = 0; i < MAX_Y ; i++) {
-	    testPoints[i] = new PSTPoint(MAX_Y-i,i);
-	    testPoints[2*MAX_Y-i-1] = new PSTPoint(-i,-MAX_Y+i);
+	int count = 0;
+	for(int i = -MAX_Y; i < MAX_Y ; i++) {
+	    testPoints[count++] = new PSTPoint(i,i+MAX_Y);
 	}
 	System.out.println("Building PST with " + (2*MAX_Y) + " nodes...");
 	InPlacePST ippst = new InPlacePST(testPoints);
