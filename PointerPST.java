@@ -135,7 +135,8 @@ public class PointerPST implements PrioritySearchTree {
 	if(min < Double.POSITIVE_INFINITY) return min;
 	throw new NoPointsInRangeException();
     }
-    private double minYinRange(double minX, double maxX, double maxY, PointerPSTNode node) {
+    private double minYinRange(double minX, double maxX, double maxY,
+			       PointerPSTNode node) {
 	if(node == null || node.getY() > maxY) return Double.POSITIVE_INFINITY;
 	double nodeX = node.getX();
 	if(nodeX >= minX && nodeX <= maxX) return node.getY();
@@ -161,7 +162,8 @@ public class PointerPST implements PrioritySearchTree {
 	if(min < Double.POSITIVE_INFINITY) return min;
 	throw new NoPointsInRangeException();
     }
-    private double minXinRange(double minX, double maxX, double maxY, PointerPSTNode node) {
+    private double minXinRange(double minX, double maxX, double maxY,
+			       PointerPSTNode node) {
 	if(node == null || node.getY() > maxY)
 	    return Double.POSITIVE_INFINITY;
 	double min = Double.POSITIVE_INFINITY;
