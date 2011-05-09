@@ -18,9 +18,9 @@ public class InPlacePST implements PrioritySearchTree {
 
     public InPlacePST(PSTPoint[] points) {
 	tree = points;
-	inPlaceSort(0,tree.length);
+	insertionSort(0,tree.length-1);
 	int h = (int)Math.floor(log2(tree.length));
-	for(int i = 0; i < h-1; i++)
+	for(int i = 0; i <= h-1; i++)
 	    buildLevel(i);
     }
 
@@ -33,17 +33,17 @@ public class InPlacePST implements PrioritySearchTree {
 	// height of tree
 	int h = (int)Math.floor(log2(n));
 	// number of nodes filled in the last level
-	int nodesAtLastLevel = n - (int)(Math.pow(2,h) -1);
+	int A = n - (powerOf2(h) - 1);
 	// the first k nodes are roots of subtrees of size k1
-	int k = (int)Math.floor(nodesAtLastLevel/Math.pow(2,h-i));
+	int k = (int)Math.floor(A/powerOf2(h-i));
 	// s is the median value
-	PSTPoint s = tree[(int)Math.pow(2,i+1)];
+	PSTPoint s = getPoint(powerOf2(i+1));
 	// the first k nodes are roots of subtrees of size k1
-	int k1 = (int)Math.pow(2,h+1-i)-1;
+	int k1 = powerOf2(h+1-i) - 1;
 	// the (k+1)-st node is the root of subtree of size k2
-	int k2 = (int)(Math.pow(2,h-i)-1+nodesAtLastLevel-k*Math.pow(2,h-i));
+	int k2 = powerOf2(h-i) - 1 + A - k*powerOf2(h-i);
 	// the remaining nodes are roots of subtrees of size k3
-	int k3 = (int)Math.pow(2,h-i)-1;
+	int k3 = powerOf2(h-i) - 1;
 
 /******************************************************************************
 * Order nodes at given level                                                  *
@@ -51,67 +51,48 @@ public class InPlacePST implements PrioritySearchTree {
 
 	int indexOfMaxY;
 
-	// 
+	//
 	for(int j = 1; j <= k; j++) {
 	    // Find point with maximum Y in range
-	    indexOfMaxY = baseZeroIndex((int)Math.pow(2,i)+(j-1)*k1);
-	    for(int index = indexOfMaxY;
-		index <= baseZeroIndex((int)Math.pow(2,i)+j*k1-1);
-		index++)
-		if(tree[index].yGreaterThan(tree[indexOfMaxY]))
+	    indexOfMaxY = powerOf2(i)+(j-1)*k1;
+	    for(int index = indexOfMaxY; index <= powerOf2(i)+j*k1-1; index++)
+		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 		    indexOfMaxY = index;
-	    swap(indexOfMaxY,baseZeroIndex((int)Math.pow(2,i)+j-1));
+	    swap(indexOfMaxY,powerOf2(i)+j-1);
+	    System.out.println((powerOf2(i)+j-1));
 	}
-
+	
 	//
-	indexOfMaxY = baseZeroIndex((int)Math.pow(2,i)+k*k1);
-	for(int index = indexOfMaxY;
-	    index <= baseZeroIndex((int)Math.pow(2,i)+k*k1+k2-1);
-	    index++)
-		if(tree[index].yGreaterThan(tree[indexOfMaxY]))
-		    indexOfMaxY = index;
-	swap(indexOfMaxY,baseZeroIndex((int)Math.pow(2,i)+k));
-
-	//
-	int m = (int)Math.pow(2,i)+k*k1+k2;
-	for(int j = 1; j <= (int)Math.pow(2,i)-k-1; j++) {
-	    indexOfMaxY = baseZeroIndex(m+(j-1)*k3);
-	    for(int index = indexOfMaxY;
-		index <= baseZeroIndex(m+j*k3-1);
-		index++)
-		if(tree[index].yGreaterThan(tree[indexOfMaxY]))
-		    indexOfMaxY = index;
-	    swap(indexOfMaxY,baseZeroIndex((int)Math.pow(2,i)+k+j));
+	indexOfMaxY = powerOf2(i)+k*k1;
+	for(int index = indexOfMaxY; index <= powerOf2(i)+k*k1+k2-1; index++) {
+	    if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
+		indexOfMaxY = index;
 	}
-
+	swap(indexOfMaxY,powerOf2(i)+k);
+	
+	//
+	int m = powerOf2(i)+k*k1+k2;
+	for(int j = 1; j <= powerOf2(i)-k-1; j++) {
+	    indexOfMaxY = m+(j-1)*k3;
+	    for(int index = indexOfMaxY; index <= m+j*k3-1; index++)
+		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
+		    indexOfMaxY = index;
+	    swap(indexOfMaxY,powerOf2(i)+k+j);
+	}
+	
 	// Finally, sort all points past the current level
-	inPlaceSort((int)Math.pow(2,i+1),n);
+	inPlaceSort(powerOf2(i+1),n,s);
     }
-
-    private void inPlaceSort(int beginIndex, int endIndex) {
-	// System.out.print("Before sort("+beginIndex+","+endIndex+"): ");
-	// printArray(tree);
-	insertionSort(beginIndex,endIndex);
-	// System.out.print("After sort("+beginIndex+","+endIndex+"):  ");
-	// printArray(tree);
+/******************************************************************************
+* Sorting                                                                     *
+******************************************************************************/
+    // Note: takes array indices of base 1
+    private void inPlaceSort(int beginIndex, int endIndex, PSTPoint s) {
+	insertionSort(baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
     }
-
-    // worst case and average: O(n^2)
-    // could use heapsort or insertionsort for better performance
-    private void bubbleSort(int beginIndex, int endIndex) {
-	boolean swapped;
-	do {
-	    swapped = false;
-	    for(int i = (beginIndex + 1); i < endIndex; i++) {
-		if(tree[i-1].xGreaterThan(tree[i])) {
-		    swap(i-1,i);
-		    swapped = true;
-		}
-	    }
-	} while(swapped);
-    }
+    // Note: takes array indices of base 0
     private void insertionSort(int beginIndex, int endIndex) {
-	for(int i = beginIndex +1; i < endIndex; i++) {
+	for(int i = beginIndex +1; i <= endIndex; i++) {
 	    PSTPoint p = tree[i];
 	    int j = i -1;
 	    boolean done = false;
@@ -128,14 +109,68 @@ public class InPlacePST implements PrioritySearchTree {
 	    tree[j+1] = p;
 	}
     }
+
+
+
+/******************************************************************************
+* Query                                                                       *
+******************************************************************************/
+/******************************************************************************
+*                                                                             *
+* FUNCTION NAME: leftMostNE                                                   *
+*                                                                             *
+* PURPOSE:       Determine the point with minimum x-coordinate among          *
+*                all points {p ∈ P | xmin ≤ p.x and ymin ≤ p.y}               *
+*                                                                             *
+* PARAMETERS                                                                  *
+*   Type/Name:   double/xmin                                                  *
+*   Description: The minimum x coordinate to consider                         *
+*                                                                             *
+*   Type/Name:   double/ymin                                                  *
+*   Description: The minimum y coordinate to consider                         *
+*                                                                             *
+* RETURN:        The PSTPoint with minimum x-coordinate within given          *
+*                boundaries.                                                  *
+*                                                                             *
+******************************************************************************/
+    public PSTPoint leftMostNE(double xmin, double ymin) {
+	PSTPoint best = new PSTPoint(Double.POSITIVE_INFINITY,
+				     Double.POSITIVE_INFINITY);
+	int p = 1; // start at root
+	int q = 1;
+	while(!isLeaf(p)) {
+	    
+	}
+	//if(xmin <=
+	return best;
+    }
+    
 /******************************************************************************
 * Utility                                                                     *
 ******************************************************************************/
-    private void swap(int i, int j) {
+    private int powerOf2(int x) {
+	return (int)Math.pow(2,x);
+    }
+    private PSTPoint getPoint(int index) { // base 1
+	return tree[baseZeroIndex(index)];
+    }
+    private void setPoint(int index,PSTPoint p) { // base 1
+	tree[baseZeroIndex(index)] = p;
+    }
+    private boolean isLeaf(int index) { // base 1
+	return baseZeroIndex(indexOfLeftChild(index)) > tree.length;
+    }
+    private int indexOfLeftChild(int index) { // base 1
+	return (2*index);
+    }
+    private int indexOfRightChild(int index) { // base 1
+	return (2*index)+1;
+    }
+    private void swap(int i, int j) { // base 1
 	PSTPoint temp;
-	temp = tree[i];
-	tree[i] = tree[j];
-	tree[j] = temp;
+	temp = getPoint(i);
+	setPoint(i,getPoint(j));
+	setPoint(j,temp);
     }
     public void printArray() {
 	printArray(tree);
