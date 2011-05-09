@@ -24,14 +24,14 @@ public class PSTPoint implements Comparable<PSTPoint> {
     }
 
     public int compareTo(PSTPoint p) {
-	if(isLessThan(p)) return -1;
-	else if(isGreaterThan(p)) return 1;
+	if(yLessThan(p)) return -1;
+	else if(yGreaterThan(p)) return 1;
 	return 0;
     }
-    public boolean isLessThan(PSTPoint p) {
+    public boolean yLessThan(PSTPoint p) {
 	return this.getY() < p.getY();
     }
-    public boolean isGreaterThan(PSTPoint p) {
+    public boolean yGreaterThan(PSTPoint p) {
 	return this.getY() > p.getY();
     }
     public boolean xLessThan(PSTPoint p) {
