@@ -35,7 +35,7 @@ public class TestPST {
 	// Find all points in range
 	System.out.println("Finding all points in range...");
 	StopWatch sw = new StopWatch();
-	ArrayList<PSTPoint> testPoints = pst.findAllPointsWithin(-MAX_Y,MAX_Y,MAX_Y);
+	ArrayList<PSTPoint> testPoints = pst.enumerate3Sided(-MAX_Y,MAX_Y,MAX_Y);
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 

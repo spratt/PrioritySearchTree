@@ -1,5 +1,5 @@
 public interface PrioritySearchTree {
-    public java.util.ArrayList<PSTPoint> findAllPointsWithin(double minX,
+    public java.util.ArrayList<PSTPoint> enumerate3Sided(double minX,
 						   double maxX,
 						   double maxY)
 	throws EmptyTreeException;

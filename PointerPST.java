@@ -91,16 +91,16 @@ public class PointerPST implements PrioritySearchTree {
 * Choose minX,minY,maxX,maxY appropriately.                                   *
 *                                                                             *
 ******************************************************************************/
-    public ArrayList<PSTPoint> findAllPointsWithin(double minX, 
+    public ArrayList<PSTPoint> enumerate3Sided(double minX, 
 						   double maxX, double maxY)
 	throws EmptyTreeException {
-	return findAllPointsWithin(minX,maxX,maxY,
+	return enumerate3Sided(minX,maxX,maxY,
 				   new ArrayList<PSTPoint>(),root);
     }
     // Note that as maxY and maxX approach positive infinity and
     // minX approaches negative infinity, this search visits more nodes.
     // In the worst case, all nodes are visited.
-    private ArrayList<PSTPoint> findAllPointsWithin(double minX,
+    private ArrayList<PSTPoint> enumerate3Sided(double minX,
 						    double maxX, double maxY,
 						    ArrayList<PSTPoint> list,
 						    PointerPSTNode node)
@@ -116,11 +116,11 @@ public class PointerPST implements PrioritySearchTree {
 		double nodeR = maxX(leftChild);
 		// nodeR >= points in left tree >= minX
 		if(nodeR >= minX)
-		    findAllPointsWithin(minX,maxX,maxY,list,
+		    enumerate3Sided(minX,maxX,maxY,list,
 					leftChild);
 		// nodeR < points in right tree <= maxX
 		if(nodeR < maxX) 
-		    findAllPointsWithin(minX,maxX,maxY,list,
+		    enumerate3Sided(minX,maxX,maxY,list,
 					node.getRightChild());
 	    }
 	}

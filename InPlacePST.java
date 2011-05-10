@@ -51,7 +51,7 @@ public class InPlacePST implements PrioritySearchTree {
 
 	int indexOfMaxY;
 
-	//
+	// 
 	for(int j = 1; j <= k; j++) {
 	    // Find point with maximum Y in range
 	    indexOfMaxY = powerOf2(i)+(j-1)*k1;
@@ -120,7 +120,7 @@ public class InPlacePST implements PrioritySearchTree {
 * FUNCTION NAME: leftMostNE                                                   *
 *                                                                             *
 * PURPOSE:       Determine the point with minimum x-coordinate among          *
-*                all points {p ∈ P | xmin ≤ p.x and ymin ≤ p.y}               *
+*                all points {p ∈ P | xmin ≤ p.x ∧ ymin ≤ p.y}                 *
 *                                                                             *
 * PARAMETERS                                                                  *
 *   Type/Name:   double/xmin                                                  *
@@ -146,7 +146,8 @@ public class InPlacePST implements PrioritySearchTree {
 	    // UpdateLeftMost(q)
 	    PSTPoint q = getPoint(indexQ);
 	    if(xmin <= q.getX() && q.getY() >= ymin)
-		best = q;
+		best = q; // assume q has the lower x coordinate
+	    // 
 	    if(indexP == indexQ) {
 		if(numberOfChildren(indexP) == 1) {
 		    indexQ = indexOfLeftChild(indexP);
@@ -218,6 +219,68 @@ public class InPlacePST implements PrioritySearchTree {
 	PSTPoint q = getPoint(indexQ);
 	if(xmin <= q.getX() && q.getY() >= ymin)
 	    best = q;
+	return best;
+    }
+
+/******************************************************************************
+* 
+* FUNCTION NAME: highestNE 
+* 
+* PURPOSE:       Determine the point with maximum y-coordinate among 
+*                all points {p ∈ P | xmin ≤ p.x ∧ ymin ≤ p.y} 
+* 
+* PARAMETERS 
+*   Type/Name:   double/xmin 
+*   Description: The minimum x coordinate to consider 
+* 
+*   Type/Name:   double/ymin 
+*   Description: The minimum y coordinate to consider 
+* 
+* RETURN:        The PSTPoint with maximum y-coordinate within given 
+*                boundaries. 
+* 
+* NOTES:         None. 
+* 
+******************************************************************************/
+    public PSTPoint highestNE(double xmin, double ymin) {
+	PSTPoint best = new PSTPoint(Double.POSITIVE_INFINITY,
+				     Double.NEGATIVE_INFINITY);
+	int indexP = 1; // root
+	while(!isLeaf(indexP)) {
+	    PSTPoint p = getPoint(indexP);
+	    if(p.getX() >= xmin && p.getY() >= ymin) {
+		// UpdateHighestMost(p)
+		if(p.getY() > best.getY())
+		    best = p;
+		indexP = indexOfLeftChild(indexP);
+	    } else if(p.getY() < ymin) {
+		indexP = indexOfLeftChild(indexP);
+	    } else if(numberOfChildren(indexP) == 1) {
+		indexP = indexOfLeftChild(indexP);
+	    } else { // must have 2 children
+		PSTPoint pl = getPoint(indexOfLeftChild(indexP));
+		PSTPoint pr = getPoint(indexOfRightChild(indexP));
+		if(pr.getX() <= xmin) {
+		    indexP = indexOfRightChild(indexP);
+		} else if(pl.getX() >= xmin) {
+		    if(pl.getY() > pr.getY()) indexP = indexOfLeftChild(indexP);
+		    else indexP = indexOfRightChild(indexP);
+		} else if(pr.getY() < ymin) {
+		    indexP = indexOfLeftChild(indexP);
+		} else {
+		    // UpdateHighestMost(pr)
+		    if(pr.getX() >= xmin &&
+		       pr.getY() >= ymin &&
+		       pr.getY() > best.getY())
+			best = p;
+		    indexP = indexOfLeftChild(indexP);
+		}
+	    }
+	}
+	PSTPoint p = getPoint(indexP);
+	// UpdateHighestMost(p)
+	if(p.getX() >= xmin && p.getY() >= ymin && p.getY() > best.getY())
+	    best = p;
 	return best;
     }
     
@@ -292,7 +355,10 @@ public class InPlacePST implements PrioritySearchTree {
 	PSTPoint[] testPoints = new PSTPoint[2*n];
 	int count = 0;
 	for(int i = -n; i < n ; i++) {
-	    testPoints[count++] = new PSTPoint(i,i+n);
+	    if((i%2) == 0)
+		testPoints[count++] = new PSTPoint(i,i+n);
+	    else
+		testPoints[count++] = new PSTPoint(-i,-(i+n));
 	}
 	System.out.println("Building PST with " + (2*n) + " nodes...");
 	if(n < 10) {
@@ -303,14 +369,15 @@ public class InPlacePST implements PrioritySearchTree {
 	    System.out.print("PST: "); ippst.printArray();
 	}
 	// Test queries
-	System.out.println(ippst.leftMostNE(0,2));
+	System.out.println("leftMostNE(x=-10,y=-10):" + ippst.leftMostNE(-10,-10));
+	System.out.println("highestNE(x=1,y=-10): " + ippst.highestNE(1,-10));
     }
 
 /******************************************************************************
 * Stubs (for now)                                                             *
 ******************************************************************************/
     
-    public java.util.ArrayList<PSTPoint> findAllPointsWithin(double minX,
+    public java.util.ArrayList<PSTPoint> enumerate3Sided(double minX,
 							     double maxX,
 							     double maxY)
 	throws EmptyTreeException {
