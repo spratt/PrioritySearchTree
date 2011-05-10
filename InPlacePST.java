@@ -141,11 +141,11 @@ public class InPlacePST implements PrioritySearchTree {
 	while(!isLeaf(indexP)) {
 	    // UpdateLeftMost(p)
 	    PSTPoint p = getPoint(indexP);
-	    if(xmin <= p.getX() && p.getY() >= ymin)
+	    if(xmin <= p.getX() && p.getY() >= ymin && p.getX() < best.getX())
 		best = p;
 	    // UpdateLeftMost(q)
 	    PSTPoint q = getPoint(indexQ);
-	    if(xmin <= q.getX() && q.getY() >= ymin)
+	    if(xmin <= q.getX() && q.getY() >= ymin && q.getX() < best.getX())
 		best = q; // assume q has the lower x coordinate
 	    // 
 	    if(indexP == indexQ) {
@@ -213,12 +213,12 @@ public class InPlacePST implements PrioritySearchTree {
 	}
 	// UpdateLeftMost(p)
 	PSTPoint p = getPoint(indexP);
-	if(xmin <= p.getX() && p.getY() >= ymin)
+	if(xmin <= p.getX() && p.getY() >= ymin && p.getX() < best.getX())
 	    best = p;
 	// UpdateLeftMost(q)
 	PSTPoint q = getPoint(indexQ);
-	if(xmin <= q.getX() && q.getY() >= ymin)
-	    best = q;
+	if(xmin <= q.getX() && q.getY() >= ymin && q.getX() < best.getX())
+	    best = q; // assume q has the lower x coordinate
 	return best;
     }
 
