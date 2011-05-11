@@ -3,12 +3,12 @@ public interface PrioritySearchTree {
 						   double maxX,
 						   double maxY)
 	throws EmptyTreeException;
-    public double minYinRange(double minX, double maxX, double maxY)
+    public PSTPoint minYinRange(double minX, double maxX, double maxY)
 	throws NoPointsInRangeException;
-    public double minXinRange(double minX, double maxX, double maxY)
+    public PSTPoint minXinRange(double minX, double maxX, double maxY)
 	throws NoPointsInRangeException;
-    public double maxXinRange(double minX, double maxX, double maxY)
+    public PSTPoint maxXinRange(double minX, double maxX, double maxY)
 	throws NoPointsInRangeException;
-    public double maxYinRange(double minX, double maxX, double maxY)
+    public PSTPoint highest3Sided(double minX, double maxX, double maxY)
 	throws NoPointsInRangeException;
 }

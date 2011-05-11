@@ -283,6 +283,234 @@ public class InPlacePST implements PrioritySearchTree {
 	    best = p;
 	return best;
     }
+
+/******************************************************************************
+*                                                                             *
+* FUNCTION NAME: highest3Sided                                                *
+*                                                                             *
+* PURPOSE:       Determine the point with maximum y-coordinate among          *
+*                all points {p ∈ P | xmin ≤ p.x ≤ xmax ∧ ymin ≤ p.y}          *
+*                                                                             *
+* PARAMETERS                                                                  *
+*   Type/Name:   double/xmin                                                  *
+*   Description: The minimum x coordinate to consider                         *
+*                                                                             *
+*   Type/Name:   double/xmax                                                  *
+*   Description: The maximum x coordinate to consider                         *
+*                                                                             *
+*   Type/Name:   double/ymin                                                  *
+*   Description: The minimum y coordinate to consider                         *
+*                                                                             *
+* RETURN:        The PSTPoint with maximum y-coordinate within given          *
+*                boundaries.                                                  *
+*                                                                             *
+* NOTES:         None.                                                        *
+*                                                                             *
+******************************************************************************/
+    public PSTPoint highest3Sided(double xmin, double xmax, double ymin) {
+/******************************************************************************
+* Initialization                                                              *
+******************************************************************************/
+	PSTPoint best = new PSTPoint(Double.POSITIVE_INFINITY,
+				     Double.NEGATIVE_INFINITY);
+	boolean L = false, R = false;
+	PSTPoint root = getPoint(1);
+	int indexP = 1, indexQ = 1; // start with the root
+	if(xmin <= root.getX() && root.getX() <= xmax) {
+	    if(root.getY() >= ymin)
+		best = root;
+	} else {
+	    if(root.getX() < xmin) {
+		L = true;
+	    } else {
+		R = true;
+	    }
+	}
+/******************************************************************************
+* Traversal                                                                   *
+******************************************************************************/
+	while(L || R) {
+	    // Need to check from the left side of the boundary region
+	    if(L && (!R || level(indexP) < level(indexQ))) {
+		// CheckLeft(p)
+		int indexPL = indexOfLeftChild(indexP);
+		int indexPR = indexOfRightChild(indexP);
+		if(isLeaf(indexP))
+		    L = false;
+		else if(numberOfChildren(indexP) == 1) {
+		    PSTPoint pl = getPoint(indexPL);
+		    if(xmin <= pl.getX() && pl.getX() <= xmax) {
+			// within boundaries
+			// UpdateHighestMost(Pl)
+			if(pl.getY() >= ymin && pl.getY() > best.getY()) {
+			    best = pl;
+			}
+			// end
+			L = false;
+		    } else if(pl.getX() < xmin) {
+			// left of boundaries
+			indexP = indexPL;
+		    } else {
+			// must be right of boundaries
+			indexQ = indexPL;
+			R = true;
+			L = false;
+		    }
+		} else { // 2 children
+		    PSTPoint pl = getPoint(indexPL);
+		    PSTPoint pr = getPoint(indexPR);
+		    if(pl.getX() < xmin) { // pl is left of boundaries
+			if(pr.getX() < xmin) {
+			    // Since both subtrees are to the left of
+			    // the boundaries, all points within the boundaries
+			    // must be in the right subtree
+			    indexP = indexPR;
+			} else if(pr.getX() <= xmax) {
+			    // UpdateHighestMost(Pr)
+			    if(pr.getY() >= ymin && pr.getY() > best.getY()) {
+				best = pr;
+			    }
+			    // end
+			    // since we've taken the best from the right subtree
+			    // any remaining points within the boundaries must
+			    // be in the left subtree
+			    indexP = indexPL; 
+			} else {
+			    // pl is to the left of the boundaries and
+			    // pr is to the right of the boundaries
+			    // therefore, we must search left and right
+			    indexQ = indexPR;
+			    indexP = indexPL;
+			    R = true;
+			} 
+		    } else if(pl.getX() <= xmax) { // pl is within the boundaries
+			// UpdateHighestMost(Pl)
+			if(pl.getY() >= ymin && pl.getY() > best.getY()) {
+			    best = pl;
+			}
+			// end
+			L = false;
+			if(pr.getX() > xmax) { // pr is beyond the boundaries
+			    indexQ = indexPR;
+			    R = true;
+			} else { // pr must also be within the boundaries
+			    // UpdateHighestMost(Pr)
+			    if(pr.getY() >= ymin && pr.getY() > best.getY()) {
+				best = pr;
+			    }
+			    // end
+			}
+		    } else { // pl is right of boundaries
+			// we begin searching from the right
+			indexQ = indexPL;
+			L = false;
+			R = true;
+		    }
+		}
+		// end CheckLeft(p)
+	    }
+	    // need to check from the right of the boundary region
+	    else {
+		// CheckRight(q)
+		int indexQL = indexOfLeftChild(indexQ);
+		int indexQR = indexOfRightChild(indexQ);
+		// CASE 1: Q is a leaf
+		if(isLeaf(indexQ)) {
+		    R = false; // stop searching from the right
+		}
+		// CASE 2: Q has one child
+		else if(numberOfChildren(indexQ) == 1) {
+		    PSTPoint ql = getPoint(indexQL);
+		    // CASE 2A: ql is within boundaries
+		    if(xmin <= ql.getX() && ql.getX() <= xmax) {
+			// UpdateHighestMost(Ql)
+			if(ql.getY() >= ymin && ql.getY() > best.getY()) {
+			    best = ql;
+			}
+			// end
+			// no need to check any subtrees since they will
+			// have lower y-values by design
+			R = false;
+		    }
+		    // CASE 2B: ql is right of boundaries
+		    else if(ql.getX() > xmax) {
+			indexQ = indexQL; // keep checking from the right
+		    }
+		    // CASE 2C: ql must be left of boundaries
+		    else {
+			indexP = indexQL; // start checking from the left
+			L = true;
+			R = false;
+		    }
+		}
+		// CASE 3: Q has 2 children
+		else { 
+		    PSTPoint ql = getPoint(indexQL);
+		    PSTPoint qr = getPoint(indexQR);
+		    // CASE 3A: qr is right of boundaries
+		    if(qr.getX() > xmax) {
+			// CASE 3A(I): both children are right of boundaries
+			if(ql.getX() > xmax) {
+			    // since the median x-coordinate that bisects the
+			    // subtrees must be >= ql.getX(), only left subtree
+			    // may contain points within the boundaries
+			    indexQ = indexQL; 
+			}
+			// CASE 3A(II): ql is within boundaries
+			else if(ql.getX() >= xmin) {
+			    // UpdateHighestMost(Ql)
+			    if(ql.getY() >= ymin && ql.getY() > best.getY()) {
+				best = ql;
+			    }
+			    // end
+			    // since we've taken the best from the left subtree
+			    // any remaining points within the boundaries must
+			    // be in the right subtree
+			    indexQ = indexQR; 
+			}
+			// CASE 3A(III): ql is left of boundaries
+			else {
+			    // we must search left and right
+			    indexP = indexQL;
+			    indexQ = indexQR;
+			    L = true; // check left
+			} 
+		    }
+		    // CASE 3B: qr is within boundaries
+		    else if(qr.getX() >= xmin) { 
+			// UpdateHighestMost(Qr)
+			if(qr.getY() >= ymin && qr.getY() > best.getY()) {
+			    best = qr;
+			}
+			// end
+			R = false;
+			// CASE 3B(I): ql is left of boundaries
+			if(ql.getX() < xmin) { 
+			    indexP = indexQR;
+			    L = true; // search from the left
+			}
+			// CASE 3B(II): ql must be within boundaries
+			else { 
+			    // UpdateHighestMost(Ql)
+			    if(ql.getY() >= ymin && ql.getY() > best.getY()) {
+				best = ql;
+			    }
+			    // end
+			}
+		    }
+		    // CASE 3C: qr is left of boundaries
+		    else { 
+			// begin searching from the left
+			indexP = indexQR;
+			L = true;
+			R = false;
+		    }
+		}
+		// end CheckRight(q)
+	    }
+	}
+	return best;
+    }
     
 /******************************************************************************
 * Utility                                                                     *
@@ -327,6 +555,9 @@ public class InPlacePST implements PrioritySearchTree {
     private double log2(int x) {
 	return Math.log(x) / Math.log(2);
     }
+    private int level(int index) {
+	return (int)log2(index);
+    }
 
 /******************************************************************************
 *                                                                             *
@@ -369,8 +600,12 @@ public class InPlacePST implements PrioritySearchTree {
 	    System.out.print("PST: "); ippst.printArray();
 	}
 	// Test queries
-	System.out.println("leftMostNE(x=-10,y=-10):" + ippst.leftMostNE(-10,-10));
-	System.out.println("highestNE(x=1,y=-10): " + ippst.highestNE(1,-10));
+	System.out.println("leftMostNE(x=-10,y=-10):             "
+			   + ippst.leftMostNE(-10,-10));
+	System.out.println("highestNE(x=1,y=-10):                "
+			   + ippst.highestNE(1,-10));
+	System.out.println("highest3Sided(xmin=4,xmax=5,ymin=0): "
+			   + ippst.highest3Sided(4,5,0));
     }
 
 /******************************************************************************
@@ -383,19 +618,15 @@ public class InPlacePST implements PrioritySearchTree {
 	throws EmptyTreeException {
 	return null;
     }
-    public double minYinRange(double minX, double maxX, double maxY)
+    public PSTPoint minYinRange(double minX, double maxX, double maxY)
 	throws NoPointsInRangeException {
 	throw new NoPointsInRangeException();
     }
-    public double minXinRange(double minX, double maxX, double maxY)
+    public PSTPoint minXinRange(double minX, double maxX, double maxY)
 	throws NoPointsInRangeException {
 	throw new NoPointsInRangeException();
     }
-    public double maxXinRange(double minX, double maxX, double maxY)
-	throws NoPointsInRangeException {
-	throw new NoPointsInRangeException();
-    }
-    public double maxYinRange(double minX, double maxX, double maxY)
+    public PSTPoint maxXinRange(double minX, double maxX, double maxY)
 	throws NoPointsInRangeException {
 	throw new NoPointsInRangeException();
     }

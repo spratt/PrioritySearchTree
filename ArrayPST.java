@@ -214,13 +214,13 @@ public class ArrayPST implements PrioritySearchTree {
 	}
 	return max;
     }
-    public double maxYinRange(double minX, double maxX, double maxY)
+    public double highest3Sided(double minX, double maxX, double maxY)
 	throws NoPointsInRangeException {
-	double max = maxYinRange(minX,maxX,maxY,0);
+	double max = highest3Sided(minX,maxX,maxY,0);
 	if(max > Double.NEGATIVE_INFINITY) return max;
 	throw new NoPointsInRangeException();
     }
-    private double maxYinRange(double minX, double maxX, double maxY, int index) {
+    private double highest3Sided(double minX, double maxX, double maxY, int index) {
 	ArrayPSTNode node = heap[index];
 	if(node == null || node.getY() > maxY)
 	    return Double.NEGATIVE_INFINITY;
@@ -231,11 +231,11 @@ public class ArrayPST implements PrioritySearchTree {
 	if(isValidNode(indexOfLeftChild(index))) {
 	    double nodeR = maxX(indexOfLeftChild(index));
 	    if(nodeR >= minX) {
-		double maxLeft = maxYinRange(minX,maxX,maxY,indexOfLeftChild(index));
+		double maxLeft = highest3Sided(minX,maxX,maxY,indexOfLeftChild(index));
 		if(maxLeft > max) max = maxLeft;
 	    }
 	    if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-		double maxRight = maxYinRange(minX,maxX,maxY,indexOfRightChild(index));
+		double maxRight = highest3Sided(minX,maxX,maxY,indexOfRightChild(index));
 		if(maxRight > max) max = maxRight;
 	    }
 	}

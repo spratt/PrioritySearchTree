@@ -7,12 +7,12 @@ public class TestPST {
 	PrioritySearchTree arrayPST, pointerPST;
 	System.out.println("Creating points...");
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
-	double MAX_Y = 500000d;
-	for(double i = 0; i < MAX_Y ; i++) {
-	    testPoints.add(new PSTPoint(MAX_Y-i,i));
-	    testPoints.add(new PSTPoint(-i,-MAX_Y+i));
+	int n = Integer.parseInt(args[0]);
+	for(int i = 0; i < n ; i++) {
+	    testPoints.add(new PSTPoint(n-i,i));
+	    testPoints.add(new PSTPoint(-i,-n+i));
 	}
-	System.out.println("Building PSTs with " + doubleToInt(2*MAX_Y) + " nodes...");
+	System.out.println("Building PSTs with " + doubleToInt(2*n) + " nodes...");
 	sw = new StopWatch();
 	pointerPST = new PointerPST(testPoints);
 	time = sw.stop();
@@ -24,18 +24,18 @@ public class TestPST {
 	System.out.println();
 
 	System.out.println("Testing pointer impementation...");
-	testTime(pointerPST,MAX_Y);
+	testTime(pointerPST,n);
 	System.out.println();
 
 	System.out.println("Testing array impementation...");
-	testTime(arrayPST,MAX_Y);
+	testTime(arrayPST,n);
     } 
-    private static void testTime(PrioritySearchTree pst, double MAX_Y)
+    private static void testTime(PrioritySearchTree pst, int n)
 	throws EmptyTreeException, NoPointsInRangeException {
 	// Find all points in range
 	System.out.println("Finding all points in range...");
 	StopWatch sw = new StopWatch();
-	ArrayList<PSTPoint> testPoints = pst.enumerate3Sided(-MAX_Y,MAX_Y,MAX_Y);
+	ArrayList<PSTPoint> testPoints = pst.enumerate3Sided(-n,n,n);
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 
@@ -43,10 +43,10 @@ public class TestPST {
 	System.out.println("Finding max/min x/y in range...");
 	double result;
 	sw = new StopWatch();
-	result = pst.minYinRange(-MAX_Y,MAX_Y,MAX_Y);
-	result = pst.minXinRange(-MAX_Y,MAX_Y,MAX_Y);
-	result = pst.maxXinRange(-MAX_Y,MAX_Y,MAX_Y);
-	result = pst.maxYinRange(-MAX_Y,MAX_Y,MAX_Y);
+	result = pst.minYinRange(-n,n,n);
+	result = pst.minXinRange(-n,n,n);
+	result = pst.maxXinRange(-n,n,n);
+	result = pst.highest3Sided(-n,n,n);
 	time = sw.stop();
 	System.out.println("Took: " + time);
     }
