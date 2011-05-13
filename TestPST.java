@@ -46,7 +46,7 @@ public class TestPST {
 	result = pst.minYinRange(-n,n,n);
 	result = pst.minXinRange(-n,n,n);
 	result = pst.maxXinRange(-n,n,n);
-	result = pst.highest3Sided(-n,n,n);
+	result = pst.maxYinRange(-n,n,n);
 	time = sw.stop();
 	System.out.println("Took: " + time);
     }
