@@ -61,7 +61,6 @@ public class InPlacePST implements PrioritySearchTree {
 		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 		    indexOfMaxY = index;
 	    swap(indexOfMaxY,powerOf2(i)+j-1);
-	    System.out.println((powerOf2(i)+j-1));
 	}
 	
 	// ?
@@ -111,8 +110,39 @@ public class InPlacePST implements PrioritySearchTree {
 	    tree[j+1] = p;
 	}
     }
-
-
+/******************************************************************************
+* Stable 0-1 partitioning                                                     *
+******************************************************************************/
+    // moves all elements between beginA and endA (inclusive) past
+    // all elements between endA+1 and endB, and vice versa
+    private void blockPermute(int beginA, int endA, int endB) {
+	// reverse A
+	reverse(beginA,endA);
+	// reverse B
+	reverse(endA +1, endB);
+	// reverse A+B
+	reverse(beginA,endB);
+    }
+    // reverses the order of elements between begin and end (inclusive)
+    private void reverse(int begin, int end) {
+	while(begin < end)
+	    swap(begin++,end--);
+    }
+    private void stableInPlace01Sort(int beginIndex, int endIndex, PSTPoint s) {
+	int start = beginIndex;
+	while(endIndex - start > 1) {
+	    int k = findK(start,endIndex);
+	    // sort from start to 2^k
+	    for(int i = 0; i <= k;i++) {
+	    }
+	    // finally, sort the remaining elements
+	    start = (int)powerOf2(k)+1;
+	}
+    }
+    private static int findK(int start, int end) {
+	return (int)log2(1+ end - start);
+    }
+    
 
 /******************************************************************************
 * Query                                                                       *
@@ -251,7 +281,7 @@ public class InPlacePST implements PrioritySearchTree {
 	while(!isLeaf(indexP)) {
 	    PSTPoint p = getPoint(indexP);
 	    if(p.getX() >= xmin && p.getY() >= ymin) {
-		// UpdateHighestMost(p)
+		// Updatehighest(p)
 		if(p.getY() > best.getY())
 		    best = p;
 		indexP = indexOfLeftChild(indexP);
@@ -270,7 +300,7 @@ public class InPlacePST implements PrioritySearchTree {
 		} else if(pr.getY() < ymin) {
 		    indexP = indexOfLeftChild(indexP);
 		} else {
-		    // UpdateHighestMost(pr)
+		    // Updatehighest(pr)
 		    if(pr.getX() >= xmin &&
 		       pr.getY() >= ymin &&
 		       pr.getY() > best.getY())
@@ -280,7 +310,7 @@ public class InPlacePST implements PrioritySearchTree {
 	    }
 	}
 	PSTPoint p = getPoint(indexP);
-	// UpdateHighestMost(p)
+	// Updatehighest(p)
 	if(p.getX() >= xmin && p.getY() >= ymin && p.getY() > best.getY())
 	    best = p;
 	return best;
@@ -343,8 +373,9 @@ public class InPlacePST implements PrioritySearchTree {
 		    PSTPoint pl = getPoint(indexPL);
 		    if(xmin <= pl.getX() && pl.getX() <= xmax) {
 			// within query region
-			// UpdateHighestMost(Pl)
+			// Updatehighest(Pl)
 			if(pl.getY() >= ymin && pl.getY() > best.getY()) {
+				System.out.println("found new best on left");
 			    best = pl;
 			}
 			// end
@@ -368,8 +399,9 @@ public class InPlacePST implements PrioritySearchTree {
 			    // must be in the right subtree
 			    indexP = indexPR;
 			} else if(pr.getX() <= xmax) {
-			    // UpdateHighestMost(Pr)
+			    // Updatehighest(Pr)
 			    if(pr.getY() >= ymin && pr.getY() > best.getY()) {
+				System.out.println("found new best on left");
 				best = pr;
 			    }
 			    // end
@@ -386,8 +418,9 @@ public class InPlacePST implements PrioritySearchTree {
 			    R = true;
 			} 
 		    } else if(pl.getX() <= xmax) { // pl is within the query region
-			// UpdateHighestMost(Pl)
+			// UpdateHighest(Pl)
 			if(pl.getY() >= ymin && pl.getY() > best.getY()) {
+				System.out.println("found new best on left");
 			    best = pl;
 			}
 			// end
@@ -396,8 +429,9 @@ public class InPlacePST implements PrioritySearchTree {
 			    indexQ = indexPR;
 			    R = true;
 			} else { // pr must also be within the query region
-			    // UpdateHighestMost(Pr)
+			    // UpdateHighest(Pr)
 			    if(pr.getY() >= ymin && pr.getY() > best.getY()) {
+				System.out.println("found new best on left");
 				best = pr;
 			    }
 			    // end
@@ -425,8 +459,9 @@ public class InPlacePST implements PrioritySearchTree {
 		    PSTPoint ql = getPoint(indexQL);
 		    // CASE 2A: ql is within query region
 		    if(xmin <= ql.getX() && ql.getX() <= xmax) {
-			// UpdateHighestMost(Ql)
+			// UpdateHighest(Ql)
 			if(ql.getY() >= ymin && ql.getY() > best.getY()) {
+			    System.out.println("found new best on right");
 			    best = ql;
 			}
 			// end
@@ -460,8 +495,9 @@ public class InPlacePST implements PrioritySearchTree {
 			}
 			// CASE 3A(II): ql is within query region
 			else if(ql.getX() >= xmin) {
-			    // UpdateHighestMost(Ql)
+			    // Updatehighest(Ql)
 			    if(ql.getY() >= ymin && ql.getY() > best.getY()) {
+				System.out.println("found new best on right");
 				best = ql;
 			    }
 			    // end
@@ -480,8 +516,9 @@ public class InPlacePST implements PrioritySearchTree {
 		    }
 		    // CASE 3B: qr is within query region
 		    else if(qr.getX() >= xmin) { 
-			// UpdateHighestMost(Qr)
+			// Updatehighest(Qr)
 			if(qr.getY() >= ymin && qr.getY() > best.getY()) {
+			    System.out.println("found new best on right");
 			    best = qr;
 			}
 			// end
@@ -493,8 +530,9 @@ public class InPlacePST implements PrioritySearchTree {
 			}
 			// CASE 3B(II): ql must be within query region
 			else { 
-			    // UpdateHighestMost(Ql)
+			    // Updatehighest(Ql)
 			    if(ql.getY() >= ymin && ql.getY() > best.getY()) {
+				System.out.println("found new best on right");
 				best = ql;
 			    }
 			    // end
@@ -546,15 +584,13 @@ public class InPlacePST implements PrioritySearchTree {
 	    // query region but whose children may be within
 	    L = false,
 	    // flags that a point p' has been found which is between xmin and
-	    // xmax, but may be below the query region and whose children
-	    // may be in the query region along the left side
+	    // xmax, but may be below the query region
 	    Lp = false,
 	    // flags that a point q has been found with is right of the query
 	    // region, but whose children may be within
 	    R = false,
 	    // flags that a point q' has been found which is between xmin and
-	    // xmax, but may be below the query region and whose children
-	    // may be in the query region along the right side
+	    // xmax, but may be below the query region
 	    Rp = false;
 	// root is left of query region
 	if(root.getX() < xmin) {
@@ -572,7 +608,6 @@ public class InPlacePST implements PrioritySearchTree {
 * Traversal                                                                   *
 ******************************************************************************/
 	while(L || Lp || R || Rp) {
-
 	    // if several points should be searched, we will begin with the
 	    // point at the lowest level in the tree
 	    int levelP  = level(indexP);
@@ -1085,7 +1120,6 @@ public class InPlacePST implements PrioritySearchTree {
 		    while(N < 3) {
 			PSTPoint current = getPoint(indexC);
 			if(down) {
-			    System.out.println(current);
 			    if(current.getY() >= ymin) {
 				points.add(current);
 			    }
@@ -1222,14 +1256,20 @@ public class InPlacePST implements PrioritySearchTree {
 	    System.out.print("PST: "); ippst.printArray();
 	}
 	// Test queries
-	System.out.println("leftMostNE(x=-10,y=-10):              "
+	System.out.println("leftMostNE(x=-10,y=-10):                "
 			   + ippst.leftMostNE(-10,-10));
-	System.out.println("highestNE(x=1,y=-10):                 "
+	System.out.println("highestNE(x=1,y=-10):                   "
 			   + ippst.highestNE(1,-10));
-	System.out.println("highest3Sided(xmin=4,xmax=5,ymin=0):  "
+	System.out.println("highest3Sided(xmin=4,xmax=5,ymin=0):    "
 			   + ippst.highest3Sided(4,5,0));
-	System.out.print("enumerate3Sided(xmin=1,xmax=7,ymin=-8): ");
+	System.out.print(  "enumerate3Sided(xmin=1,xmax=7,ymin=-8): ");
 	printArray(ippst.enumerate3Sided(1,7,-8).toArray(new PSTPoint[0]));
+
+	System.out.println();
+	System.out.println("findK(1,1):" + findK(1,1));
+	System.out.println("findK(1,4):" + findK(1,4));
+	System.out.println("findK(1,10):" + findK(1,10));
+	System.out.println("findK(1,100):" + findK(1,10));
     }
 
 /******************************************************************************
@@ -1237,19 +1277,19 @@ public class InPlacePST implements PrioritySearchTree {
 ******************************************************************************/
     
     public double minYinRange(double minX, double maxX, double maxY)
-	throws NoPointsInRangeException {
-	throw new NoPointsInRangeException();
+	throws NoPointsInRangeException, NotImplementedException {
+	throw new NotImplementedException();
     }
     public double minXinRange(double minX, double maxX, double maxY)
-	throws NoPointsInRangeException {
-	throw new NoPointsInRangeException();
+	throws NoPointsInRangeException, NotImplementedException {
+	throw new NotImplementedException();
     }
     public double maxXinRange(double minX, double maxX, double maxY)
-	throws NoPointsInRangeException {
-	throw new NoPointsInRangeException();
+	throws NoPointsInRangeException, NotImplementedException {
+	throw new NotImplementedException();
     }
     public double maxYinRange(double minX, double maxX, double maxY)
-	throws NoPointsInRangeException {
+	throws NoPointsInRangeException, NotImplementedException {
 	double highestY = (highest3Sided(minX,maxX,maxY)).getY();
 	if(highestY == Double.NEGATIVE_INFINITY) throw new NoPointsInRangeException();
 	return highestY;

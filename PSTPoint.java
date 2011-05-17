@@ -24,8 +24,8 @@ public class PSTPoint implements Comparable<PSTPoint> {
     }
 
     public int compareTo(PSTPoint p) {
-	if(yLessThan(p)) return -1;
-	else if(yGreaterThan(p)) return 1;
+	if(yLessThan(p)) return 1;
+	else if(yGreaterThan(p)) return -1;
 	return 0;
     }
     public boolean yLessThan(PSTPoint p) {

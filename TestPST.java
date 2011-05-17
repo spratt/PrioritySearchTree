@@ -1,26 +1,35 @@
 import java.util.*;
 public class TestPST {
     public static void main(String[] args) 
-	throws EmptyTreeException, NoPointsInRangeException {
+	throws EmptyTreeException, NoPointsInRangeException, NotImplementedException {
 	StopWatch sw;
 	long time;
-	PrioritySearchTree arrayPST, pointerPST;
+	PrioritySearchTree arrayPST, pointerPST, inPlacePST;
 	System.out.println("Creating points...");
 	ArrayList<PSTPoint> testPoints = new ArrayList<PSTPoint>();
 	int n = Integer.parseInt(args[0]);
-	for(int i = 0; i < n ; i++) {
-	    testPoints.add(new PSTPoint(n-i,i));
-	    testPoints.add(new PSTPoint(-i,-n+i));
+	int count = 0;
+	for(int i = -n; i < n ; i++) {
+	    if((i%2) == 0)
+		testPoints.add(new PSTPoint(i,i+n));
+	    else
+		testPoints.add(new PSTPoint(-i,-(i+n)));
 	}
+	ArrayList<PSTPoint> copyPoints = new ArrayList<PSTPoint>(testPoints);
+	PSTPoint[] pointArray = testPoints.toArray(new PSTPoint[2*n]);
 	System.out.println("Building PSTs with " + doubleToInt(2*n) + " nodes...");
 	sw = new StopWatch();
 	pointerPST = new PointerPST(testPoints);
 	time = sw.stop();
 	System.out.println("Pointer implementation took: " + time);
 	sw = new StopWatch();
-	arrayPST = new ArrayPST(testPoints);
+	arrayPST = new ArrayPST(copyPoints);
 	time = sw.stop();
 	System.out.println("Array implementation took: " + time);
+	sw = new StopWatch();
+	inPlacePST = new InPlacePST(pointArray);
+	time = sw.stop();
+	System.out.println("In-place implementation took: " + time);
 	System.out.println();
 
 	System.out.println("Testing pointer impementation...");
@@ -29,13 +38,17 @@ public class TestPST {
 
 	System.out.println("Testing array impementation...");
 	testTime(arrayPST,n);
+	System.out.println();
+
+	System.out.println("Testing in-place impementation...");
+	testTime(inPlacePST,n);
     } 
     private static void testTime(PrioritySearchTree pst, int n)
-	throws EmptyTreeException, NoPointsInRangeException {
+	throws EmptyTreeException, NoPointsInRangeException, NotImplementedException {
 	// Find all points in range
 	System.out.println("Finding all points in range...");
 	StopWatch sw = new StopWatch();
-	ArrayList<PSTPoint> testPoints = pst.enumerate3Sided(-n,n,n);
+	List<PSTPoint> testPoints = pst.enumerate3Sided(-n,n,n);
 	long time = sw.stop();
 	System.out.println("Took: " + time);
 
@@ -43,11 +56,13 @@ public class TestPST {
 	System.out.println("Finding max/min x/y in range...");
 	double result;
 	sw = new StopWatch();
-	result = pst.minYinRange(-n,n,n);
-	result = pst.minXinRange(-n,n,n);
-	result = pst.maxXinRange(-n,n,n);
-	result = pst.maxYinRange(-n,n,n);
+	// result = pst.minYinRange(-n,n,n);
+	// result = pst.minXinRange(-n,n,n);
+	// result = pst.maxXinRange(-n,n,n);
+	// should all be on same order, only need to test one
+	result = pst.maxYinRange(-n,n,n); 
 	time = sw.stop();
+	System.out.println(result);
 	System.out.println("Took: " + time);
     }
     private static int doubleToInt(double d) {

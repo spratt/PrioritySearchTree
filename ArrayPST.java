@@ -32,13 +32,13 @@ public class ArrayPST implements PrioritySearchTree {
 ******************************************************************************/
     public ArrayPST(ArrayList<PSTPoint> points) {
 	if(points == null) return;
-	Collections.sort(points); // Sort by y-coordinate in increasing order
+	Collections.sort(points); // Sort by y-coordinate in decreasing order
 	this.heap = new ArrayPSTNode[heapSize(treeHeight(points.size()))];
 	buildTree(0,points);
     }
 /******************************************************************************
 * Given a root index and a list of valid points P ordered by                  *
-* y-coordinate in increasing order, determines a median which bisects         *
+* y-coordinate in decreasing order, determines a median which bisects         *
 * the remaining points, then builds:                                          *
 *                                                                             *
 *   root: point with lowest y-value                                           *
@@ -58,7 +58,7 @@ public class ArrayPST implements PrioritySearchTree {
 ******************************************************************************/
     private void buildTree(int rootIndex, ArrayList<PSTPoint> points) {
 	if(points == null || points.size() < 1) return;
-	// Since points are ordered by y increasing, smallest is first
+	// Since points are ordered by y decreasing, largest is first
 	PSTPoint rootPoint = points.remove(0);
 	// Find median X value
 	//  - uses average X value of non-root points
@@ -83,35 +83,35 @@ public class ArrayPST implements PrioritySearchTree {
     }
 /******************************************************************************
 *                                                                             *
-* Find all points within the region bounded by (minX,minY) and (maxX,maxY)    *
+* Find all points within the region bounded by (minX,minY) and (maxX,minY)    *
 *                                                                             *
-*              +--------+ (maxX,maxY)                                         *
+*             /|\      /|\                                                    *
 *              |        |                                                     *
 *              |        |                                                     *
 *              |        |                                                     *
-*  (minX,minY) +--------+                                                     *
+*  (minX,minY) +--------+ (maxX,minY)                                         *
 *                                                                             *
-* Assumes maxX > minX and maxY > minY.                                        *
-* Choose minX,minY,maxX,maxY appropriately.                                   *
+* Assumes maxX > minX and minY                                                *
+* Choose minX,maxX,minY appropriately.                                        *
 *                                                                             *
 ******************************************************************************/
-    public ArrayList<PSTPoint> enumerate3Sided(double minX, 
-						   double maxX, double maxY)
+    public List<PSTPoint> enumerate3Sided(double minX, 
+					  double maxX, double minY)
 	throws EmptyTreeException {
-	return enumerate3Sided(minX,maxX,maxY,
-				   new ArrayList<PSTPoint>(),0);
+	return enumerate3Sided(minX,maxX,minY,
+			       new ArrayList<PSTPoint>(),0);
     }
-    // Note that as maxY and maxX approach positive infinity and
+    // Note that as minY and maxX approach positive infinity and
     // minX approaches negative infinity, this search visits more nodes.
     // In the worst case, all nodes are visited.
-    private ArrayList<PSTPoint> enumerate3Sided(double minX,
-						    double maxX, double maxY,
-						    ArrayList<PSTPoint> list,
-						    int index)
+    private List<PSTPoint> enumerate3Sided(double minX,
+					   double maxX, double minY,
+					   ArrayList<PSTPoint> list,
+					   int index)
 	throws EmptyTreeException {
 	ArrayPSTNode node = heap[index];
 	if(node == null) return list;
-	if(node.getY() <= maxY) {
+	if(node.getY() >= minY) {
 	    double nodeX = node.getX();
 	    if(nodeX >= minX && nodeX <= maxX) { 
 		list.add(node.getPoint());
@@ -120,11 +120,11 @@ public class ArrayPST implements PrioritySearchTree {
 		double nodeR = maxX(index);
 		// nodeR >= points in left tree >= minX
 		if(nodeR >= minX)
-		    enumerate3Sided(minX,maxX,maxY,list,
+		    enumerate3Sided(minX,maxX,minY,list,
 					indexOfLeftChild(index));
 		// nodeR < points in right tree <= maxX
 		if(nodeR < maxX) 
-		    enumerate3Sided(minX,maxX,maxY,list,
+		    enumerate3Sided(minX,maxX,minY,list,
 					indexOfRightChild(index));
 	    }
 	}
@@ -133,15 +133,15 @@ public class ArrayPST implements PrioritySearchTree {
 /******************************************************************************
 * Other query functions                                                       *
 ******************************************************************************/
-    public double minYinRange(double minX, double maxX, double maxY)
+    public double maxYinRange(double minX, double maxX, double minY)
 	throws NoPointsInRangeException {
-	double min = minYinRange(minX,maxX,maxY,0);
-	if(min < Double.POSITIVE_INFINITY) return min;
+	double max = maxYinRange(minX,maxX,minY,0);
+	if(max > Double.NEGATIVE_INFINITY) return max;
 	throw new NoPointsInRangeException();
     }
-    private double minYinRange(double minX, double maxX,double maxY, int index) {
+    private double maxYinRange(double minX, double maxX,double minY, int index) {
 	ArrayPSTNode node = heap[index];
-	if(node == null || node.getY() > maxY) return Double.POSITIVE_INFINITY;
+	if(node == null || node.getY() < minY) return Double.NEGATIVE_INFINITY;
 	double nodeX = node.getX();
 	if(nodeX >= minX && nodeX <= maxX) return node.getY();
 	if(isValidNode(indexOfLeftChild(index))) {
@@ -149,26 +149,26 @@ public class ArrayPST implements PrioritySearchTree {
 	    // nodeR >= points in left tree >= minX
 	    if(nodeR >= minX && 
 	       nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-		double minLeft = minYinRange(minX,maxX,maxY,indexOfLeftChild(index));
-		double minRight = minYinRange(minX,maxX,maxY,indexOfRightChild(index));
-		return (minLeft < minRight ? minLeft : minRight);
+		double maxLeft = maxYinRange(minX,maxX,minY,indexOfLeftChild(index));
+		double maxRight = maxYinRange(minX,maxX,minY,indexOfRightChild(index));
+		return (maxLeft < maxRight ? maxLeft : maxRight);
 	    } else if(nodeR >= minX) {
-		return minYinRange(minX,maxX,maxY,indexOfLeftChild(index));
+		return maxYinRange(minX,maxX,minY,indexOfLeftChild(index));
 	    } else if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-		return minYinRange(minX,maxX,maxY,indexOfRightChild(index));
+		return maxYinRange(minX,maxX,minY,indexOfRightChild(index));
 	    }
 	}
-	return Double.POSITIVE_INFINITY;
+	return Double.NEGATIVE_INFINITY;
     }
-    public double minXinRange(double minX, double maxX, double maxY)
+    public double minXinRange(double minX, double maxX, double minY)
 	throws NoPointsInRangeException {
-	double min = minXinRange(minX,maxX,maxY,0);
+	double min = minXinRange(minX,maxX,minY,0);
 	if(min < Double.POSITIVE_INFINITY) return min;
 	throw new NoPointsInRangeException();
     }
-    private double minXinRange(double minX, double maxX, double maxY, int index) {
+    private double minXinRange(double minX, double maxX, double minY, int index) {
 	ArrayPSTNode node = heap[index];
-	if(node == null || node.getY() > maxY)
+	if(node == null || node.getY() < minY)
 	    return Double.POSITIVE_INFINITY;
 	double min = Double.POSITIVE_INFINITY;
 	double nodeX = node.getX();
@@ -177,25 +177,25 @@ public class ArrayPST implements PrioritySearchTree {
 	if(isValidNode(indexOfLeftChild(index))) {
 	    double nodeR = maxX(indexOfLeftChild(index));
 	    if(nodeR >= minX) {
-		double minLeft = minXinRange(minX,maxX,maxY,indexOfLeftChild(index));
+		double minLeft = minXinRange(minX,maxX,minY,indexOfLeftChild(index));
 		if(minLeft < min) min = minLeft;
 	    }
 	    if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-		double minRight = minXinRange(minX,maxX,maxY,indexOfRightChild(index));
+		double minRight = minXinRange(minX,maxX,minY,indexOfRightChild(index));
 		if(minRight < min) min = minRight;
 	    }
 	}
 	return min;
     }
-    public double maxXinRange(double minX, double maxX, double maxY)
+    public double maxXinRange(double minX, double maxX, double minY)
 	throws NoPointsInRangeException {
-	double max = maxXinRange(minX,maxX,maxY,0);
+	double max = maxXinRange(minX,maxX,minY,0);
 	if(max > Double.NEGATIVE_INFINITY) return max;
 	throw new NoPointsInRangeException();
     }
-    private double maxXinRange(double minX, double maxX, double maxY, int index) {
+    private double maxXinRange(double minX, double maxX, double minY, int index) {
 	ArrayPSTNode node = heap[index];
-	if(node == null || node.getY() > maxY)
+	if(node == null || node.getY() < minY)
 	    return Double.NEGATIVE_INFINITY;
 	double max = Double.NEGATIVE_INFINITY;
 	double nodeX = node.getX();
@@ -204,42 +204,42 @@ public class ArrayPST implements PrioritySearchTree {
 	if(isValidNode(indexOfLeftChild(index))) {
 	    double nodeR = maxX(indexOfLeftChild(index));
 	    if(nodeR >= minX) {
-		double maxLeft = maxXinRange(minX,maxX,maxY,indexOfLeftChild(index));
+		double maxLeft = maxXinRange(minX,maxX,minY,indexOfLeftChild(index));
 		if(maxLeft > max) max = maxLeft;
 	    }
 	    if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-		double maxRight = maxXinRange(minX,maxX,maxY,indexOfRightChild(index));
+		double maxRight = maxXinRange(minX,maxX,minY,indexOfRightChild(index));
 		if(maxRight > max) max = maxRight;
 	    }
 	}
 	return max;
     }
-    public double maxYinRange(double minX, double maxX, double maxY)
+    public double minYinRange(double minX, double maxX, double minY)
 	throws NoPointsInRangeException {
-	double max = maxYinRange(minX,maxX,maxY,0);
-	if(max > Double.NEGATIVE_INFINITY) return max;
+	double min = minYinRange(minX,maxX,minY,0);
+	if(min < Double.POSITIVE_INFINITY) return min;
 	throw new NoPointsInRangeException();
     }
-    private double maxYinRange(double minX, double maxX, double maxY, int index) {
+    private double minYinRange(double minX, double maxX, double minY, int index) {
 	ArrayPSTNode node = heap[index];
-	if(node == null || node.getY() > maxY)
-	    return Double.NEGATIVE_INFINITY;
-	double max = Double.NEGATIVE_INFINITY;
+	if(node == null || node.getY() < minY)
+	    return Double.POSITIVE_INFINITY;
+	double min = Double.POSITIVE_INFINITY;
 	double nodeX = node.getX();
 	if(minX <= nodeX && nodeX <= maxX)
-	    max = node.getY();
+	    min = node.getY();
 	if(isValidNode(indexOfLeftChild(index))) {
 	    double nodeR = maxX(indexOfLeftChild(index));
 	    if(nodeR >= minX) {
-		double maxLeft = maxYinRange(minX,maxX,maxY,indexOfLeftChild(index));
-		if(maxLeft > max) max = maxLeft;
+		double minLeft = minYinRange(minX,maxX,minY,indexOfLeftChild(index));
+		if(minLeft < min) min = minLeft;
 	    }
 	    if(nodeR < maxX && isValidNode(indexOfRightChild(index))) {
-		double maxRight = maxYinRange(minX,maxX,maxY,indexOfRightChild(index));
-		if(maxRight > max) max = maxRight;
+		double minRight = minYinRange(minX,maxX,minY,indexOfRightChild(index));
+		if(minRight < min) min = minRight;
 	    }
 	}
-	return max;
+	return min;
     }
 	
 /******************************************************************************
@@ -273,28 +273,28 @@ public class ArrayPST implements PrioritySearchTree {
 	    max = heap[indexOfLeftChild(index)].getX();
 	return max;
     }
-    public double minY() throws EmptyTreeException {
+    public double maxY() throws EmptyTreeException {
 	if(heap[0] == null) throw new EmptyTreeException();
 	return heap[0].getY();
     }
-    public double maxY() throws EmptyTreeException {
+    public double minY() throws EmptyTreeException {
 	if(heap[0] == null) throw new EmptyTreeException();
-	return maxY(0);
+	return minY(0);
     }
-    private double maxY(int index) {
-	double max = heap[index].getY();
+    private double minY(int index) {
+	double min = heap[index].getY();
 	if(isValidNode(indexOfRightChild(index)) &&
 	   isValidNode(indexOfLeftChild(index))) {
-		double maxLeft = maxY(indexOfLeftChild(index));
-		double maxRight = maxY(indexOfRightChild(index));
-		if(maxLeft > maxRight) max = maxLeft;
-		else max = maxRight;
+		double minLeft = minY(indexOfLeftChild(index));
+		double minRight = minY(indexOfRightChild(index));
+		if(minLeft < minRight) min = minLeft;
+		else min = minRight;
 	} else if(isValidNode(indexOfRightChild(index))) {
-		max = maxY(indexOfRightChild(index));
+		min = minY(indexOfRightChild(index));
 	} else if(isValidNode(indexOfLeftChild(index))) {
-		max = maxY(indexOfLeftChild(index));
+		min = minY(indexOfLeftChild(index));
 	}
-	return max;
+	return min;
     }
 /******************************************************************************
 * Utility Functions                                                           *
