@@ -89,6 +89,8 @@ public class InPlacePST implements PrioritySearchTree {
     // Note: takes array indices of base 1
     private void inPlaceSort(int beginIndex, int endIndex, PSTPoint s) {
 	insertionSort(baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
+	// stableInPlace01Partition(tree,baseZeroIndex(beginIndex),
+	// 			 baseZeroIndex(endIndex),s);
     }
     // Note: takes array indices of base 0
     private void insertionSort(int beginIndex, int endIndex) {
@@ -112,57 +114,64 @@ public class InPlacePST implements PrioritySearchTree {
 /******************************************************************************
 * Stable 0-1 partitioning                                                     *
 ******************************************************************************/
-    // moves all elements between beginA and endA (inclusive) past
-    // all elements between endA+1 and endB, and vice versa
-    private void blockPermute(int beginA, int endA, int endB) {
-	if(beginA == endA || endA == endB) return;
-	// reverse A
-	reverse(beginA,endA);
-	// reverse B
-	reverse(endA +1, endB);
-	// reverse A+B
-	reverse(beginA,endB);
-    }
-    // reverses the order of elements between begin and end (inclusive)
-    private void reverse(int begin, int end) {
-	while(begin < end)
-	    swap(begin++,end--);
-    }
     // Sorts the array from beginIndex to endIndex (inclusive)
-    // using s as a pivot, uses base 1
-    private void stableInPlace01Sort(int beginIndex, int endIndex, PSTPoint s) {
-	int start = beginIndex;
-	int lastK = -1;
-	int firstOne = -1;
-	while(endIndex - start > 1) {
-	    int k = findK(start,endIndex);
-	    // sort from start to 2^k
-	    int lastZero = stableInPlace01Sort2(beginIndex,(int)powerOf2(k),s);
-	    // figure out the ends
-	    if(lastK != -1) {
-		// find first 1 on left
-		for(int i = lastK; i > beginIndex; i--) {
-		    if(getPoint(i-1).xLessThan(s)) {
-			firstOne = i;
-			break;
-		    }
-		}
-		// permute
-		blockPermute(firstOne,lastK,lastZero);
-	    }
-	    // save k
-	    lastK = k;
-	    // finally, sort the remaining elements
-	    start = (int)powerOf2(k)+1;
+    // using s as a pivot, uses base 0
+    private static void stableInPlace01Partition(PSTPoint[] array, int beginIndex,
+						 int endIndex, PSTPoint s) {
+	int n = 1 + endIndex - beginIndex;
+	if(n == 1) return;
+	int countZeroes = 0;
+	for(int i = beginIndex; i <= endIndex; i++)
+	    if(isZero(array[i],s))
+		countZeroes++;
+	// Step 1: form internal buffer
+	int zeroEnd = endIndex;
+	while(zeroEnd >= countZeroes) {
+	    // find the preceding zero
+	    while(zeroEnd > 0 && isOne(array[zeroEnd],s)) zeroEnd--;
+	    if(zeroEnd == 0) return;
+	    // find the zero immediately following the preceding one
+	    int oneEnd = zeroEnd-1;
+	    while(oneEnd > 0 && isZero(array[oneEnd],s)) oneEnd--;
+	    // find the one immediately following the preceding zero
+	    int oneStart = oneEnd;
+	    while(oneStart > 0 && isOne(array[oneStart-1],s)) oneStart--;
+	    // finally, permute the block of zeroes with the block of ones
+	    blockPermute(array,oneStart,oneEnd,zeroEnd);
+	    zeroEnd = 1 + oneEnd - (zeroEnd - oneEnd);
 	}
     }
-    // Same as above, but assumes number of elements is a power of 2
-    // returns position of last element with x-coordinate less than s
-    private int stableInPlace01Sort2(int beginIndex, int endIndex, PSTPoint s) {
-	return -1;
+    // moves all elements between beginA and endA (inclusive) past
+    // all elements between endA+1 and endB, and vice versa
+    private static void blockPermute(PSTPoint[] array, int beginA, int endA, int endB) {
+	if(beginA == endB) return;
+	// reverse A
+	reverse(array,beginA,endA);
+	// reverse B
+	reverse(array,endA +1, endB);
+	// reverse A+B
+	reverse(array,beginA,endB);
     }
+    // reverses the order of elements between begin and end (inclusive)
+    private static void reverse(PSTPoint[] array, int begin, int end) {
+	while(begin < end)
+	    swap(array,begin++,end--);
+    }
+    private static void swap(PSTPoint[] array, int indexA, int indexB) {
+	PSTPoint temp = array[indexA];
+	array[indexA] = array[indexB];
+	array[indexB] = temp;
+    }
+    // finds a k such that 2^k <= n <= 2^k+1 
     private static int findK(int start, int end) {
 	return (int)log2(1+ end - start);
+    }
+    // returns true if point at index is less than s (conceptually a zero)
+    private static boolean isZero(PSTPoint p, PSTPoint s) {
+	return p.getX() < s.getX();
+    }
+    private static boolean isOne(PSTPoint p, PSTPoint s) {
+	return !isZero(p,s);
     }
     
 
@@ -1242,33 +1251,79 @@ public class InPlacePST implements PrioritySearchTree {
 * Testing                                                                     *
 ******************************************************************************/
     public static void main(String[] args) {
-	System.out.println("Creating points...");
-	int n = Integer.parseInt(args[0]);
-	PSTPoint[] testPoints = new PSTPoint[2*n];
-	int count = 0;
-	for(int i = -n; i < n ; i++) {
-	    if((i%2) == 0)
-		testPoints[count++] = new PSTPoint(i,i+n);
-	    else
-		testPoints[count++] = new PSTPoint(-i,-(i+n));
+	PSTPoint[] testPoints;
+	if(args.length < 1) {
+	    testPoints = new PSTPoint[4];
+	    testPoints[0] = new PSTPoint(0,0);
+	    testPoints[1] = new PSTPoint(1,1);
+	    testPoints[2] = new PSTPoint(2,2);
+	    testPoints[3] = new PSTPoint(3,3);
+
+	    System.out.print("Points:               "); printArray(testPoints);
+	    swap(testPoints,0,3);
+	    System.out.print("swap(0,3):            "); printArray(testPoints);
+	    swap(testPoints,0,3);
+	    System.out.print("swap(0,3):            "); printArray(testPoints);
+	    reverse(testPoints,0,3);
+	    System.out.print("reverse:              "); printArray(testPoints);
+	    reverse(testPoints,0,3);
+	    System.out.print("reverse:              "); printArray(testPoints);
+	    blockPermute(testPoints,0,1,3);
+	    System.out.print("blockPermute(0,1,3):  "); printArray(testPoints);
+	    blockPermute(testPoints,0,1,3);
+	    System.out.print("blockPermute(0,1,3):  "); printArray(testPoints);
+	    blockPermute(testPoints,0,0,1);
+	    System.out.print("blockPermute(0,0,1):  "); printArray(testPoints);
+	    blockPermute(testPoints,0,0,1);
+	    System.out.print("blockPermute(0,0,1):  "); printArray(testPoints);
+
+	    System.out.println();
+	    reverse(testPoints,0,3);
+	    System.out.print("reverse:              "); printArray(testPoints);
+
+	    stableInPlace01Partition(testPoints,0,3,new PSTPoint(1.5,1.5));
+	    System.out.print("partitioned(1.5,1.5): "); printArray(testPoints);
+
+	    stableInPlace01Partition(testPoints,0,3,new PSTPoint(-1,-1));
+	    System.out.print("partitioned(-1,-1):   "); printArray(testPoints);
+
+	    stableInPlace01Partition(testPoints,0,3,new PSTPoint(4,4));
+	    System.out.print("partitioned(4,4):     "); printArray(testPoints);
+
+	    stableInPlace01Partition(testPoints,0,3,new PSTPoint(2.5,2.5));
+	    System.out.print("partitioned(2.5,2.5): "); printArray(testPoints);
+
+	    stableInPlace01Partition(testPoints,0,3,new PSTPoint(0.5,0.5));
+	    System.out.print("partitioned(0.5,0.5): "); printArray(testPoints);
+	} else {
+	    System.out.println("Creating points...");
+	    int n = Integer.parseInt(args[0]);
+	    testPoints = new PSTPoint[2*n];
+	    int count = 0;
+	    for(int i = -n; i < n ; i++) {
+		if((i%2) == 0)
+		    testPoints[count++] = new PSTPoint(i,i+n);
+		else
+		    testPoints[count++] = new PSTPoint(-i,-(i+n));
+	    }
+	    System.out.println("Building PST with " + (2*n) + " nodes...");
+	    if(n < 10) {
+		System.out.print("Points: "); printArray(testPoints);
+	    }
+	    InPlacePST ippst = new InPlacePST(testPoints);
+	    if(n < 10) {
+		System.out.print("PST: "); ippst.printArray();
+	    }
+	    // Test queries
+	    System.out.println("leftMostNE(x=-10,y=-10):                "
+			       + ippst.leftMostNE(-10,-10));
+	    System.out.println("highestNE(x=1,y=-10):                   "
+			       + ippst.highestNE(1,-10));
+	    System.out.println("highest3Sided(xmin=4,xmax=5,ymin=0):    "
+			       + ippst.highest3Sided(4,5,0));
+	    System.out.print(  "enumerate3Sided(xmin=1,xmax=7,ymin=-8): ");
+	    printArray(ippst.enumerate3Sided(1,7,-8).toArray(new PSTPoint[0]));
 	}
-	System.out.println("Building PST with " + (2*n) + " nodes...");
-	if(n < 10) {
-	    System.out.print("Points: "); printArray(testPoints);
-	}
-	InPlacePST ippst = new InPlacePST(testPoints);
-	if(n < 10) {
-	    System.out.print("PST: "); ippst.printArray();
-	}
-	// Test queries
-	System.out.println("leftMostNE(x=-10,y=-10):                "
-			   + ippst.leftMostNE(-10,-10));
-	System.out.println("highestNE(x=1,y=-10):                   "
-			   + ippst.highestNE(1,-10));
-	System.out.println("highest3Sided(xmin=4,xmax=5,ymin=0):    "
-			   + ippst.highest3Sided(4,5,0));
-	System.out.print(  "enumerate3Sided(xmin=1,xmax=7,ymin=-8): ");
-	printArray(ippst.enumerate3Sided(1,7,-8).toArray(new PSTPoint[0]));
     }
 
 /******************************************************************************
