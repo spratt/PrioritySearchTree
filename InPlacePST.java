@@ -80,7 +80,6 @@ public class InPlacePST implements PrioritySearchTree {
 		    indexOfMaxY = index;
 	    swap(indexOfMaxY,powerOf2(i)+k+j);
 	}
-	
 	// Finally, sort all points past the current level
 	inPlaceSort(powerOf2(i+1),n,s);
     }
@@ -116,6 +115,7 @@ public class InPlacePST implements PrioritySearchTree {
     // moves all elements between beginA and endA (inclusive) past
     // all elements between endA+1 and endB, and vice versa
     private void blockPermute(int beginA, int endA, int endB) {
+	if(beginA == endA || endA == endB) return;
 	// reverse A
 	reverse(beginA,endA);
 	// reverse B
@@ -128,16 +128,38 @@ public class InPlacePST implements PrioritySearchTree {
 	while(begin < end)
 	    swap(begin++,end--);
     }
+    // Sorts the array from beginIndex to endIndex (inclusive)
+    // using s as a pivot, uses base 1
     private void stableInPlace01Sort(int beginIndex, int endIndex, PSTPoint s) {
 	int start = beginIndex;
+	int lastK = -1;
+	int firstOne = -1;
 	while(endIndex - start > 1) {
 	    int k = findK(start,endIndex);
 	    // sort from start to 2^k
-	    for(int i = 0; i <= k;i++) {
+	    int lastZero = stableInPlace01Sort2(beginIndex,(int)powerOf2(k),s);
+	    // figure out the ends
+	    if(lastK != -1) {
+		// find first 1 on left
+		for(int i = lastK; i > beginIndex; i--) {
+		    if(getPoint(i-1).xLessThan(s)) {
+			firstOne = i;
+			break;
+		    }
+		}
+		// permute
+		blockPermute(firstOne,lastK,lastZero);
 	    }
+	    // save k
+	    lastK = k;
 	    // finally, sort the remaining elements
 	    start = (int)powerOf2(k)+1;
 	}
+    }
+    // Same as above, but assumes number of elements is a power of 2
+    // returns position of last element with x-coordinate less than s
+    private int stableInPlace01Sort2(int beginIndex, int endIndex, PSTPoint s) {
+	return -1;
     }
     private static int findK(int start, int end) {
 	return (int)log2(1+ end - start);
@@ -375,7 +397,6 @@ public class InPlacePST implements PrioritySearchTree {
 			// within query region
 			// Updatehighest(Pl)
 			if(pl.getY() >= ymin && pl.getY() > best.getY()) {
-				System.out.println("found new best on left");
 			    best = pl;
 			}
 			// end
@@ -401,7 +422,6 @@ public class InPlacePST implements PrioritySearchTree {
 			} else if(pr.getX() <= xmax) {
 			    // Updatehighest(Pr)
 			    if(pr.getY() >= ymin && pr.getY() > best.getY()) {
-				System.out.println("found new best on left");
 				best = pr;
 			    }
 			    // end
@@ -420,7 +440,6 @@ public class InPlacePST implements PrioritySearchTree {
 		    } else if(pl.getX() <= xmax) { // pl is within the query region
 			// UpdateHighest(Pl)
 			if(pl.getY() >= ymin && pl.getY() > best.getY()) {
-				System.out.println("found new best on left");
 			    best = pl;
 			}
 			// end
@@ -431,7 +450,6 @@ public class InPlacePST implements PrioritySearchTree {
 			} else { // pr must also be within the query region
 			    // UpdateHighest(Pr)
 			    if(pr.getY() >= ymin && pr.getY() > best.getY()) {
-				System.out.println("found new best on left");
 				best = pr;
 			    }
 			    // end
@@ -461,7 +479,6 @@ public class InPlacePST implements PrioritySearchTree {
 		    if(xmin <= ql.getX() && ql.getX() <= xmax) {
 			// UpdateHighest(Ql)
 			if(ql.getY() >= ymin && ql.getY() > best.getY()) {
-			    System.out.println("found new best on right");
 			    best = ql;
 			}
 			// end
@@ -497,7 +514,6 @@ public class InPlacePST implements PrioritySearchTree {
 			else if(ql.getX() >= xmin) {
 			    // Updatehighest(Ql)
 			    if(ql.getY() >= ymin && ql.getY() > best.getY()) {
-				System.out.println("found new best on right");
 				best = ql;
 			    }
 			    // end
@@ -518,7 +534,6 @@ public class InPlacePST implements PrioritySearchTree {
 		    else if(qr.getX() >= xmin) { 
 			// Updatehighest(Qr)
 			if(qr.getY() >= ymin && qr.getY() > best.getY()) {
-			    System.out.println("found new best on right");
 			    best = qr;
 			}
 			// end
@@ -532,7 +547,6 @@ public class InPlacePST implements PrioritySearchTree {
 			else { 
 			    // Updatehighest(Ql)
 			    if(ql.getY() >= ymin && ql.getY() > best.getY()) {
-				System.out.println("found new best on right");
 				best = ql;
 			    }
 			    // end
@@ -1102,55 +1116,40 @@ public class InPlacePST implements PrioritySearchTree {
     }
     private void explore(int indexP, double ymin, ArrayList<PSTPoint> points) {
 	PSTPoint p = getPoint(indexP);
-	int indexPl = indexOfLeftChild(indexP);
-	PSTPoint pl;
 	// p is within query region
 	if(p.getY() >= ymin) {
-	    points.add(p);
-	    if(!isLeaf(indexP)) {
-		// one child
-		if(numberOfChildren(indexP) == 1 &&         // implies max level
-		   (pl = getPoint(indexPl)).getY() >= ymin)
-		    points.add(pl);
-		// must have 2 children
-		else {
-		    int N = 1;
-		    boolean down = true;
-		    int indexC = indexPl;
-		    while(N < 3) {
-			PSTPoint current = getPoint(indexC);
-			if(down) {
-			    if(current.getY() >= ymin) {
-				points.add(current);
-			    }
-			    if(current.getY() < ymin || isLeaf(indexC)) {
-				down = false;
-			    }
-			    else {
-				indexC = indexOfLeftChild(indexC);
-			    }
-			}
-			// up
-			else {
-			    int indexOfParent = indexOfParent(indexC);
-			    if(indexC == indexOfLeftChild(indexOfParent) &&
-			       numberOfChildren(indexOfParent) == 2) {
-				indexC = indexOfRightChild(indexOfParent);
-				down = true;
-			    }
-			    else {
-				indexC = indexOfParent;
-			    }
-			    if(indexOfParent == indexP) {
-				N++;
-			    }
-			}
+	    int indexC = indexP;
+	    PSTPoint current;
+	    int state = 0;
+	    while((indexC != indexP) || (state != 2)) {
+		current = getPoint(indexC);
+		if(state == 0) {
+		    points.add(current);
+		    int indexCl = indexOfLeftChild(indexC);
+		    if(numberOfChildren(indexC) > 0 &&
+		       getPoint(indexCl).getY() >= ymin) {
+			indexC = indexCl;
+		    } else {
+			state = 1;
 		    }
+		} else if(state == 1) {
+		    int indexCr = indexOfRightChild(indexC);
+		    if(numberOfChildren(indexC) == 2 &&
+		       getPoint(indexCr).getY() >= ymin) {
+			indexC = indexCr;
+			state = 0;
+		    } else {
+			state = 2;
+		    }
+		} else { // state == 2 && current != p
+		    if(isLeftChild(indexC)) {
+			state = 1;
+		    }
+		    indexC = indexOfParent(indexC);
 		}
 	    }
 	}
     }
-
 /******************************************************************************
 * Utility                                                                     *
 ******************************************************************************/
@@ -1178,9 +1177,15 @@ public class InPlacePST implements PrioritySearchTree {
 	return 2;
     }
     private static int indexOfParent(int index) { // base 1
-	if(isOdd(index))
+	if(isRightChild(index))
 	    index--;
 	return index/2;
+    }
+    private static boolean isLeftChild(int index) {
+	return (index % 2) == 0;
+    }
+    private static boolean isRightChild(int index) {
+	return !isLeftChild(index);
     }
     private static boolean isOdd(int n) {
 	return !isEven(n);
@@ -1264,12 +1269,6 @@ public class InPlacePST implements PrioritySearchTree {
 			   + ippst.highest3Sided(4,5,0));
 	System.out.print(  "enumerate3Sided(xmin=1,xmax=7,ymin=-8): ");
 	printArray(ippst.enumerate3Sided(1,7,-8).toArray(new PSTPoint[0]));
-
-	System.out.println();
-	System.out.println("findK(1,1):" + findK(1,1));
-	System.out.println("findK(1,4):" + findK(1,4));
-	System.out.println("findK(1,10):" + findK(1,10));
-	System.out.println("findK(1,100):" + findK(1,10));
     }
 
 /******************************************************************************

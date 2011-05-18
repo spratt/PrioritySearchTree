@@ -13,7 +13,7 @@ public class TestPST {
 	    if((i%2) == 0)
 		testPoints.add(new PSTPoint(i,i+n));
 	    else
-		testPoints.add(new PSTPoint(-i,-(i+n)));
+		testPoints.add(new PSTPoint(-i,i+n));
 	}
 	ArrayList<PSTPoint> copyPoints = new ArrayList<PSTPoint>(testPoints);
 	PSTPoint[] pointArray = testPoints.toArray(new PSTPoint[2*n]);
@@ -22,10 +22,10 @@ public class TestPST {
 	pointerPST = new PointerPST(testPoints);
 	time = sw.stop();
 	System.out.println("Pointer implementation took: " + time);
-	sw = new StopWatch();
-	arrayPST = new ArrayPST(copyPoints);
-	time = sw.stop();
-	System.out.println("Array implementation took: " + time);
+	// sw = new StopWatch();
+	// arrayPST = new ArrayPST(copyPoints);
+	// time = sw.stop();
+	// System.out.println("Array implementation took: " + time);
 	sw = new StopWatch();
 	inPlacePST = new InPlacePST(pointArray);
 	time = sw.stop();
@@ -36,9 +36,9 @@ public class TestPST {
 	testTime(pointerPST,n);
 	System.out.println();
 
-	System.out.println("Testing array impementation...");
-	testTime(arrayPST,n);
-	System.out.println();
+	// System.out.println("Testing array impementation...");
+	// testTime(arrayPST,n);
+	// System.out.println();
 
 	System.out.println("Testing in-place impementation...");
 	testTime(inPlacePST,n);
