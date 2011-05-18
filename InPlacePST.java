@@ -21,6 +21,7 @@ public class InPlacePST implements PrioritySearchTree {
     public InPlacePST(PSTPoint[] points) {
 	tree = points;
 	insertionSort(0,tree.length-1);
+	System.out.print("Sorted: "); printArray(tree);
 	int h = (int)Math.floor(log2(tree.length));
 	for(int i = 0; i <= h-1; i++)
 	    buildLevel(i);
@@ -61,6 +62,9 @@ public class InPlacePST implements PrioritySearchTree {
 		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 		    indexOfMaxY = index;
 	    swap(indexOfMaxY,powerOf2(i)+j-1);
+	    System.out.println();
+	    System.out.print("Aswap("+indexOfMaxY+","+(powerOf2(i)+j-1)+"): ");
+	    printArray(tree);
 	}
 	
 	// ?
@@ -70,6 +74,9 @@ public class InPlacePST implements PrioritySearchTree {
 		indexOfMaxY = index;
 	}
 	swap(indexOfMaxY,powerOf2(i)+k);
+	    System.out.println();
+	    System.out.print("Bswap("+indexOfMaxY+","+(powerOf2(i)+k)+"): ");
+	    printArray(tree);
 	
 	// ?
 	int m = powerOf2(i)+k*k1+k2;
@@ -79,6 +86,9 @@ public class InPlacePST implements PrioritySearchTree {
 		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 		    indexOfMaxY = index;
 	    swap(indexOfMaxY,powerOf2(i)+k+j);
+	    System.out.println();
+	    System.out.print("Cswap("+indexOfMaxY+","+(powerOf2(i)+k+j)+"): ");
+	    printArray(tree);
 	}
 	// Finally, sort all points past the current level
 	inPlaceSort(powerOf2(i+1),n,s);
@@ -88,9 +98,9 @@ public class InPlacePST implements PrioritySearchTree {
 ******************************************************************************/
     // Note: takes array indices of base 1
     private void inPlaceSort(int beginIndex, int endIndex, PSTPoint s) {
-	insertionSort(baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
-	// stableInPlace01Partition(tree,baseZeroIndex(beginIndex),
-	// 			 baseZeroIndex(endIndex),s);
+	//insertionSort(baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
+	stableInPlace01Partition(tree,baseZeroIndex(beginIndex),
+	 			 baseZeroIndex(endIndex),s);
     }
     // Note: takes array indices of base 0
     private void insertionSort(int beginIndex, int endIndex) {
@@ -114,7 +124,11 @@ public class InPlacePST implements PrioritySearchTree {
 /******************************************************************************
 * Stable 0-1 partitioning                                                     *
 ******************************************************************************/
-    // Sorts the array from beginIndex to endIndex (inclusive)
+    private static void stableInPlace01Sort(PSTPoint[] array, int beginIndex,
+					    int endIndex, PSTPoint s) {
+	
+    }
+    // Partitions the array from beginIndex to endIndex (inclusive)
     // using s as a pivot, uses base 0
     private static void stableInPlace01Partition(PSTPoint[] array, int beginIndex,
 						 int endIndex, PSTPoint s) {
@@ -126,20 +140,23 @@ public class InPlacePST implements PrioritySearchTree {
 		countZeroes++;
 	// Step 1: form internal buffer
 	int zeroEnd = endIndex;
-	while(zeroEnd >= countZeroes) {
+	int oneStart;
+	do {
 	    // find the preceding zero
-	    while(zeroEnd > 0 && isOne(array[zeroEnd],s)) zeroEnd--;
-	    if(zeroEnd == 0) return;
+	    while(zeroEnd > beginIndex && isOne(array[zeroEnd],s)) zeroEnd--;
+	    if(zeroEnd < beginIndex) return;
 	    // find the zero immediately following the preceding one
 	    int oneEnd = zeroEnd-1;
-	    while(oneEnd > 0 && isZero(array[oneEnd],s)) oneEnd--;
+	    while(oneEnd > beginIndex && isZero(array[oneEnd],s)) oneEnd--;
+	    if(oneEnd < beginIndex) return;
 	    // find the one immediately following the preceding zero
-	    int oneStart = oneEnd;
-	    while(oneStart > 0 && isOne(array[oneStart-1],s)) oneStart--;
+	    oneStart = oneEnd;
+	    while(oneStart > beginIndex && isOne(array[oneStart-1],s)) oneStart--;
+	    if(isZero(array[oneStart],s)) return;
 	    // finally, permute the block of zeroes with the block of ones
 	    blockPermute(array,oneStart,oneEnd,zeroEnd);
-	    zeroEnd = 1 + oneEnd - (zeroEnd - oneEnd);
-	}
+	    zeroEnd = oneStart + (zeroEnd - oneEnd);
+	} while(oneStart > beginIndex);
     }
     // moves all elements between beginA and endA (inclusive) past
     // all elements between endA+1 and endB, and vice versa
@@ -1253,48 +1270,19 @@ public class InPlacePST implements PrioritySearchTree {
     public static void main(String[] args) {
 	PSTPoint[] testPoints;
 	if(args.length < 1) {
-	    testPoints = new PSTPoint[4];
-	    testPoints[0] = new PSTPoint(0,0);
-	    testPoints[1] = new PSTPoint(1,1);
-	    testPoints[2] = new PSTPoint(2,2);
-	    testPoints[3] = new PSTPoint(3,3);
-
-	    System.out.print("Points:               "); printArray(testPoints);
-	    swap(testPoints,0,3);
-	    System.out.print("swap(0,3):            "); printArray(testPoints);
-	    swap(testPoints,0,3);
-	    System.out.print("swap(0,3):            "); printArray(testPoints);
-	    reverse(testPoints,0,3);
-	    System.out.print("reverse:              "); printArray(testPoints);
-	    reverse(testPoints,0,3);
-	    System.out.print("reverse:              "); printArray(testPoints);
-	    blockPermute(testPoints,0,1,3);
-	    System.out.print("blockPermute(0,1,3):  "); printArray(testPoints);
-	    blockPermute(testPoints,0,1,3);
-	    System.out.print("blockPermute(0,1,3):  "); printArray(testPoints);
-	    blockPermute(testPoints,0,0,1);
-	    System.out.print("blockPermute(0,0,1):  "); printArray(testPoints);
-	    blockPermute(testPoints,0,0,1);
-	    System.out.print("blockPermute(0,0,1):  "); printArray(testPoints);
-
-	    System.out.println();
-	    reverse(testPoints,0,3);
-	    System.out.print("reverse:              "); printArray(testPoints);
-
-	    stableInPlace01Partition(testPoints,0,3,new PSTPoint(1.5,1.5));
-	    System.out.print("partitioned(1.5,1.5): "); printArray(testPoints);
-
-	    stableInPlace01Partition(testPoints,0,3,new PSTPoint(-1,-1));
-	    System.out.print("partitioned(-1,-1):   "); printArray(testPoints);
-
-	    stableInPlace01Partition(testPoints,0,3,new PSTPoint(4,4));
-	    System.out.print("partitioned(4,4):     "); printArray(testPoints);
-
-	    stableInPlace01Partition(testPoints,0,3,new PSTPoint(2.5,2.5));
-	    System.out.print("partitioned(2.5,2.5): "); printArray(testPoints);
-
-	    stableInPlace01Partition(testPoints,0,3,new PSTPoint(0.5,0.5));
-	    System.out.print("partitioned(0.5,0.5): "); printArray(testPoints);
+	    testPoints = new PSTPoint[9];
+	    testPoints[0]  = new PSTPoint(0,8);
+	    testPoints[1]  = new PSTPoint(1,7);
+	    testPoints[2]  = new PSTPoint(2,6);
+	    testPoints[3]  = new PSTPoint(3,5);
+	    testPoints[4]  = new PSTPoint(4,4);
+	    testPoints[5]  = new PSTPoint(5,3);
+	    testPoints[6]  = new PSTPoint(6,2);
+	    testPoints[7]  = new PSTPoint(7,1);
+	    testPoints[8]  = new PSTPoint(8,0);
+	    System.out.print("Points: "); printArray(testPoints);
+	    InPlacePST ippst = new InPlacePST(testPoints);
+	    ippst.printArray();
 	} else {
 	    System.out.println("Creating points...");
 	    int n = Integer.parseInt(args[0]);
