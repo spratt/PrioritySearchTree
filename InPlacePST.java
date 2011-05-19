@@ -21,7 +21,6 @@ public class InPlacePST implements PrioritySearchTree {
     public InPlacePST(PSTPoint[] points) {
 	tree = points;
 	insertionSort(0,tree.length-1);
-	System.out.print("Sorted: "); printArray(tree);
 	int h = (int)Math.floor(log2(tree.length));
 	for(int i = 0; i <= h-1; i++)
 	    buildLevel(i);
@@ -62,9 +61,6 @@ public class InPlacePST implements PrioritySearchTree {
 		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 		    indexOfMaxY = index;
 	    swap(indexOfMaxY,powerOf2(i)+j-1);
-	    System.out.println();
-	    System.out.print("Aswap("+indexOfMaxY+","+(powerOf2(i)+j-1)+"): ");
-	    printArray(tree);
 	}
 	
 	// ?
@@ -74,9 +70,6 @@ public class InPlacePST implements PrioritySearchTree {
 		indexOfMaxY = index;
 	}
 	swap(indexOfMaxY,powerOf2(i)+k);
-	    System.out.println();
-	    System.out.print("Bswap("+indexOfMaxY+","+(powerOf2(i)+k)+"): ");
-	    printArray(tree);
 	
 	// ?
 	int m = powerOf2(i)+k*k1+k2;
@@ -86,9 +79,6 @@ public class InPlacePST implements PrioritySearchTree {
 		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 		    indexOfMaxY = index;
 	    swap(indexOfMaxY,powerOf2(i)+k+j);
-	    System.out.println();
-	    System.out.print("Cswap("+indexOfMaxY+","+(powerOf2(i)+k+j)+"): ");
-	    printArray(tree);
 	}
 	// Finally, sort all points past the current level
 	inPlaceSort(powerOf2(i+1),n,s);
@@ -140,23 +130,22 @@ public class InPlacePST implements PrioritySearchTree {
 		countZeroes++;
 	// Step 1: form internal buffer
 	int zeroEnd = endIndex;
-	int oneStart;
+	int oneEnd;
 	do {
 	    // find the preceding zero
 	    while(zeroEnd > beginIndex && isOne(array[zeroEnd],s)) zeroEnd--;
 	    if(zeroEnd < beginIndex) return;
 	    // find the zero immediately following the preceding one
-	    int oneEnd = zeroEnd-1;
+	    oneEnd = zeroEnd-1;
 	    while(oneEnd > beginIndex && isZero(array[oneEnd],s)) oneEnd--;
 	    if(oneEnd < beginIndex) return;
 	    // find the one immediately following the preceding zero
-	    oneStart = oneEnd;
+	    int oneStart = oneEnd;
 	    while(oneStart > beginIndex && isOne(array[oneStart-1],s)) oneStart--;
 	    if(isZero(array[oneStart],s)) return;
 	    // finally, permute the block of zeroes with the block of ones
 	    blockPermute(array,oneStart,oneEnd,zeroEnd);
-	    zeroEnd = oneStart + (zeroEnd - oneEnd);
-	} while(oneStart > beginIndex);
+	} while((zeroEnd-oneEnd) < countZeroes);
     }
     // moves all elements between beginA and endA (inclusive) past
     // all elements between endA+1 and endB, and vice versa
@@ -1282,7 +1271,7 @@ public class InPlacePST implements PrioritySearchTree {
 	    testPoints[8]  = new PSTPoint(8,0);
 	    System.out.print("Points: "); printArray(testPoints);
 	    InPlacePST ippst = new InPlacePST(testPoints);
-	    ippst.printArray();
+	    System.out.print("PST: "); ippst.printArray();
 	} else {
 	    System.out.println("Creating points...");
 	    int n = Integer.parseInt(args[0]);
