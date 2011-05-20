@@ -53,7 +53,7 @@ public class InPlacePST implements PrioritySearchTree {
 
 	int indexOfMaxY;
 
-	// ?
+	// build the subtrees of size k1
 	for(int j = 1; j <= k; j++) {
 	    // Find point with maximum Y in range
 	    indexOfMaxY = powerOf2(i)+(j-1)*k1;
@@ -61,22 +61,18 @@ public class InPlacePST implements PrioritySearchTree {
 		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 		    indexOfMaxY = index;
 	    swap(indexOfMaxY,powerOf2(i)+j-1);
-	    // System.out.println("k1 swap(" + indexOfMaxY + ","
-	    // 		       + (powerOf2(i)+j-1) + ")");
 	}
 
 	if(k < powerOf2(i)) {
-	    // ?
+	    // build the one subtree of size k2
 	    indexOfMaxY = powerOf2(i)+k*k1;
 	    for(int index = indexOfMaxY; index <= powerOf2(i)+k*k1+k2-1; index++) {
 		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 		    indexOfMaxY = index;
 	    }
 	    swap(indexOfMaxY,powerOf2(i)+k);
-	    // System.out.println("k2 swap(" + indexOfMaxY + ","
-	    // 		   + (powerOf2(i)+k) + ")");
 	
-	    // ?
+	    // build the subtrees of size k3
 	    int m = powerOf2(i)+k*k1+k2;
 	    for(int j = 1; j <= powerOf2(i)-k-1; j++) {
 		indexOfMaxY = m+(j-1)*k3;
@@ -84,14 +80,10 @@ public class InPlacePST implements PrioritySearchTree {
 		    if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 			indexOfMaxY = index;
 		swap(indexOfMaxY,powerOf2(i)+k+j);
-		// System.out.println("k3 swap(" + indexOfMaxY + ","
-		// 		       + (powerOf2(i)+k+j) + ")");
 	    }
 	}
 	// Finally, sort all points past the current level
-	// System.out.println("sort(" + powerOf2(i+1) + "," + n + ")");
 	inPlaceSort(powerOf2(i+1),n,s);
-	// printArray(tree);
     }
 /******************************************************************************
 * Sorting                                                                     *
@@ -1194,20 +1186,17 @@ public class InPlacePST implements PrioritySearchTree {
 	} else {
 	    System.out.println("Creating points...");
 	    int n = Integer.parseInt(args[0]);
-	    testPoints = new PSTPoint[2*n];
+	    testPoints = new PSTPoint[n];
 	    int count = 0;
-	    for(int i = -n; i < n ; i++) {
-		if((i%2) == 0)
-		    testPoints[count++] = new PSTPoint(i,i+n);
-		else
-		    testPoints[count++] = new PSTPoint(-i,-(i+n));
+	    for(int i = 0; i < n ; i++) {
+		testPoints[count++] = new PSTPoint(i,n-i);
 	    }
-	    System.out.println("Building PST with " + (2*n) + " nodes...");
-	    if(n < 10) {
+	    System.out.println("Building PST with " + n + " nodes...");
+	    if(n < 20) {
 		System.out.print("Points: "); printArray(testPoints);
 	    }
 	    InPlacePST ippst = new InPlacePST(testPoints);
-	    if(n < 10) {
+	    if(n < 20) {
 		System.out.print("PST: "); ippst.printArray();
 	    }
 	    // Test queries

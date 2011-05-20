@@ -30,6 +30,9 @@ public class Sort {
     }
 /******************************************************************************
 * Heap Sort                                                                   *
+*                                                                             *
+* Very helpful:                                                               *
+*  http://www.iti.fh-flensburg.de/lang/algorithmen/sortieren/heap/heapen.htm  *
 ******************************************************************************/
     public static void heapSort(PSTPoint[] array) {
 	heapSort(array,0,array.length-1);
