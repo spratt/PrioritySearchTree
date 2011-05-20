@@ -34,29 +34,77 @@ public class Sort {
     public static void heapSort(PSTPoint[] array) {
 	heapSort(array,0,array.length-1);
     }
+    // Sorts the elements of array between beginIndex and endIndex
+    // (ignoring all other elements)
     public static void heapSort(PSTPoint[] array, int beginIndex, int endIndex) {
+	// First arrange the array into a heap (root element is always higher
+	// than both child elements
 	buildHeap(array,beginIndex,endIndex);
 	while(endIndex > beginIndex) {
+	    // Since the highest is first, move it to the end
 	    swap(array,beginIndex,endIndex);
+	    // Now that the highest element is last, it is sorted so don't
+	    // touch it again
 	    endIndex--;
+	    // Since the smallest element is now first, rebuild the heap
 	    downHeap(array,0,beginIndex,endIndex);
 	}
     }
+    // builds a heap from bottom up, starting at right-most lowest level
+    // and traversing up the heap in reverse order (right to left, bottom to top)
     private static void buildHeap(PSTPoint[] array, int beginIndex, int endIndex) {
 	int n = 1+endIndex - beginIndex;
 	for(int v = n/2-1; v >= 0; v--)
 	    downHeap(array,v,beginIndex,endIndex);
     }
+/******************************************************************************
+*                                                                             *
+* FUNCTION NAME: downHeap                                                     *
+*                                                                             *
+* PURPOSE:       builds a heap from top down                                  *
+*                                                                             *
+* PARAMETERS                                                                  *
+*   Type/Name:   PSTPoint[]/array                                             *
+*   Description: The array of points                                          *
+*                                                                             *
+*   Type/Name:   int/v                                                        *
+*   Description: The offset from beginIndex from which to begin               *
+*                building the heap.                                           *
+*                                                                             *
+*   Type/Name:   int/beginIndex                                               *
+*   Description: We don't assume that the heap begins at element 0,           *
+*                instead an index of the first element in the heap            *
+*                must be provided.                                            *
+*                                                                             *
+*   Type/Name:   int/endIndex                                                 *
+*   Description: We don't assume that the heap continues to array.length-1,   *
+*                instead an index of the last element in the heap must        *
+*                be provided.                                                 *
+*                                                                             *
+* RETURN:        Void.                                                        *
+*                                                                             *
+* NOTES:         Note that indices are base zero, i.e. the first              *
+*                element has index 0, the second element has index 1...       *
+*                                                                             *
+******************************************************************************/
+    
     private static void downHeap(PSTPoint[] array, int v,
 				 int beginIndex, int endIndex) {
 	int w = leftChildOf(v);
+	// invariant: element at index v has a left child
 	while(beginIndex + w <= endIndex) {
+	    // if left child has a sibling
 	    if(beginIndex + w+1 <= endIndex)
+		// if right child is greater than left child
 		if(array[beginIndex + w+1].xGreaterThan(array[beginIndex + w]))
+		    // use right child
 		    w++;
+	    // if larger child is less than its parent
 	    if(!(array[beginIndex + w].xGreaterThan(array[beginIndex + v])))
 		return;
+	    // otherwise, swap child and parent
 	    swap(array,beginIndex + w,beginIndex + v);
+	    // continue with child
 	    v = w;
 	    w = leftChildOf(v);
 	}
