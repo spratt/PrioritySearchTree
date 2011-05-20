@@ -20,7 +20,7 @@ public class InPlacePST implements PrioritySearchTree {
 
     public InPlacePST(PSTPoint[] points) {
 	tree = points;
-	Sort.heapSort(tree,0,tree.length-1);
+	Sort.insertionSort(tree,0,tree.length-1);
 	int h = (int)Math.floor(log2(tree.length));
 	for(int i = 0; i <= h-1; i++)
 	    buildLevel(i);
@@ -61,27 +61,37 @@ public class InPlacePST implements PrioritySearchTree {
 		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 		    indexOfMaxY = index;
 	    swap(indexOfMaxY,powerOf2(i)+j-1);
+	    // System.out.println("k1 swap(" + indexOfMaxY + ","
+	    // 		       + (powerOf2(i)+j-1) + ")");
 	}
-	
-	// ?
-	indexOfMaxY = powerOf2(i)+k*k1;
-	for(int index = indexOfMaxY; index <= powerOf2(i)+k*k1+k2-1; index++) {
-	    if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
-		indexOfMaxY = index;
-	}
-	swap(indexOfMaxY,powerOf2(i)+k);
-	
-	// ?
-	int m = powerOf2(i)+k*k1+k2;
-	for(int j = 1; j <= powerOf2(i)-k-1; j++) {
-	    indexOfMaxY = m+(j-1)*k3;
-	    for(int index = indexOfMaxY; index <= m+j*k3-1; index++)
+
+	if(k < powerOf2(i)) {
+	    // ?
+	    indexOfMaxY = powerOf2(i)+k*k1;
+	    for(int index = indexOfMaxY; index <= powerOf2(i)+k*k1+k2-1; index++) {
 		if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
 		    indexOfMaxY = index;
-	    swap(indexOfMaxY,powerOf2(i)+k+j);
+	    }
+	    swap(indexOfMaxY,powerOf2(i)+k);
+	    // System.out.println("k2 swap(" + indexOfMaxY + ","
+	    // 		   + (powerOf2(i)+k) + ")");
+	
+	    // ?
+	    int m = powerOf2(i)+k*k1+k2;
+	    for(int j = 1; j <= powerOf2(i)-k-1; j++) {
+		indexOfMaxY = m+(j-1)*k3;
+		for(int index = indexOfMaxY; index <= m+j*k3-1; index++)
+		    if(getPoint(index).yGreaterThan(getPoint(indexOfMaxY)))
+			indexOfMaxY = index;
+		swap(indexOfMaxY,powerOf2(i)+k+j);
+		// System.out.println("k3 swap(" + indexOfMaxY + ","
+		// 		       + (powerOf2(i)+k+j) + ")");
+	    }
 	}
 	// Finally, sort all points past the current level
+	// System.out.println("sort(" + powerOf2(i+1) + "," + n + ")");
 	inPlaceSort(powerOf2(i+1),n,s);
+	// printArray(tree);
     }
 /******************************************************************************
 * Sorting                                                                     *
@@ -89,7 +99,7 @@ public class InPlacePST implements PrioritySearchTree {
     // Note: takes array indices of base 1
     private void inPlaceSort(int beginIndex, int endIndex, PSTPoint s) {
 	//insertionSort(baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
-	Sort.heapSort(tree,baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
+	Sort.insertionSort(tree,baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
     }
     
 
@@ -1171,7 +1181,7 @@ public class InPlacePST implements PrioritySearchTree {
     public static void main(String[] args) {
 	PSTPoint[] testPoints;
 	if(args.length < 1) {
-	    testPoints = new PSTPoint[9];
+	    testPoints = new PSTPoint[7];
 	    testPoints[0]  = new PSTPoint(0,8);
 	    testPoints[1]  = new PSTPoint(1,7);
 	    testPoints[2]  = new PSTPoint(2,6);
@@ -1179,8 +1189,6 @@ public class InPlacePST implements PrioritySearchTree {
 	    testPoints[4]  = new PSTPoint(4,4);
 	    testPoints[5]  = new PSTPoint(5,3);
 	    testPoints[6]  = new PSTPoint(6,2);
-	    testPoints[7]  = new PSTPoint(7,1);
-	    testPoints[8]  = new PSTPoint(8,0);
 	    System.out.print("Points: "); printArray(testPoints);
 	    InPlacePST ippst = new InPlacePST(testPoints);
 	    System.out.print("PST: "); ippst.printArray();
