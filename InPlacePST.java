@@ -20,7 +20,7 @@ public class InPlacePST implements PrioritySearchTree {
 
     public InPlacePST(PSTPoint[] points) {
 	tree = points;
-	Sort.insertionSort(tree,0,tree.length-1);
+	Sort.heapSort(tree,0,tree.length-1);
 	int h = (int)Math.floor(log2(tree.length));
 	for(int i = 0; i <= h-1; i++)
 	    buildLevel(i);
@@ -98,8 +98,7 @@ public class InPlacePST implements PrioritySearchTree {
 ******************************************************************************/
     // Note: takes array indices of base 1
     private void inPlaceSort(int beginIndex, int endIndex, PSTPoint s) {
-	//insertionSort(baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
-	Sort.insertionSort(tree,baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
+	Sort.heapSort(tree,baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
     }
     
 

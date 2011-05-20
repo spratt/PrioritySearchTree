@@ -35,42 +35,37 @@ public class Sort {
 	heapSort(array,0,array.length-1);
     }
     public static void heapSort(PSTPoint[] array, int beginIndex, int endIndex) {
-	int count = 1+ endIndex - beginIndex;
-	heapify(array,beginIndex,count);
+	buildHeap(array,beginIndex,endIndex);
 	while(endIndex > beginIndex) {
-	    swap(array,endIndex,beginIndex);
-	    siftDown(array,beginIndex,endIndex-1);
+	    swap(array,beginIndex,endIndex);
 	    endIndex--;
+	    downHeap(array,0,beginIndex,endIndex);
 	}
     }
-    private static void heapify(PSTPoint[] array, int beginIndex, int count){
-	int start = count/2 - 1;
-	while(start >= beginIndex) {
-	    siftDown(array,start,count-1);
-	    start--;
+    private static void buildHeap(PSTPoint[] array, int beginIndex, int endIndex) {
+	int n = 1+endIndex - beginIndex;
+	for(int v = n/2-1; v >= 0; v--)
+	    downHeap(array,v,beginIndex,endIndex);
+    }
+    private static void downHeap(PSTPoint[] array, int v,
+				 int beginIndex, int endIndex) {
+	int w = leftChildOf(v);
+	while(beginIndex + w <= endIndex) {
+	    if(beginIndex + w+1 <= endIndex)
+		if(array[beginIndex + w+1].xGreaterThan(array[beginIndex + w]))
+		    w++;
+	    if(!(array[beginIndex + w].xGreaterThan(array[beginIndex + v])))
+		return;
+	    swap(array,beginIndex + w,beginIndex + v);
+	    v = w;
+	    w = leftChildOf(v);
 	}
     }
-    private static void siftDown(PSTPoint[] array, int start, int end) {
-	int root = start;
-	while(root*2+1 <= end) {
-	    int child = root * 2 + 1;
-	    int swap = root;
-	    if(array[swap].xLessThan(array[child])) {
-		swap = child;
-	    }
-	    if(child+1 <= end && array[swap].xLessThan(array[child+1])) {
-		swap = child+1;
-	    }
-	    if(swap != root) {
-		swap(array,root,swap);
-		root = swap;
-	    } else return;
-	}
+    private static int leftChildOf(int index) {
+	return 2*index+1;
     }
-    private static void swap(PSTPoint[] array,int a, int b) {
-	PSTPoint temp = array[a];
-	array[a] = array[b];
-	array[b] = temp;
+    private static int rightChildOf(int index) {
+	return 2*index+2;
     }
 /******************************************************************************
 * Testing                                                                     *
@@ -89,9 +84,8 @@ public class Sort {
 	PSTPoint[] copyPoints, oldPoints;
 	StopWatch sw;
 	long time;
-	boolean same;
 	// heap sort
-	System.out.println("HEAP SORT");
+	System.out.println("HEAP SORT ON FULL ARRAY");
 	copyPoints = testPoints.toArray(new PSTPoint[2*n]);
 	if((n*2) < 7) {
 	    System.out.print("Before: "); printArray(copyPoints);
@@ -103,30 +97,18 @@ public class Sort {
 	if((n*2) < 7) {
 	    System.out.print("After: "); printArray(copyPoints);
 	}
-	// insertion sort
-	System.out.println("INSERTION SORT");
-	oldPoints = copyPoints;
+	System.out.println("HEAP SORT ON ARRAY FROM " + n + " TO " + (2*n-1));
 	copyPoints = testPoints.toArray(new PSTPoint[2*n]);
 	if((n*2) < 7) {
 	    System.out.print("Before: "); printArray(copyPoints);
 	}
 	sw = new StopWatch();
-	insertionSort(copyPoints);
+	heapSort(copyPoints,n,2*n-1);
 	time = sw.stop();
 	System.out.println("Took: " + time);
 	if((n*2) < 7) {
 	    System.out.print("After: "); printArray(copyPoints);
 	}
-	same = true;
-	for(int i = 0; i < copyPoints.length; i++)
-	    if(copyPoints[i] != oldPoints[i]) {
-		same = false;
-		break;
-	    }
-	if(same)
-	    System.out.println("...same as previous.");
-	else
-	    System.out.println("NOT SAME AS PREVIOUS!");
     }
 /******************************************************************************
 * Utility                                                                     *
@@ -134,5 +116,10 @@ public class Sort {
     public static void printArray(PSTPoint[] points) {
 	for(int i = 0; i < points.length; i++) System.out.print(points[i] + " ");
 	System.out.println();
+    }
+    private static void swap(PSTPoint[] array,int a, int b) {
+	PSTPoint temp = array[a];
+	array[a] = array[b];
+	array[b] = temp;
     }
 }
