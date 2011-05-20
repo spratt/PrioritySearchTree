@@ -20,7 +20,7 @@ public class InPlacePST implements PrioritySearchTree {
 
     public InPlacePST(PSTPoint[] points) {
 	tree = points;
-	insertionSort(0,tree.length-1);
+	Sort.heapSort(tree,0,tree.length-1);
 	int h = (int)Math.floor(log2(tree.length));
 	for(int i = 0; i <= h-1; i++)
 	    buildLevel(i);
@@ -89,95 +89,7 @@ public class InPlacePST implements PrioritySearchTree {
     // Note: takes array indices of base 1
     private void inPlaceSort(int beginIndex, int endIndex, PSTPoint s) {
 	//insertionSort(baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
-	stableInPlace01Partition(tree,baseZeroIndex(beginIndex),
-	 			 baseZeroIndex(endIndex),s);
-    }
-    // Note: takes array indices of base 0
-    private void insertionSort(int beginIndex, int endIndex) {
-	for(int i = beginIndex +1; i <= endIndex; i++) {
-	    PSTPoint p = tree[i];
-	    int j = i -1;
-	    boolean done = false;
-	    while(!done) {
-		if(tree[j].xGreaterThan(p)) {
-		    tree[j+1] = tree[j];
-		    j--;
-		    if(j < beginIndex)
-			done = true;
-		} else {
-		    done = true;
-		}
-	    }
-	    tree[j+1] = p;
-	}
-    }
-/******************************************************************************
-* Stable 0-1 partitioning                                                     *
-******************************************************************************/
-    private static void stableInPlace01Sort(PSTPoint[] array, int beginIndex,
-					    int endIndex, PSTPoint s) {
-	
-    }
-    // Partitions the array from beginIndex to endIndex (inclusive)
-    // using s as a pivot, uses base 0
-    private static void stableInPlace01Partition(PSTPoint[] array, int beginIndex,
-						 int endIndex, PSTPoint s) {
-	int n = 1 + endIndex - beginIndex;
-	if(n == 1) return;
-	int countZeroes = 0;
-	for(int i = beginIndex; i <= endIndex; i++)
-	    if(isZero(array[i],s))
-		countZeroes++;
-	// Step 1: form internal buffer
-	int zeroEnd = endIndex;
-	int oneEnd;
-	do {
-	    // find the preceding zero
-	    while(zeroEnd > beginIndex && isOne(array[zeroEnd],s)) zeroEnd--;
-	    if(zeroEnd < beginIndex) return;
-	    // find the zero immediately following the preceding one
-	    oneEnd = zeroEnd-1;
-	    while(oneEnd > beginIndex && isZero(array[oneEnd],s)) oneEnd--;
-	    if(oneEnd < beginIndex) return;
-	    // find the one immediately following the preceding zero
-	    int oneStart = oneEnd;
-	    while(oneStart > beginIndex && isOne(array[oneStart-1],s)) oneStart--;
-	    if(isZero(array[oneStart],s)) return;
-	    // finally, permute the block of zeroes with the block of ones
-	    blockPermute(array,oneStart,oneEnd,zeroEnd);
-	} while((zeroEnd-oneEnd) < countZeroes);
-    }
-    // moves all elements between beginA and endA (inclusive) past
-    // all elements between endA+1 and endB, and vice versa
-    private static void blockPermute(PSTPoint[] array, int beginA, int endA, int endB) {
-	if(beginA == endB) return;
-	// reverse A
-	reverse(array,beginA,endA);
-	// reverse B
-	reverse(array,endA +1, endB);
-	// reverse A+B
-	reverse(array,beginA,endB);
-    }
-    // reverses the order of elements between begin and end (inclusive)
-    private static void reverse(PSTPoint[] array, int begin, int end) {
-	while(begin < end)
-	    swap(array,begin++,end--);
-    }
-    private static void swap(PSTPoint[] array, int indexA, int indexB) {
-	PSTPoint temp = array[indexA];
-	array[indexA] = array[indexB];
-	array[indexB] = temp;
-    }
-    // finds a k such that 2^k <= n <= 2^k+1 
-    private static int findK(int start, int end) {
-	return (int)log2(1+ end - start);
-    }
-    // returns true if point at index is less than s (conceptually a zero)
-    private static boolean isZero(PSTPoint p, PSTPoint s) {
-	return p.getX() < s.getX();
-    }
-    private static boolean isOne(PSTPoint p, PSTPoint s) {
-	return !isZero(p,s);
+	Sort.heapSort(tree,baseZeroIndex(beginIndex),baseZeroIndex(endIndex));
     }
     
 
