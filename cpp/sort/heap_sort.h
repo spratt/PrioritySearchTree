@@ -1,40 +1,24 @@
-///////////////////////////////////////////////////////////////////////////////
+//-*- mode: c++ -*-////////////////////////////////////////////////////////////
 //                       Copyright (c) 2011 - 2012 by                        //
 //                                Simon Pratt                                //
 //                           (All rights reserved)                           //
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
-// FILE:    PSTPoint.cpp                                                     //
+// FILE:    heap_sort.h                                                      //
 //                                                                           //
-// MODULE:  Priority Search Tree                                             //
+// MODULE:  Sort                                                             //
+//                                                                           //
+// PURPOSE: Provides an implementation of heap sort.                         //
 //                                                                           //
 // NOTES:   None.                                                            //
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
-#include <iostream>
-#include <string>
-#include "PSTPoint.h"
+//                             Public Methods:                               //
+///////////////////////////////////////////////////////////////////////////////
+#ifndef HEAP_SORT_H
+#define HEAP_SORT_H
 
-using namespace std;
+void heap_sort(PSTPoint* array, int npoints);
+void heap_sort(PSTPoint* array, int begin, int end);
 
-void PSTPoint::setX(double new_x) {
-  x = new_x;
-}
-
-void PSTPoint::setY(double new_y) {
-  y = new_y;
-}
-
-bool PSTPoint::operator<(const PSTPoint& p) {
-  return x < p.getX();
-}
-
-bool PSTPoint::operator>(const PSTPoint& p) {
-  return x > p.getX();
-}
-
-PSTPoint& PSTPoint::operator=(const PSTPoint& p) {
-  x = p.getX();
-  y = p.getY();
-  return *this;
-}
+#endif HEAP_SORT_H

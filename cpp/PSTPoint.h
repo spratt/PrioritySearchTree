@@ -41,15 +41,18 @@ public:
   /////////////////////////////////////////////////////////////////////////////
   // Implemented in PSTPoint.cpp                                             //
   /////////////////////////////////////////////////////////////////////////////
-  static void printArray(PSTPoint* points, int nPoints);
   PSTPoint& operator=(const PSTPoint& p);
-
-  /////////////////////////////////////////////////////////////////////////////
-  // Boilerplate needed to send PSTPoint to cout                             //
-  /////////////////////////////////////////////////////////////////////////////
-  template <typename CharT, typename Traits>
-  friend basic_ostream<CharT, Traits>& operator<<(basic_ostream<CharT, Traits>& out,
-						  const PSTPoint& p);
+  bool operator>(const PSTPoint& p);
+  bool operator<(const PSTPoint& p);
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// Boilerplate needed to send PSTPoint to cout                             //
+/////////////////////////////////////////////////////////////////////////////
+template <typename CharT, typename Traits>
+basic_ostream<CharT, Traits>& operator<<(basic_ostream<CharT, Traits>& out,
+					 const PSTPoint& p) {
+  return out<< "(" << p.getX() << "," << p.getY() << ")";
+}
 
 #endif PSTPOINT_H

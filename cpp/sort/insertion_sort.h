@@ -22,6 +22,7 @@
 #ifndef INSERTION_SORT_H
 #define INSERTION_SORT_H
 
+void insertion_sort(PSTPoint* array, int npoints);
 void insertion_sort(PSTPoint* array, int begin, int end);
 
 #endif INSERTION_SORT_H

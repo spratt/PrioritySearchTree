@@ -19,6 +19,9 @@
 #include "../PSTPoint.h"
 #include "insertion_sort.h"
 
+void insertion_sort(PSTPoint* array, int npoints) {
+  insertion_sort(array,0,npoints-1);
+}
 void insertion_sort(PSTPoint* array, int begin, int end) {
   PSTPoint p;
   int j;

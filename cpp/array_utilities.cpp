@@ -4,37 +4,28 @@
 //                           (All rights reserved)                           //
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
-// FILE:    PSTPoint.cpp                                                     //
+// FILE:    array_utilities.cpp                                              //
 //                                                                           //
 // MODULE:  Priority Search Tree                                             //
 //                                                                           //
-// NOTES:   None.                                                            //
+// NOTES:   Provides useful functions for working with arrays.               //
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 #include <iostream>
-#include <string>
 #include "PSTPoint.h"
+#include "array_utilities.h"
 
 using namespace std;
 
-void PSTPoint::setX(double new_x) {
-  x = new_x;
+void print(PSTPoint* points, int nPoints) {
+  cout << points[0];
+  for(int i = 1; i < nPoints; i++)
+    cout << " " << points[i];
+  cout << endl;
 }
-
-void PSTPoint::setY(double new_y) {
-  y = new_y;
-}
-
-bool PSTPoint::operator<(const PSTPoint& p) {
-  return x < p.getX();
-}
-
-bool PSTPoint::operator>(const PSTPoint& p) {
-  return x > p.getX();
-}
-
-PSTPoint& PSTPoint::operator=(const PSTPoint& p) {
-  x = p.getX();
-  y = p.getY();
-  return *this;
+void swap(PSTPoint *points, int a, int b) {
+  PSTPoint temp;
+  temp = points[a];
+  points[a] = points[b];
+  points[b] = temp;
 }
