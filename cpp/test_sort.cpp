@@ -18,12 +18,19 @@
 using namespace std;
 
 int main(int argv, char** argc) {
-  if(argv < 2) {
-    cout << "Usage: test_sort {number of data points}" << endl;
-    return 1;
+  int n = 1000;
+  if(argv >= 2) {
+    n = atoi(argc[1]);
   }
-  int n = atoi(argc[1]);
-  PSTPoint p(n,n);
-  cout << p << endl;
+  PSTPoint *points = new PSTPoint[n];
+  for(int i = 0; i < n; i++) {
+    points[i].setX(n-i);
+    points[i].setY(i);
+  }
+  cout << "Before sorting: ";
+  PSTPoint::printArray(points,n);
+  insertion_sort(points,0,n-1);
+  cout << "After sorting: ";
+  PSTPoint::printArray(points,n);
   return 0;
 }

@@ -35,6 +35,8 @@ public:
   { }
   double getX() const { return x; }
   double getY() const { return y; }
+  void setX(double new_x);
+  void setY(double new_y);
   
   /////////////////////////////////////////////////////////////////////////////
   // Implemented in PSTPoint.cpp                                             //

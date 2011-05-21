@@ -17,6 +17,14 @@
 
 using namespace std;
 
+void PSTPoint::setX(double new_x) {
+  x = new_x;
+}
+
+void PSTPoint::setY(double new_y) {
+  y = new_y;
+}
+
 void PSTPoint::printArray(PSTPoint* points, int nPoints) {
   cout << points[0];
   for(int i = 1; i < nPoints; i++)
