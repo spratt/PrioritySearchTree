@@ -1081,12 +1081,6 @@ public class InPlacePST implements PrioritySearchTree {
 /******************************************************************************
 * Utility                                                                     *
 ******************************************************************************/
-    private static int min4(int a, int b, int c, int d) {
-	int min = Math.min(a,b);
-	min = Math.min(min,c);
-	min = Math.min(min,d);
-	return min;
-    }
     private static int powerOf2(int x) {
 	return (int)Math.pow(2,x);
     }
@@ -1105,12 +1099,10 @@ public class InPlacePST implements PrioritySearchTree {
 	return 2;
     }
     private static int indexOfParent(int index) { // base 1
-	if(isRightChild(index))
-	    index--;
-	return index/2;
+	return Math.floor(index/2);
     }
     private static boolean isLeftChild(int index) {
-	return (index % 2) == 0;
+	return isEven(index);
     }
     private static boolean isRightChild(int index) {
 	return !isLeftChild(index);

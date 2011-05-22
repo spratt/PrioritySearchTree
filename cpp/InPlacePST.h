@@ -21,6 +21,7 @@
 #define INPLACEPST_H
 
 #include <vector>
+#include <limits>
 
 using namespace std;
 
@@ -31,14 +32,19 @@ class InPlacePST {
   void buildLevel(int i, int n);
   void swap(int a, int b);
   void inPlaceSort(int begin, int end, PSTPoint s);
+  int numberOfChildren(int index);
+  bool isLeaf(int index);
+  void explore(int indexP, double ymin, vector<PSTPoint>* points);
 public:
+  double POSITIVE_INFINITY;
+  double NEGATIVE_INFINITY;
   InPlacePST(PSTPoint* points, int n);
   void printArray();
   PSTPoint getPoint(int n); // index base 1
   PSTPoint leftMostNE(double xmin, double ymin);
   PSTPoint highestNE(double xmin, double ymin);
   PSTPoint highest3Sided(double xmin, double xmax, double ymin);
-  vector<PSTPoint>& enumerate3Sided(double xmin, double xmax, double ymin);
+  vector<PSTPoint>* enumerate3Sided(double xmin, double xmax, double ymin);
 };
 
 #endif INPLACEPST_H
