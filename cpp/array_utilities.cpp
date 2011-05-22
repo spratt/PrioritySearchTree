@@ -25,8 +25,7 @@ namespace PSTArray {
     cout << endl;
   }
   void swap(PSTPoint* points, int a, int b) {
-    PSTPoint temp;
-    temp = points[a];
+    PSTPoint temp = points[a];
     points[a] = points[b];
     points[b] = temp;
   }

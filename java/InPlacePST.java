@@ -19,7 +19,9 @@ public class InPlacePST implements PrioritySearchTree {
     PSTPoint[] tree;
 
     public InPlacePST(PSTPoint[] points) {
-	tree = points;
+	tree = new PSTPoint[points.length];
+	for(int i = 0; i < points.length; i++)
+	    tree[i] = points[i];
 	Sort.heapSort(tree,0,tree.length-1);
 	int h = (int)Math.floor(log2(tree.length));
 	for(int i = 0; i <= h-1; i++)
@@ -1099,7 +1101,7 @@ public class InPlacePST implements PrioritySearchTree {
 	return 2;
     }
     private static int indexOfParent(int index) { // base 1
-	return Math.floor(index/2);
+	return index/2;
     }
     private static boolean isLeftChild(int index) {
 	return isEven(index);
@@ -1163,6 +1165,8 @@ public class InPlacePST implements PrioritySearchTree {
 ******************************************************************************/
     public static void main(String[] args) {
 	PSTPoint[] testPoints;
+	StopWatch sw;
+	long time;
 	if(args.length < 1) {
 	    testPoints = new PSTPoint[7];
 	    testPoints[0]  = new PSTPoint(0,8);
@@ -1187,7 +1191,10 @@ public class InPlacePST implements PrioritySearchTree {
 	    if(n < 20) {
 		System.out.print("Points: "); printArray(testPoints);
 	    }
+	    sw = new StopWatch();
 	    InPlacePST ippst = new InPlacePST(testPoints);
+	    time = sw.stop(); // ms
+	    System.out.println("Took: " + (time/1000));
 	    if(n < 20) {
 		System.out.print("PST: "); ippst.printArray();
 	    }

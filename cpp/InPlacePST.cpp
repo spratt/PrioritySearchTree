@@ -68,7 +68,7 @@ PSTPoint InPlacePST::getPoint(int n) { // index base 1
   return tree[n-1];
 }
 
-void InPlacePST::inPlaceSort(int begin, int end, PSTPoint s) {
+void InPlacePST::inPlaceSort(int begin, int end, const PSTPoint& s) {
   heap_sort(tree,begin-1,end-1);
 }
 
@@ -542,9 +542,9 @@ vector<PSTPoint>* InPlacePST::enumerate3Sided(double xmin,
   else {
     R = true;
   }
-  /******************************************************************************
-   * Traversal                                                                   *
-   ******************************************************************************/
+  /////////////////////////////////////////////////////////////////////////////
+  // Traversal                                                               //
+  /////////////////////////////////////////////////////////////////////////////
   while(L || Lp || R || Rp) {
     // if several points should be searched, we will begin with the
     // point at the lowest level in the tree

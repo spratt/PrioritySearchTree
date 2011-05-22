@@ -12,6 +12,7 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 #include "PSTPoint.h"
+#include <algorithm>
 
 void PSTPoint::setX(double new_x) {
   x = new_x;
@@ -37,8 +38,7 @@ bool PSTPoint::operator>(const PSTPoint& p) {
   return x > p.getX();
 }
 
-PSTPoint& PSTPoint::operator=(const PSTPoint& p) {
-  x = p.getX();
-  y = p.getY();
-  return *this;
-}
+// PSTPoint& PSTPoint::operator=(const PSTPoint& p) {
+//   std::copy(
+//   return *this;
+// }

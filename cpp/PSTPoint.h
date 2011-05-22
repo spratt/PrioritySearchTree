@@ -25,6 +25,7 @@
 #ifndef PSTPOINT_H
 #define PSTPOINT_H
 #include <ostream>
+#include <algorithm>
 using std::basic_ostream;
 
 class PSTPoint {
@@ -33,6 +34,9 @@ public:
   PSTPoint(double x = 0, double y = 0)
     : x(x), y(y)
   { }
+  PSTPoint(const PSTPoint& copy)
+    : x(copy.getX()), y(copy.getY())
+  {}
   double getX() const { return x; }
   double getY() const { return y; }
   
@@ -41,7 +45,7 @@ public:
   /////////////////////////////////////////////////////////////////////////////
   void setX(double new_x);
   void setY(double new_y);
-  PSTPoint& operator=(const PSTPoint& p);
+  //PSTPoint& operator=(const PSTPoint& p);
   bool operator>(const PSTPoint& p); // compares x coordinate
   bool operator<(const PSTPoint& p); // compares x coordinate
   bool yGreaterThan(const PSTPoint& p);

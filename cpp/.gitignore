@@ -1,2 +1,4 @@
 *.o
 test_sort
+*.dSYM
+test_pst

@@ -31,7 +31,7 @@ int main(int argv, char** argc) {
   /////////////////////////////////////////////////////////////////////////////
   // Setup                                                                   //
   /////////////////////////////////////////////////////////////////////////////
-  int n = 1000;
+  int n = 1000000;
   if(argv >= 2) {
     n = atoi(argc[1]);
   }
@@ -39,8 +39,8 @@ int main(int argv, char** argc) {
   before = time(0);
   PSTPoint *points = new PSTPoint[n];
   for(int i = 0; i < n; i++) {
-    points[i].setX(n-i);
-    points[i].setY(i);
+    points[i].setX(i);
+    points[i].setY(n-i);
   }
   after = time(0);
   cout << "took: " << (after - before) << endl;

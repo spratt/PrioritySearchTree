@@ -1,3 +1,5 @@
+CXX=g++ -O0 -g
+
 all: test_sort test_pst
 
 test_pst: PSTPoint.o InPlacePST.o array_utilities.o sort/heap_sort.o test_pst.cpp
