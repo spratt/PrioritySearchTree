@@ -11,11 +11,7 @@
 // NOTES:   None.                                                            //
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
-#include <iostream>
-#include <string>
 #include "PSTPoint.h"
-
-using namespace std;
 
 void PSTPoint::setX(double new_x) {
   x = new_x;
@@ -23,6 +19,14 @@ void PSTPoint::setX(double new_x) {
 
 void PSTPoint::setY(double new_y) {
   y = new_y;
+}
+
+bool PSTPoint::yGreaterThan(const PSTPoint& p) {
+  return y > p.getY();
+}
+
+bool PSTPoint::yLessThan(const PSTPoint& p) {
+  return y < p.getY();
 }
 
 bool PSTPoint::operator<(const PSTPoint& p) {

@@ -4,7 +4,7 @@
 //                           (All rights reserved)                           //
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
-// FILE:    test_sort.cpp                                                    //
+// FILE:    test_pst.cpp                                                     //
 //                                                                           //
 // MODULE:  Sort                                                             //
 //                                                                           //
@@ -14,6 +14,7 @@
 #include <iostream>
 #include "time.h"
 #include "PSTPoint.h"
+#include "InPlacePST.h"
 #include "array_utilities.h"
 #include "sort/insertion_sort.h"
 #include "sort/heap_sort.h"
@@ -39,41 +40,20 @@ int main(int argv, char** argc) {
   after = time(0);
   cout << "took: " << (after - before) << endl;
   if(n <= 10) {
-    cout << "Before sorting: ";
+    cout << "Points: ";
     PSTArray::print(points,n);
   }
   /////////////////////////////////////////////////////////////////////////////
-  // Heap Sort                                                               //
+  // Build tree                                                              //
   /////////////////////////////////////////////////////////////////////////////
-  cout << "Heap Sort..." << flush;
+  cout << "Building tree..." << flush;
   before = time(0);
-  heap_sort(points,n);
+  InPlacePST ippst(points,n);
   after = time(0);
   cout << "took: " << (after - before) << endl;
-  /////////////////////////////////////////////////////////////////////////////
-  // Unsort Points                                                           //
-  /////////////////////////////////////////////////////////////////////////////
-  cout << "Unsorting points..." << flush;
-  before = time(0);
-  for(int i = 0; i <= n/2; i++) { // unsort the points
-    PSTArray::swap(points,i,n-i-1);
-  }
-  after = time(0);
-  cout << "took: " << (after - before) << endl;
-  /////////////////////////////////////////////////////////////////////////////
-  // Insertion Sort                                                          //
-  /////////////////////////////////////////////////////////////////////////////
-  cout << "Insertion Sort..." << flush;
-  before = time(0);
-  insertion_sort(points,n);
-  after = time(0);
-  cout << "took: " << (after - before) << endl;
-  /////////////////////////////////////////////////////////////////////////////
-  // Tear Down                                                               //
-  /////////////////////////////////////////////////////////////////////////////
   if(n <= 10) {
-    cout << "After sorting: ";
-    PSTArray::print(points,n);
+    cout << "Tree: ";
+    ippst.printArray();
   }
   return 0;
 }

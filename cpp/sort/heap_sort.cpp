@@ -67,7 +67,7 @@ void downHeap(PSTPoint* array, int v, int begin, int end) {
     if(!(array[begin + w] > array[begin + v]))
       return;
     // otherwise, swap child and parent
-    swap(array,begin + w,begin + v);
+PSTArray::swap(array,begin + w,begin + v);
     // continue with child
     v = w;
     w = leftChildOf(v);
@@ -92,7 +92,7 @@ void heap_sort(PSTPoint* array, int begin, int end) {
   buildHeap(array,begin,end);
   while(end > begin) {
     // Since the highest is first, move it to the end
-    swap(array,begin,end);
+    PSTArray::swap(array,begin,end);
     // Now that the highest element is last, it is sorted so don't
     // touch it again
     end--;

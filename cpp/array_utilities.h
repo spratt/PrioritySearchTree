@@ -16,7 +16,10 @@
 #ifndef ARRAY_UTILITIES_H
 #define ARRAY_UTILITIES_H
 
-void swap(PSTPoint* points,int a, int b);
-void print(PSTPoint* points, int nPoints);
+namespace PSTArray {
+  void copy(PSTPoint* a, PSTPoint* b, int n);
+  void swap(PSTPoint* points,int a, int b);
+  void print(PSTPoint* points, int nPoints);
+}
 
 #endif ARRAY_UTILITIES_H

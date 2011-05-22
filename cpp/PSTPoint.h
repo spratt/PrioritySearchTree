@@ -35,15 +35,17 @@ public:
   { }
   double getX() const { return x; }
   double getY() const { return y; }
-  void setX(double new_x);
-  void setY(double new_y);
   
   /////////////////////////////////////////////////////////////////////////////
   // Implemented in PSTPoint.cpp                                             //
   /////////////////////////////////////////////////////////////////////////////
+  void setX(double new_x);
+  void setY(double new_y);
   PSTPoint& operator=(const PSTPoint& p);
-  bool operator>(const PSTPoint& p);
-  bool operator<(const PSTPoint& p);
+  bool operator>(const PSTPoint& p); // compares x coordinate
+  bool operator<(const PSTPoint& p); // compares x coordinate
+  bool yGreaterThan(const PSTPoint& p);
+  bool yLessThan(const PSTPoint& p);
 };
 
 /////////////////////////////////////////////////////////////////////////////
