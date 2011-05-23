@@ -4,36 +4,23 @@
 //                           (All rights reserved)                           //
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
-// FILE:    PSTPoint.cpp                                                     //
+// FILE:    stable_01_sort.h                                                 //
 //                                                                           //
-// MODULE:  Priority Search Tree                                             //
+// MODULE:  Sort                                                             //
+//                                                                           //
+// PURPOSE: Provides an implementation of Katajainen and Pasanen's           //
+//          stable 0,1 sort.                                                 //
 //                                                                           //
 // NOTES:   None.                                                            //
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
-#include "PSTPoint.h"
-#include <algorithm>
+//                             Public Methods:                               //
+///////////////////////////////////////////////////////////////////////////////
+#ifndef STABLE____SORT_H
+#define STABLE____SORT_H
 
-void PSTPoint::setX(double new_x) {
-  x = new_x;
-}
+void simple_partition(PSTPoint* array, int begin, int end, const PSTPoint& s);
+void stable_01_sort(PSTPoint* array, int npoints, const PSTPoint& s);
+void stable_01_sort(PSTPoint* array, int begin, int end, const PSTPoint& s);
 
-void PSTPoint::setY(double new_y) {
-  y = new_y;
-}
-
-bool PSTPoint::yGreaterThan(const PSTPoint& p) {
-  return y > p.getY();
-}
-
-bool PSTPoint::yLessThan(const PSTPoint& p) {
-  return y < p.getY();
-}
-
-bool PSTPoint::operator<(const PSTPoint& p) {
-  return x < p.getX();
-}
-
-bool PSTPoint::operator>(const PSTPoint& p) {
-  return x > p.getX();
-}
+#endif STABLE____SORT_H

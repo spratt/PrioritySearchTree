@@ -30,6 +30,8 @@ using std::basic_ostream;
 
 class PSTPoint {
   double x, y;
+  void setX(double new_x);
+  void setY(double new_y);
 public:
   PSTPoint(double x = 0, double y = 0)
     : x(x), y(y)
@@ -43,9 +45,6 @@ public:
   /////////////////////////////////////////////////////////////////////////////
   // Implemented in PSTPoint.cpp                                             //
   /////////////////////////////////////////////////////////////////////////////
-  void setX(double new_x);
-  void setY(double new_y);
-  //PSTPoint& operator=(const PSTPoint& p);
   bool operator>(const PSTPoint& p); // compares x coordinate
   bool operator<(const PSTPoint& p); // compares x coordinate
   bool yGreaterThan(const PSTPoint& p);

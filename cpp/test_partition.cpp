@@ -15,8 +15,7 @@
 #include "time.h"
 #include "PSTPoint.h"
 #include "array_utilities.h"
-#include "sort/insertion_sort.h"
-#include "sort/heap_sort.h"
+#include "sort/stable_01_sort.h"
 
 using namespace std;
 
@@ -32,22 +31,13 @@ int main(int argv, char** argc) {
   cout << "Creating " << n << " points..." << flush;
   before = time(0);
   PSTPoint* points = new PSTPoint[n];
+  PSTPoint s;
   for(int i = 0; i < n; i++) {
     PSTPoint p(i,n-i);
+    if(i == n/2)
+      s = p;
     points[i] = p;
   }
-  after = time(0);
-  cout << "took: " << (after - before) << endl;
-  if(n <= 10) {
-    cout << "Before sorting: ";
-    PSTArray::print(points,n);
-  }
-  /////////////////////////////////////////////////////////////////////////////
-  // Heap Sort                                                               //
-  /////////////////////////////////////////////////////////////////////////////
-  cout << "Heap Sort..." << flush;
-  before = time(0);
-  heap_sort(points,n);
   after = time(0);
   cout << "took: " << (after - before) << endl;
   /////////////////////////////////////////////////////////////////////////////
@@ -60,14 +50,27 @@ int main(int argv, char** argc) {
   }
   after = time(0);
   cout << "took: " << (after - before) << endl;
+  if(n <= 10) {
+    cout << "Before sorting: ";
+    PSTArray::print(points,n);
+  }
+  cout << "Using point: " << s << endl;
   /////////////////////////////////////////////////////////////////////////////
-  // Insertion Sort                                                          //
+  // Simple Partition                                                        //
   /////////////////////////////////////////////////////////////////////////////
-  cout << "Insertion Sort..." << flush;
+  cout << "Simple partition..." << flush;
   before = time(0);
-  insertion_sort(points,n);
+  simple_partition(points,0,n-1,s);
   after = time(0);
   cout << "took: " << (after - before) << endl;
+  /////////////////////////////////////////////////////////////////////////////
+  // Algorithm A                                                             //
+  /////////////////////////////////////////////////////////////////////////////
+  // cout << "Insertion Sort..." << flush;
+  // before = time(0);
+  // insertion_sort(points,n);
+  // after = time(0);
+  // cout << "took: " << (after - before) << endl;
   /////////////////////////////////////////////////////////////////////////////
   // Tear Down                                                               //
   /////////////////////////////////////////////////////////////////////////////

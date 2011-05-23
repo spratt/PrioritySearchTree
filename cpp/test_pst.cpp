@@ -37,10 +37,10 @@ int main(int argv, char** argc) {
   }
   cout << "Creating " << n << " points..." << flush;
   before = time(0);
-  PSTPoint *points = new PSTPoint[n];
+  PSTPoint *points = new PSTPoint[n]; // allocate on the heap
   for(int i = 0; i < n; i++) {
-    points[i].setX(i);
-    points[i].setY(n-i);
+    PSTPoint p(i,n-i); // allocate on the stack
+    points[i] = p;
   }
   after = time(0);
   cout << "took: " << (after - before) << endl;
