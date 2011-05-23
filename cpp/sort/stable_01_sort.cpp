@@ -11,9 +11,12 @@
 // NOTES:   None.                                                            //
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
+#include <vector>
 #include "../PSTPoint.h"
 #include "../array_utilities.h"
 #include "stable_01_sort.h"
+
+using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utility Functions                                                         //
@@ -69,6 +72,42 @@ void simple_partition(PSTPoint* array, int begin, int end, const PSTPoint& s) {
     // finally, permute the block of zeroes with the block of ones
     block_permute(array,oneStart,oneEnd,zeroEnd);
   } while((zeroEnd-oneEnd) < countZeroes);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Algorithm A                                                               //
+///////////////////////////////////////////////////////////////////////////////
+
+void algorithm_A(PSTPoint* array, int begin, int end, const PSTPoint& s) {
+  int n = 1 + end - begin;
+  if(n == 1) return;
+  int zeroesTotal = 0;
+  for(int i = begin; i <= end; i++)
+    if(isZero(array[i],s))
+      zeroesTotal++;
+  int c0 = 0, c1 = 0;
+  int* rank = (int*)malloc(n*sizeof(int));
+  bool* inPlace = (bool*)malloc(n*sizeof(bool));
+  for(int i = 0; i < n; i++) {
+    if(isZero(array[begin + i],s)) {
+      rank[i] = c0;
+      c0++;
+    } else { // is one
+      rank[i] = zeroesTotal + c1;
+      c1++;
+    }
+    if(i == rank[i]) inPlace[i] = true;
+    else inPlace[i] = false;
+  }
+  // permute elements to their final positions
+  for(int i = 0; i < n; i++) {
+    while(!inPlace[i]) {
+      PSTArray::swap(array,begin + i,begin + rank[i]);
+      inPlace[rank[i]] = true;
+      rank[i] = rank[rank[i]];
+      if(i == rank[i]) inPlace[i] = true;
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

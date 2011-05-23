@@ -50,6 +50,9 @@ int main(int argv, char** argc) {
   }
   after = time(0);
   cout << "took: " << (after - before) << endl;
+  /////////////////////////////////////////////////////////////////////////////
+  // Print points                                                            //
+  /////////////////////////////////////////////////////////////////////////////
   if(n <= 10) {
     cout << "Before sorting: ";
     PSTArray::print(points,n);
@@ -63,17 +66,33 @@ int main(int argv, char** argc) {
   simple_partition(points,0,n-1,s);
   after = time(0);
   cout << "took: " << (after - before) << endl;
+  if(n <= 10) {
+    cout << "After sorting: ";
+    PSTArray::print(points,n);
+  }
+  /////////////////////////////////////////////////////////////////////////////
+  // Unsort Points                                                           //
+  /////////////////////////////////////////////////////////////////////////////
+  cout << "Unsorting points..." << flush;
+  before = time(0);
+  for(int i = 0; i <= n/2; i++) { // unsort the points
+    PSTArray::swap(points,i,n-i-1);
+  }
+  after = time(0);
+  cout << "took: " << (after - before) << endl;
+  if(n <= 10) {
+    cout << "Before sorting: ";
+    PSTArray::print(points,n);
+  }
+  cout << "Using point: " << s << endl;
   /////////////////////////////////////////////////////////////////////////////
   // Algorithm A                                                             //
   /////////////////////////////////////////////////////////////////////////////
-  // cout << "Insertion Sort..." << flush;
-  // before = time(0);
-  // insertion_sort(points,n);
-  // after = time(0);
-  // cout << "took: " << (after - before) << endl;
-  /////////////////////////////////////////////////////////////////////////////
-  // Tear Down                                                               //
-  /////////////////////////////////////////////////////////////////////////////
+  cout << "Algorithm A..." << flush;
+  before = time(0);
+  algorithm_A(points,0,n-1,s);
+  after = time(0);
+  cout << "took: " << (after - before) << endl;
   if(n <= 10) {
     cout << "After sorting: ";
     PSTArray::print(points,n);
