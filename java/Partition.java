@@ -9,6 +9,11 @@ public class Partition {
 					    int endIndex, PSTPoint s) {
 	
     }
+    // time: O(n)
+    // extra space:
+    //    - n bits
+    //    - n + O(1) counters, each requiring:
+    //       - ceil(log(n+1)) bits
     private static void algorithmA(PSTPoint[] array, PSTPoint s) {
 	algorithmA(array,0,array.length-1,s);
     }
@@ -105,19 +110,6 @@ public class Partition {
 	StopWatch sw;
 	long time;
 	boolean same;
-	// simple partitioning
-	System.out.println("SIMPLE PARTITION");
-	copyPoints = testPoints.toArray(new PSTPoint[2*n-1]);
-	if((n*2) < 7) {
-	    System.out.print("Before: "); printArray(copyPoints);
-	}
-	sw = new StopWatch();
-	stableInPlace01Partition(copyPoints,pivot);
-	time = sw.stop();
-	System.out.println("Took: " + time);
-	if((n*2) < 7) {
-	    System.out.print("After: "); printArray(copyPoints);
-	}
 	// algorithmA
 	System.out.println("ALGORITHM A");
 	copyPoints = testPoints.toArray(new PSTPoint[2*n-1]);
