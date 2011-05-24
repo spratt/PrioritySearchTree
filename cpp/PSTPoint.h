@@ -38,7 +38,7 @@ public:
   { }
   PSTPoint(const PSTPoint& copy)
     : x(copy.getX()), y(copy.getY())
-  {}
+  { }
   double getX() const { return x; }
   double getY() const { return y; }
   
@@ -60,4 +60,4 @@ basic_ostream<CharT, Traits>& operator<<(basic_ostream<CharT, Traits>& out,
   return out<< "(" << p.getX() << "," << p.getY() << ")";
 }
 
-#endif PSTPOINT_H
+#endif

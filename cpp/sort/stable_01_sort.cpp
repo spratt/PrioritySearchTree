@@ -11,6 +11,7 @@
 // NOTES:   None.                                                            //
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
+#include <cmath>
 #include <vector>
 #include "../PSTPoint.h"
 #include "../array_utilities.h"
@@ -76,6 +77,10 @@ void simple_partition(PSTPoint* array, int begin, int end, const PSTPoint& s) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Algorithm A                                                               //
+//                                                                           //
+// Note: uses O(n) extra space to store rank and                             //
+//       O(n) extra bits to store in position flags and                      //
+//       O(1) extra space to store counters                                  //
 ///////////////////////////////////////////////////////////////////////////////
 
 void algorithm_A(PSTPoint* array, int begin, int end, const PSTPoint& s) {
@@ -86,8 +91,8 @@ void algorithm_A(PSTPoint* array, int begin, int end, const PSTPoint& s) {
     if(isZero(array[i],s))
       zeroesTotal++;
   int c0 = 0, c1 = 0;
-  int* rank = (int*)malloc(n*sizeof(int));
-  bool* inPlace = (bool*)malloc(n*sizeof(bool));
+  int* rank = new int[n];
+  bool* inPlace = new bool[n];
   for(int i = 0; i < n; i++) {
     if(isZero(array[begin + i],s)) {
       rank[i] = c0;
@@ -108,6 +113,20 @@ void algorithm_A(PSTPoint* array, int begin, int end, const PSTPoint& s) {
       if(i == rank[i]) inPlace[i] = true;
     }
   }
+  delete rank;
+  delete inPlace;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Algorithm B                                                               //
+///////////////////////////////////////////////////////////////////////////////
+
+int smallestPowerOf2GreaterThanLog2Of(int x) {
+  return pow(2,ceil(log2(ceil(log2(x)))));
+}
+
+void algorithm_B(PSTPoint* array, int begin, int end, const PSTPoint& s) {
+  // int blockSize = 
 }
 
 ///////////////////////////////////////////////////////////////////////////////

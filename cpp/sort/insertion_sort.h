@@ -25,4 +25,4 @@
 void insertion_sort(PSTPoint* array, int npoints);
 void insertion_sort(PSTPoint* array, int begin, int end);
 
-#endif INSERTION_SORT_H
+#endif

@@ -22,4 +22,4 @@ namespace PSTArray {
   void print(PSTPoint* points, int nPoints);
 }
 
-#endif ARRAY_UTILITIES_H
+#endif

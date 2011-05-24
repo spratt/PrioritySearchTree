@@ -47,4 +47,4 @@ public:
   vector<PSTPoint>* enumerate3Sided(double xmin, double xmax, double ymin);
 };
 
-#endif INPLACEPST_H
+#endif

@@ -21,4 +21,4 @@
 void heap_sort(PSTPoint* array, int npoints);
 void heap_sort(PSTPoint* array, int begin, int end);
 
-#endif HEAP_SORT_H
+#endif

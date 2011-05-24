@@ -1,5 +1,11 @@
 # compile with debug information
-CXXFLAGS=-O0 -g
+
+ifeq ($(mode),release)
+	CXXFLAGS=-O2 -Wall
+else
+	mode = debug
+	CXXFLAGS=-O0 -g -Wall
+endif
 
 all: test_sort test_partition test_pst
 

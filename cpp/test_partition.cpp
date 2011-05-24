@@ -12,6 +12,7 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 #include <iostream>
+#include <cmath>
 #include "time.h"
 #include "PSTPoint.h"
 #include "array_utilities.h"
@@ -20,6 +21,20 @@
 using namespace std;
 
 int main(int argv, char** argc) {
+  cout << "log2(1):      " << log2(1) << endl;
+  cout << "spo2gtl2o(1): " << smallestPowerOf2GreaterThanLog2Of(1) << endl;
+  cout << "log2(2):      " << log2(2) << endl;
+  cout << "spo2gtl2o(2): " << smallestPowerOf2GreaterThanLog2Of(2) << endl;
+  cout << "log2(3):      " << log2(3) << endl;
+  cout << "spo2gtl2o(3): " << smallestPowerOf2GreaterThanLog2Of(3) << endl;
+  cout << "log2(4):      " << log2(4) << endl;
+  cout << "spo2gtl2o(4): " << smallestPowerOf2GreaterThanLog2Of(4) << endl;
+  cout << "log2(5):      " << log2(5) << endl;
+  cout << "spo2gtl2o(5): " << smallestPowerOf2GreaterThanLog2Of(5) << endl;
+  cout << "log2(9):      " << log2(9) << endl;
+  cout << "spo2gtl2o(9): " << smallestPowerOf2GreaterThanLog2Of(9) << endl;
+  cout << "log2(1000):      " << log2(1000) << endl;
+  cout << "spo2gtl2o(1000): " << smallestPowerOf2GreaterThanLog2Of(1000) << endl;
   time_t before, after;
   /////////////////////////////////////////////////////////////////////////////
   // Setup                                                                   //

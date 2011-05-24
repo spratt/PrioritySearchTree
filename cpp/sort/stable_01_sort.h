@@ -19,9 +19,10 @@
 #ifndef STABLE____SORT_H
 #define STABLE____SORT_H
 
+int smallestPowerOf2GreaterThanLog2Of(int x);
 void simple_partition(PSTPoint* array, int begin, int end, const PSTPoint& s);
 void algorithm_A(PSTPoint* array, int begin, int end, const PSTPoint& s);
 void stable_01_sort(PSTPoint* array, int npoints, const PSTPoint& s);
 void stable_01_sort(PSTPoint* array, int begin, int end, const PSTPoint& s);
 
-#endif STABLE____SORT_H
+#endif
