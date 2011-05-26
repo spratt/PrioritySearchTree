@@ -12,7 +12,7 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 #include <iostream>
-#include "time.h"
+#include <time.h>
 #include "PSTPoint.h"
 #include "InPlacePST.h"
 #include "array_utilities.h"

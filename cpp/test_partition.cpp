@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include <iostream>
 #include <cmath>
-#include "time.h"
+#include <time.h>
 #include "PSTPoint.h"
 #include "array_utilities.h"
 #include "sort/heap_sort.h"

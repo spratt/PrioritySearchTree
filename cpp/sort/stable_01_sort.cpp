@@ -266,7 +266,7 @@ void algorithm_B(PSTPoint* array, int begin, int end, const PSTPoint& s) {
   for(int start = 2*blockSize;
       start < end;
       start += blockSize) {
-    int i = start, firstOne = start, lastOne = start;
+    int i = start;
     // find the blocksize'th zero     
     int nZero = 0;
     bool prevElementWasZero = true;
