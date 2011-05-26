@@ -14,7 +14,7 @@ test_pst: PSTPoint.o InPlacePST.o array_utilities.o sort/heap_sort.o test_pst.cp
 
 test_sort: PSTPoint.o array_utilities.o sort/insertion_sort.o sort/heap_sort.o test_sort.cpp
 
-test_partition: PSTPoint.o array_utilities.o sort/stable_01_sort.o test_partition.cpp
+test_partition: PSTPoint.o array_utilities.o sort/heap_sort.o sort/stable_01_sort.o test_partition.cpp
 
 # object files
 InPlacePST.o: PSTPoint.o InPlacePST.h

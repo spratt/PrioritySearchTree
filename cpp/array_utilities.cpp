@@ -19,10 +19,13 @@ using namespace std;
 
 namespace PSTArray {
   void print(PSTPoint* points, int nPoints) {
-    cout << points[0];
-    for(int i = 1; i < nPoints; i++)
+    print(points,0,nPoints-1);
+  }
+  void print(PSTPoint* points, int begin, int end) {
+    cout << "{ " << points[begin];
+    for(int i = begin+1; i <= end; i++)
       cout << " " << points[i];
-    cout << endl;
+    cout << " }" << endl;
   }
   void swap(PSTPoint* points, int a, int b) {
     PSTPoint temp = points[a];

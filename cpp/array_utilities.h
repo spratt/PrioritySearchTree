@@ -20,6 +20,7 @@ namespace PSTArray {
   void copy(PSTPoint* a, PSTPoint* b, int n);
   void swap(PSTPoint* points,int a, int b);
   void print(PSTPoint* points, int nPoints);
+  void print(PSTPoint* points, int begin, int end);
 }
 
 #endif
