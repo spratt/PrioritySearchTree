@@ -6,7 +6,7 @@
 //                                                                           //
 // FILE:    test_pst.cpp                                                     //
 //                                                                           //
-// MODULE:  Sort                                                             //
+// MODULE:  Priority Search Tree                                             //
 //                                                                           //
 // NOTES:   None.                                                            //
 //                                                                           //
@@ -16,8 +16,6 @@
 #include "PSTPoint.h"
 #include "InPlacePST.h"
 #include "array_utilities.h"
-#include "sort/insertion_sort.h"
-#include "sort/heap_sort.h"
 
 using namespace std;
 
