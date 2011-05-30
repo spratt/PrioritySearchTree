@@ -12,12 +12,14 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 #include <iostream>
+#include <string>
 #include <time.h>
 #include "PSTPoint.h"
 #include "InPlacePST.h"
 #include "array_utilities.h"
 
 using namespace std;
+using namespace PrioritySearchTree;
 
 // Dirty hack, but hey: it's c++!
 PSTPoint* vectorPointerToArray(vector<PSTPoint>* v) {
@@ -36,8 +38,8 @@ int main(int argv, char** argc) {
   cout << "Creating " << n << " points..." << flush;
   before = time(0);
   PSTPoint *points = new PSTPoint[n]; // allocate on the heap
-  for(int i = 0; i < n; i++) {
-    PSTPoint p(i,n-i); // allocate on the stack
+  for(int i = 1; i < n; i++) {
+    PSTPoint p(i,i); // allocate on the stack
     points[i] = p;
   }
   after = time(0);
@@ -54,10 +56,17 @@ int main(int argv, char** argc) {
   InPlacePST ippst(points,n);
   after = time(0);
   cout << "took: " << (after - before) << endl;
+  delete points;
   if(n <= 10) {
-    cout << "Tree: ";
-    ippst.printArray();
+    cout << "Tree: " << endl;
+    ippst.printTree();
   }
+  /////////////////////////////////////////////////////////////////////////////
+  // Wait for user input                                                     //
+  /////////////////////////////////////////////////////////////////////////////
+  string input;
+  cout << "Press any key to continue..." << endl;
+  getline(cin,input);
   /////////////////////////////////////////////////////////////////////////////
   // leftMostNE                                                              //
   /////////////////////////////////////////////////////////////////////////////
@@ -81,7 +90,7 @@ int main(int argv, char** argc) {
   /////////////////////////////////////////////////////////////////////////////
   cout << "Querying highest3Sided..." << flush;
   before = time(0);
-  result = ippst.highest3Sided(4,5,0);
+  result = ippst.highest3Sided(1,n,-n);
   after = time(0);
   cout << "took: " << (after - before) << endl;
   cout << "Found: " << result << endl;
@@ -90,7 +99,7 @@ int main(int argv, char** argc) {
   /////////////////////////////////////////////////////////////////////////////
   cout << "Enumerating 3 sided..." << flush;
   before = time(0);
-  vector<PSTPoint>* results = ippst.enumerate3Sided(1,7,-8);
+  vector<PSTPoint>* results = ippst.enumerate3Sided(1,n,-n);
   after = time(0);
   cout << "took: " << (after - before) << endl;
   if(results->size() > 0 && results->size() < 10) {

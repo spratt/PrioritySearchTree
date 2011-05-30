@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//-*- mode: c++ -*-////////////////////////////////////////////////////////////
 //                       Copyright (c) 2011 - 2012 by                        //
 //                                Simon Pratt                                //
 //                           (All rights reserved)                           //
@@ -21,30 +21,36 @@
 #define INPLACEPST_H
 
 #include <vector>
-#include <limits>
 
 using namespace std;
 
-class InPlacePST {
-  PSTPoint* tree;
-  int npoints;
-  InPlacePST() {}
-  void buildLevel(int i, int n);
-  void swap(int a, int b);
-  void inPlaceSort(int begin, int end, const PSTPoint& s);
-  int numberOfChildren(int index);
-  bool isLeaf(int index);
-  void explore(int indexP, double ymin, vector<PSTPoint>* points);
-  PSTPoint getPoint(int n); // index base 1
-public:
-  double POSITIVE_INFINITY;
-  double NEGATIVE_INFINITY;
-  InPlacePST(PSTPoint* points, int n);
-  void printArray();
-  PSTPoint leftMostNE(double xmin, double ymin);
-  PSTPoint highestNE(double xmin, double ymin);
-  PSTPoint highest3Sided(double xmin, double xmax, double ymin);
-  vector<PSTPoint>* enumerate3Sided(double xmin, double xmax, double ymin);
-};
+namespace PrioritySearchTree {
+
+  typedef int coord_t;
+  
+  class InPlacePST {
+    PSTPoint* tree;
+    int npoints;
+    InPlacePST() {}
+    void buildLevel(int i, int n);
+    void swap(int a, int b);
+    void inPlaceSort(int begin, int end, const PSTPoint& s);
+    int numberOfChildren(int index);
+    bool isLeaf(int index);
+    void explore(int indexP, coord_t ymin, vector<PSTPoint>* points);
+    PSTPoint getPoint(int n); // index base 1
+    void printTree(int index, int spaces);
+  public:
+    coord_t POSITIVE_INFINITY;
+    coord_t NEGATIVE_INFINITY;
+    InPlacePST(PSTPoint* points, int n);
+    void printArray();
+    PSTPoint leftMostNE(coord_t xmin, coord_t ymin);
+    PSTPoint highestNE(coord_t xmin, coord_t ymin);
+    PSTPoint highest3Sided(coord_t xmin, coord_t xmax, coord_t ymin);
+    vector<PSTPoint>* enumerate3Sided(coord_t xmin, coord_t xmax, coord_t ymin);
+    void printTree();
+  };
+}
 
 #endif
