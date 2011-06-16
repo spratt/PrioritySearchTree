@@ -12,7 +12,7 @@ all: test_sort test_partition test_pst test_leda
 test_leda:
 	g++ $(CXXFLAGS) -L$(LEDAROOT) -I$(LEDAROOT)/incl test_leda.cpp -lleda -lX11 -lm -o test_leda
 
-test_pst: PSTPoint.o sort/heap_sort.o InPlacePST.o array_utilities.o test_pst.cpp
+test_pst: PSTPoint.o sort/heap_sort.o InPlacePST.o control_utilities.o array_utilities.o test_pst.cpp
 
 test_sort: PSTPoint.o array_utilities.o sort/insertion_sort.o sort/heap_sort.o test_sort.cpp
 
@@ -26,6 +26,8 @@ sort/insertion_sort.o: PSTPoint.o array_utilities.o sort/insertion_sort.h
 sort/heap_sort.o: PSTPoint.o array_utilities.o sort/heap_sort.h
 
 sort/stable_01_sort.o: PSTPoint.o array_utilities.o sort/stable_01_sort.h
+
+control_utilities.o: control_utilities.h
 
 array_utilities.o: PSTPoint.o array_utilities.h
 

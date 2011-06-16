@@ -17,6 +17,7 @@
 #include "PSTPoint.h"
 #include "InPlacePST.h"
 #include "array_utilities.h"
+#include "control_utilities.h"
 
 using namespace std;
 using namespace PrioritySearchTree;
@@ -28,13 +29,24 @@ PSTPoint* vectorPointerToArray(vector<PSTPoint>* v) {
 
 int main(int argv, char** argc) {
   time_t before, after;
+  int n, qi;
+  PSTPoint result;
+  vector<PSTPoint>* results;
+  /////////////////////////////////////////////////////////////////////////////
+  // Ensure the user has entered required parameters, otherwise print        //
+  // a helpful message.                                                      //
+  /////////////////////////////////////////////////////////////////////////////
+  if(argv < 3) {
+    cout << "Usage: test_pst [number of points] [query iterations]" << endl;
+    return 1;
+  }
+  // parse number of points
+  n = atoi(argc[1]);
+  // parse query iterations
+  qi = atoi(argc[2]);
   /////////////////////////////////////////////////////////////////////////////
   // Setup                                                                   //
   /////////////////////////////////////////////////////////////////////////////
-  int n = 1000000;
-  if(argv >= 2) {
-    n = atoi(argc[1]);
-  }
   cout << "Creating " << n << " points..." << flush;
   before = time(0);
   PSTPoint *points = new PSTPoint[n]; // allocate on the heap
@@ -64,42 +76,48 @@ int main(int argv, char** argc) {
   /////////////////////////////////////////////////////////////////////////////
   // Wait for user input                                                     //
   /////////////////////////////////////////////////////////////////////////////
-  string input;
-  cout << "Press any key to continue..." << endl;
-  getline(cin,input);
+  control_utilities::waitForAnyKey();
   /////////////////////////////////////////////////////////////////////////////
   // leftMostNE                                                              //
   /////////////////////////////////////////////////////////////////////////////
-  cout << "Querying leftMostNE..." << flush;
+  cout << qi << " iterations of ";
+  cout << "leftMostNE..." << flush;
   before = time(0);
-  PSTPoint result = ippst.leftMostNE(-10,-10);
+  for(int i = 0; i < qi; i++)
+    result = ippst.leftMostNE(-10,-10);
   after = time(0);
   cout << "took: " << (after - before) << endl;
   cout << "Found: " << result << endl;
   /////////////////////////////////////////////////////////////////////////////
   // highestNE                                                               //
   /////////////////////////////////////////////////////////////////////////////
-  cout << "Querying highestNE..." << flush;
+  cout << qi << " iterations of ";
+  cout << "highestNE..." << flush;
   before = time(0);
-  result = ippst.highestNE(1,-10);
+  for(int i = 0; i < qi; i++)
+    result = ippst.highestNE(1,-10);
   after = time(0);
   cout << "took: " << (after - before) << endl;
   cout << "Found: " << result << endl;
   /////////////////////////////////////////////////////////////////////////////
   // highest3Sided                                                           //
   /////////////////////////////////////////////////////////////////////////////
-  cout << "Querying highest3Sided..." << flush;
+  cout << qi << " iterations of ";
+  cout << "highest3Sided..." << flush;
   before = time(0);
-  result = ippst.highest3Sided(1,n,-n);
+  for(int i = 0; i < qi; i++)
+    result = ippst.highest3Sided(1,n,-n);
   after = time(0);
   cout << "took: " << (after - before) << endl;
   cout << "Found: " << result << endl;
   /////////////////////////////////////////////////////////////////////////////
   // enumerate3Sided                                                         //
   /////////////////////////////////////////////////////////////////////////////
-  cout << "Enumerating 3 sided..." << flush;
+  cout << qi << " iterations of ";
+  cout << "enumerate3Sided..." << flush;
   before = time(0);
-  vector<PSTPoint>* results = ippst.enumerate3Sided(1,n,-n);
+  for(int i = 0; i < qi; i++)
+    results = ippst.enumerate3Sided(1,n,-n);
   after = time(0);
   cout << "took: " << (after - before) << endl;
   if(results->size() > 0 && results->size() < 10) {
