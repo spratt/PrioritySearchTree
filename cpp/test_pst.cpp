@@ -28,22 +28,31 @@ PSTPoint* vectorPointerToArray(vector<PSTPoint>* v) {
 }
 
 int main(int argv, char** argc) {
+  bool QUIET_MODE = false;
   time_t before, after;
   int n, qi;
   PSTPoint result;
   vector<PSTPoint>* results;
   /////////////////////////////////////////////////////////////////////////////
+  // Seed the PRNG                                                           //
+  /////////////////////////////////////////////////////////////////////////////
+  srand( time(0) );
+  /////////////////////////////////////////////////////////////////////////////
   // Ensure the user has entered required parameters, otherwise print        //
   // a helpful message.                                                      //
   /////////////////////////////////////////////////////////////////////////////
   if(argv < 3) {
-    cout << "Usage: test_pst [number of points] [query iterations]" << endl;
+    cout << "Usage: test_pst [number of points] [query iterations] [quiet]"
+	 << endl;
     return 1;
   }
   // parse number of points
   n = atoi(argc[1]);
   // parse query iterations
   qi = atoi(argc[2]);
+  // check for quiet mode
+  if(argv > 3)
+    QUIET_MODE = true;
   /////////////////////////////////////////////////////////////////////////////
   // Setup                                                                   //
   /////////////////////////////////////////////////////////////////////////////
@@ -76,7 +85,12 @@ int main(int argv, char** argc) {
   /////////////////////////////////////////////////////////////////////////////
   // Wait for user input                                                     //
   /////////////////////////////////////////////////////////////////////////////
-  control_utilities::waitForAnyKey();
+  if(QUIET_MODE) {
+    cout << "Memory usage(%): " << flush;
+    system("ps auxww | grep test_pst | grep -v grep | grep -v ps\\ | awk '{print $4}'");
+  } else {
+    control_utilities::waitForAnyKey();
+  }
   /////////////////////////////////////////////////////////////////////////////
   // leftMostNE                                                              //
   /////////////////////////////////////////////////////////////////////////////
@@ -84,10 +98,9 @@ int main(int argv, char** argc) {
   cout << "leftMostNE..." << flush;
   before = time(0);
   for(int i = 0; i < qi; i++)
-    result = ippst.leftMostNE(-10,-10);
+    result = ippst.leftMostNE(rand() % n, rand() % n);
   after = time(0);
   cout << "took: " << (after - before) << endl;
-  cout << "Found: " << result << endl;
   /////////////////////////////////////////////////////////////////////////////
   // highestNE                                                               //
   /////////////////////////////////////////////////////////////////////////////
@@ -95,34 +108,35 @@ int main(int argv, char** argc) {
   cout << "highestNE..." << flush;
   before = time(0);
   for(int i = 0; i < qi; i++)
-    result = ippst.highestNE(1,-10);
+    result = ippst.highestNE(rand() % n, rand() % n);
   after = time(0);
   cout << "took: " << (after - before) << endl;
-  cout << "Found: " << result << endl;
   /////////////////////////////////////////////////////////////////////////////
   // highest3Sided                                                           //
   /////////////////////////////////////////////////////////////////////////////
   cout << qi << " iterations of ";
   cout << "highest3Sided..." << flush;
+  int xmin = 0;
   before = time(0);
   for(int i = 0; i < qi; i++)
-    result = ippst.highest3Sided(1,n,-n);
+    result = ippst.highest3Sided((xmin = rand() % n),
+				 xmin + (rand() % (n - xmin)),
+				 rand() % n);
   after = time(0);
   cout << "took: " << (after - before) << endl;
-  cout << "Found: " << result << endl;
   /////////////////////////////////////////////////////////////////////////////
   // enumerate3Sided                                                         //
   /////////////////////////////////////////////////////////////////////////////
   cout << qi << " iterations of ";
   cout << "enumerate3Sided..." << flush;
   before = time(0);
-  for(int i = 0; i < qi; i++)
-    results = ippst.enumerate3Sided(1,n,-n);
+  for(int i = 0; i < qi; i++) {
+    results = ippst.enumerate3Sided((xmin = rand() % n),
+				    xmin + (rand() % (n - xmin)),
+				    rand() % n);
+    delete results;
+  }
   after = time(0);
   cout << "took: " << (after - before) << endl;
-  if(results->size() > 0 && results->size() < 10) {
-    cout << "Found: ";
-    PSTArray::print(vectorPointerToArray(results),results->size());
-  }
   return 0;
 }

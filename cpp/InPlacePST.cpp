@@ -44,7 +44,7 @@ namespace PrioritySearchTree {
     return (int)log2(index);
   }
   bool isLeftChild(int index) {
-    return index % 2;
+    return (index % 2) == false;
   }
 
   ///////////////////////////////////////////////////////////////////////////////
@@ -503,7 +503,9 @@ namespace PrioritySearchTree {
       while((indexC != indexP) || (state != 2)) {
 	current = getPoint(indexC);
 	if(state == 0) {
+	  // report current
 	  points->push_back(current);
+	  // if current has a left child and y(left child of current) >= ymin
 	  int indexCl = indexOfLeftChild(indexC);
 	  if(numberOfChildren(indexC) > 0 &&
 	     getPoint(indexCl).getY() >= ymin) {
@@ -511,20 +513,24 @@ namespace PrioritySearchTree {
 	  } else {
 	    state = 1;
 	  }
-	} else if(state == 1) {
-	  int indexCr = indexOfRightChild(indexC);
-	  if(numberOfChildren(indexC) == 2 &&
-	     getPoint(indexCr).getY() >= ymin) {
-	    indexC = indexCr;
-	    state = 0;
-	  } else {
-	    state = 2;
+	} else {
+	  if(state == 1) {
+	    // if current has a right child and y(right child of current) >= ymin
+	    int indexCr = indexOfRightChild(indexC);
+	    if(numberOfChildren(indexC) == 2 &&
+	       getPoint(indexCr).getY() >= ymin) {
+	      indexC = indexCr;
+	      state = 0;
+	    } else {
+	      state = 2;
+	    }
+	  } else { 
+	    // state == 2 && current != p
+	    if(isLeftChild(indexC)) {
+	      state = 1;
+	    }
+	    indexC = indexOfParent(indexC);
 	  }
-	} else { // state == 2 && current != p
-	  if(isLeftChild(indexC)) {
-	    state = 1;
-	  }
-	  indexC = indexOfParent(indexC);
 	}
       }
     }
