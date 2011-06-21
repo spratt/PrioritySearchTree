@@ -17,6 +17,7 @@
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <time.h>
 #include "PSTPoint.h"
 #include "array_utilities.h"
 #include "sort/heap_sort.h"
@@ -61,10 +62,20 @@ namespace PrioritySearchTree {
     npoints = n;
     tree = new PSTPoint[n];
     PSTArray::copy(points,tree,n);
+    time_t before, after;
+    cout << endl << "Initial sort..." << flush;
+    before = time(0);
     heap_sort(tree,n);
+    after = time(0);
+    cout << "took: " << (after - before) << endl;
     int h = (int)log2(n);
+    cout << "Building levels..." << flush;
+    before = time(0);
     for(int i = 0; i <= h-1; i++)
       buildLevel(i,n);
+    after = time(0);
+    cout << "took: " << (after - before) << endl;
+    cout << "Total time ";
   }
 
   void InPlacePST::printTree() {
