@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 #include <time.h>
+#include <assert.h>
 #include "PSTPoint.h"
 #include "InPlacePST.h"
 #include "array_utilities.h"
@@ -28,11 +29,10 @@ PSTPoint* vectorPointerToArray(vector<PSTPoint>* v) {
 }
 
 int main(int argv, char** argc) {
+  const int MAX_POINTS_DISPLAY = 16;
   bool QUIET_MODE = false;
   time_t before, after;
   int n, qi;
-  PSTPoint result;
-  vector<PSTPoint>* results;
   /////////////////////////////////////////////////////////////////////////////
   // Seed the PRNG                                                           //
   /////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ int main(int argv, char** argc) {
   if(argv > 3)
     QUIET_MODE = true;
   /////////////////////////////////////////////////////////////////////////////
-  // Setup                                                                   //
+  // Create Points                                                           //
   /////////////////////////////////////////////////////////////////////////////
   cout << "Creating " << n << " points..." << flush;
   before = time(0);
@@ -64,8 +64,9 @@ int main(int argv, char** argc) {
     points[i] = p;
   }
   after = time(0);
+  cout << points[n-1];
   cout << "took: " << (after - before) << endl;
-  if(n <= 10) {
+  if(n <= MAX_POINTS_DISPLAY) {
     cout << "Points: ";
     PSTArray::print(points,n);
   }
@@ -78,22 +79,33 @@ int main(int argv, char** argc) {
   after = time(0);
   cout << "took: " << (after - before) << endl;
   delete points;
-  if(n <= 10) {
-    cout << "Tree: " << endl;
-    ippst.printTree();
-  }
   /////////////////////////////////////////////////////////////////////////////
-  // Wait for user input                                                     //
+  // Check memory - quietly or manually                                      //
   /////////////////////////////////////////////////////////////////////////////
   if(QUIET_MODE) {
     cout << "Memory usage(%): " << flush;
-    system("ps auxww | grep test_pst | grep -v grep | grep -v ps\\ | awk '{print $4}'");
+    // this next line is system-specific, but should work on any
+    // reasonable unix compatible system.  Procedure:
+    //   1. Ask for detailed information on processes
+    //   2. filter out all lines which don't have the name of the program
+    //   3. filter out all lines which have the word grep
+    //   4. filter out all lines which have the word "ps "
+    //   5. print the 4th column (memory usage)
+    assert(system("ps auxww | grep test_pst | grep -v grep | grep -v ps\\ | awk '{print $4}'") == 0);
   } else {
     control_utilities::waitForAnyKey();
   }
   /////////////////////////////////////////////////////////////////////////////
+  // Print the structure if the number of points is small                    //
+  /////////////////////////////////////////////////////////////////////////////
+  if(n <= MAX_POINTS_DISPLAY) {
+    cout << "Tree: " << endl;
+    ippst.printTree();
+  }
+  /////////////////////////////////////////////////////////////////////////////
   // leftMostNE                                                              //
   /////////////////////////////////////////////////////////////////////////////
+  PSTPoint result;
   cout << qi << " iterations of ";
   cout << "leftMostNE..." << flush;
   before = time(0);
@@ -116,24 +128,27 @@ int main(int argv, char** argc) {
   /////////////////////////////////////////////////////////////////////////////
   cout << qi << " iterations of ";
   cout << "highest3Sided..." << flush;
-  int xmin = 0;
+  int xmin = 0, xmax = 0, ymin = 0;
   before = time(0);
-  for(int i = 0; i < qi; i++)
-    result = ippst.highest3Sided((xmin = rand() % n),
-				 xmin + (rand() % (n - xmin)),
-				 rand() % n);
+  for(int i = 0; i < qi; i++) {
+    xmin = rand() % n;
+    xmax = xmin + (rand() % (n - xmin));
+    ymin = rand() % n;
+    result = ippst.highest3Sided(xmin,xmax,ymin);
+  }
   after = time(0);
   cout << "took: " << (after - before) << endl;
   /////////////////////////////////////////////////////////////////////////////
   // enumerate3Sided                                                         //
   /////////////////////////////////////////////////////////////////////////////
+  vector<PSTPoint>* results;
   cout << qi << " iterations of ";
   cout << "enumerate3Sided..." << flush;
   before = time(0);
   for(int i = 0; i < qi; i++) {
-    results = ippst.enumerate3Sided((xmin = rand() % n),
-				    xmin + (rand() % (n - xmin)),
-				    rand() % n);
+    xmin = rand() % n;
+    xmax = xmin + (rand() % (n - xmin));
+    results = ippst.enumerate3Sided(xmin,xmax,rand() % n);
     delete results;
   }
   after = time(0);

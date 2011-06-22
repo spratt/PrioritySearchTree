@@ -22,7 +22,13 @@
 #ifndef INSERTION_SORT_H
 #define INSERTION_SORT_H
 
-void insertion_sort(PSTPoint* array, int npoints);
-void insertion_sort(PSTPoint* array, int begin, int end);
+#include "../PSTPoint.h"
+
+using namespace PrioritySearchTree;
+
+namespace point_sort {
+  void insertion_sort(PSTPoint* array, int npoints);
+  void insertion_sort(PSTPoint* array, int begin, int end);
+}
 
 #endif

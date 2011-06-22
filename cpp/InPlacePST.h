@@ -21,13 +21,11 @@
 #define INPLACEPST_H
 
 #include <vector>
+#include "PSTPoint.h"
 
 using namespace std;
 
 namespace PrioritySearchTree {
-
-  typedef int coord_t;
-  
   class InPlacePST {
     PSTPoint* tree;
     int npoints;

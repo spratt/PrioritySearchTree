@@ -19,6 +19,8 @@
 #include "sort/heap_sort.h"
 
 using namespace std;
+using namespace PrioritySearchTree;
+using namespace point_sort;
 
 int main(int argv, char** argc) {
   time_t before, after;

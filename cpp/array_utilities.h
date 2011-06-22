@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//-*- mode: c++ -*-////////////////////////////////////////////////////////////
 //                       Copyright (c) 2011 - 2012 by                        //
 //                                Simon Pratt                                //
 //                           (All rights reserved)                           //
@@ -15,6 +15,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef ARRAY_UTILITIES_H
 #define ARRAY_UTILITIES_H
+
+#include "PSTPoint.h"
+
+using namespace PrioritySearchTree;
 
 namespace PSTArray {
   void copy(PSTPoint* a, PSTPoint* b, int n);

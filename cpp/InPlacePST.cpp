@@ -52,6 +52,7 @@ namespace PrioritySearchTree {
   // Methods                                                                   //
   ///////////////////////////////////////////////////////////////////////////////
   InPlacePST::InPlacePST(PSTPoint* points, int n) {
+    time_t before, after;
     if(numeric_limits<coord_t>::has_infinity) {
       POSITIVE_INFINITY = numeric_limits<coord_t>::infinity();
       NEGATIVE_INFINITY = -numeric_limits<coord_t>::infinity();
@@ -60,10 +61,13 @@ namespace PrioritySearchTree {
       NEGATIVE_INFINITY = numeric_limits<coord_t>::min();
     }
     npoints = n;
+    cout << endl << "Initial copy..." << flush;
+    before = time(0);
     tree = new PSTPoint[n];
     PSTArray::copy(points,tree,n);
-    time_t before, after;
-    cout << endl << "Initial sort..." << flush;
+    after = time(0);
+    cout << "took: " << (after - before) << endl
+	 << "Initial sort..." << flush;
     before = time(0);
     heap_sort(tree,n);
     after = time(0);
