@@ -64,7 +64,6 @@ int main(int argv, char** argc) {
     points[i] = p;
   }
   after = time(0);
-  cout << points[n-1];
   cout << "took: " << (after - before) << endl;
   if(n <= MAX_POINTS_DISPLAY) {
     cout << "Points: ";
