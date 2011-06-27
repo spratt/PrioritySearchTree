@@ -32,7 +32,7 @@ int main(int argv, char** argc) {
   const int MAX_POINTS_DISPLAY = 16;
   bool QUIET_MODE = false;
   time_t before, after;
-  int n, qi;
+  int n, qi, ei;
   /////////////////////////////////////////////////////////////////////////////
   // Seed the PRNG                                                           //
   /////////////////////////////////////////////////////////////////////////////
@@ -42,16 +42,18 @@ int main(int argv, char** argc) {
   // a helpful message.                                                      //
   /////////////////////////////////////////////////////////////////////////////
   if(argv < 3) {
-    cout << "Usage: test_pst [number of points] [query iterations] [quiet]"
-	 << endl;
+    cout << "Usage: test_pst [number of points] [query iterations] "
+	 << "[enumerate iterations] [quiet]" << endl;
     return 1;
   }
   // parse number of points
   n = atoi(argc[1]);
   // parse query iterations
   qi = atoi(argc[2]);
+  // parse enumerate iterations
+  ei = atoi(argc[3]);
   // check for quiet mode
-  if(argv > 3)
+  if(argv > 4)
     QUIET_MODE = true;
   /////////////////////////////////////////////////////////////////////////////
   // Create Points                                                           //
@@ -141,10 +143,10 @@ int main(int argv, char** argc) {
   // enumerate3Sided                                                         //
   /////////////////////////////////////////////////////////////////////////////
   vector<PSTPoint>* results;
-  cout << qi << " iterations of ";
+  cout << ei << " iterations of ";
   cout << "enumerate3Sided..." << flush;
   before = time(0);
-  for(int i = 0; i < qi; i++) {
+  for(int i = 0; i < ei; i++) {
     xmin = rand() % n;
     xmax = xmin + (rand() % (n - xmin));
     results = ippst.enumerate3Sided(xmin,xmax,rand() % n);
