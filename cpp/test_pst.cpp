@@ -33,7 +33,7 @@ int main(int argv, char** argc) {
   srand( time(0) );
   /////////////////////////////////////////////////////////////////////////////
   // Ensure the user has entered required parameters, otherwise print        //
-  // a helpful message.                                                      //
+  // a helpful message and bail out.                                         //
   /////////////////////////////////////////////////////////////////////////////
   if(argv < 3) {
     cout << "Usage: test_pst [number of points] [query iterations] "
