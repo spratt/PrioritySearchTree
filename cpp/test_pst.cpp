@@ -30,7 +30,6 @@ PSTPoint* vectorPointerToArray(vector<PSTPoint>* v) {
 
 int main(int argv, char** argc) {
   const int MAX_POINTS_DISPLAY = 16;
-  bool QUIET_MODE = false;
   time_t before, after;
   int n, qi, ei;
   /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +42,7 @@ int main(int argv, char** argc) {
   /////////////////////////////////////////////////////////////////////////////
   if(argv < 3) {
     cout << "Usage: test_pst [number of points] [query iterations] "
-	 << "[enumerate iterations] [quiet]" << endl;
+	 << "[enumerate iterations]" << endl;
     return 1;
   }
   // parse number of points
@@ -52,9 +51,6 @@ int main(int argv, char** argc) {
   qi = atoi(argc[2]);
   // parse enumerate iterations
   ei = atoi(argc[3]);
-  // check for quiet mode
-  if(argv > 4)
-    QUIET_MODE = true;
   /////////////////////////////////////////////////////////////////////////////
   // Create Points                                                           //
   /////////////////////////////////////////////////////////////////////////////
@@ -83,19 +79,7 @@ int main(int argv, char** argc) {
   /////////////////////////////////////////////////////////////////////////////
   // Check memory - quietly or manually                                      //
   /////////////////////////////////////////////////////////////////////////////
-  if(QUIET_MODE) {
-    cout << "Memory usage(%): " << flush;
-    // this next line is system-specific, but should work on any
-    // reasonable unix compatible system.  Procedure:
-    //   1. Ask for detailed information on processes
-    //   2. filter out all lines which don't have the name of the program
-    //   3. filter out all lines which have the word grep
-    //   4. filter out all lines which have the word "ps "
-    //   5. print the 4th column (memory usage)
-    assert(system("ps auxww | grep test_pst | grep -v grep | grep -v ps\\ | awk '{print $4}'") == 0);
-  } else {
-    control_utilities::waitForAnyKey();
-  }
+  cout << "Memory usage: " << (n * sizeof(int)) << " bytes." << endl;
   /////////////////////////////////////////////////////////////////////////////
   // Print the structure if the number of points is small                    //
   /////////////////////////////////////////////////////////////////////////////
