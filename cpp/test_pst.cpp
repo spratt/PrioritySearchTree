@@ -77,7 +77,7 @@ int main(int argv, char** argc) {
   cout << "took: " << (after - before) << endl;
   delete points;
   /////////////////////////////////////////////////////////////////////////////
-  // Check memory - quietly or manually                                      //
+  // Calculate memory usage                                                  //
   /////////////////////////////////////////////////////////////////////////////
   cout << "Memory usage: " << (n * sizeof(int)) << " bytes." << endl;
   /////////////////////////////////////////////////////////////////////////////
