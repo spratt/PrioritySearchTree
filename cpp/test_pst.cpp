@@ -23,11 +23,6 @@
 using namespace std;
 using namespace PrioritySearchTree;
 
-// Dirty hack, but hey: it's c++!
-PSTPoint* vectorPointerToArray(vector<PSTPoint>* v) {
-  return &(*v)[0];
-}
-
 int main(int argv, char** argc) {
   const int MAX_POINTS_DISPLAY = 16;
   time_t before, after;
